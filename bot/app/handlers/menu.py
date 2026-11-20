@@ -1,0 +1,48 @@
+from html import escape
+
+from aiogram import F, Router
+from aiogram.types import CallbackQuery, Message
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db import repo
+from app.db.models import Client
+from app.i18n import all_translations, t
+from app.keyboards.menu import language_keyboard, main_menu
+
+router = Router(name="menu")
+
+
+@router.message(F.text.in_(all_translations("menu.language")))
+async def handle_language_menu(message: Message, lang: str) -> None:
+    await message.answer(t("language.choose", lang), reply_markup=language_keyboard())
+
+
+# Booking and "My bookings" scenarios arrive in stages 3–4; until then the salon phone is shown.
+@router.message(F.text.in_(all_translations("menu.book")))
+async def handle_book(message: Message, session: AsyncSession, lang: str) -> None:
+    settings = await repo.get_salon_settings(session)
+    await message.answer(t("soon.book", lang, phone=escape(settings.phone or "")))
+
+
+@router.message(F.text.in_(all_translations("menu.my_bookings")))
+async def handle_my_bookings(message: Message, session: AsyncSession, lang: str) -> None:
+    settings = await repo.get_salon_settings(session)
+    await message.answer(t("soon.my_bookings", lang, phone=escape(settings.phone or "")))
+
+
+fallback_router = Router(name="fallback")
+
+
+@fallback_router.callback_query()
+async def handle_unknown_callback(callback: CallbackQuery, lang: str) -> None:
+    """Buttons from old messages or with unknown data: stop the spinner and explain."""
+    await callback.answer(t("errors.outdated", lang), show_alert=True)
+
+
+@fallback_router.message()
+async def handle_unknown(message: Message, client: Client | None, lang: str) -> None:
+    """Any other message: ask for a language (new users) or show the menu."""
+    if client is None:
+        await message.answer(t("start.welcome_new", "ru"), reply_markup=language_keyboard())
+        return
+    await message.answer(t("menu.hint", lang), reply_markup=main_menu(lang))

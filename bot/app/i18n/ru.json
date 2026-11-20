@@ -1,0 +1,46 @@
+{
+  "start.welcome_new": "🌸 Добро пожаловать в Rosa Beauty!\nWelcome to Rosa Beauty!\n\nВыберите язык · Choose your language",
+  "start.welcome_back": "С возвращением, {name}! 🌸\nЧем можем помочь сегодня?",
+  "start.language_saved": "Отлично, общаемся на русском 🇷🇺\n\nЗдесь можно записаться к мастеру, посмотреть услуги и цены. Всё в меню ниже 👇",
+  "start.choose_language_first": "Сначала выберите язык, пожалуйста 🌐",
+
+  "menu.book": "✨ Записаться",
+  "menu.my_bookings": "📅 Мои записи",
+  "menu.services": "💰 Услуги и цены",
+  "menu.masters": "👩‍🎨 Мастера",
+  "menu.contacts": "📍 Контакты",
+  "menu.language": "🌐 Язык",
+  "menu.hint": "Выберите, что нужно, в меню ниже 👇",
+
+  "language.choose": "Выберите язык 🌐",
+  "language.ru": "🇷🇺 Русский",
+  "language.en": "🇬🇧 English",
+
+  "nav.back": "⬅️ Назад",
+
+  "services.choose_category": "💰 <b>Услуги и цены</b>\n\nВыберите категорию:",
+  "services.empty": "Список услуг скоро обновится. Уточнить цены можно по телефону {phone} 📞",
+  "services.category_empty": "В этой категории пока нет услуг.",
+  "services.item": "<b>{name}</b>\n⏱ {duration} · {price}",
+
+  "masters.choose": "👩‍🎨 <b>Наши мастера</b>\n\nНажмите на имя, чтобы узнать больше:",
+  "masters.empty": "Скоро здесь появятся наши мастера 💫",
+  "masters.not_found": "Этот мастер сейчас не принимает. Посмотрите других 💫",
+  "masters.experience": "Опыт: {years}",
+
+  "contacts.title": "📍 <b>{name}</b>",
+  "contacts.address": "🏠 {address}",
+  "contacts.phone": "📞 {phone}",
+  "contacts.hours": "🕐 {hours}",
+  "contacts.instagram": "📸 <a href=\"{url}\">Instagram</a>",
+  "contacts.map": "Мы на карте 👇",
+
+  "soon.book": "✨ Онлайн-запись откроется совсем скоро!\nА пока с радостью запишем вас по телефону {phone} 📞",
+  "soon.my_bookings": "📅 Скоро здесь появятся ваши записи.\nЕсли нужно что-то уточнить, звоните: {phone} 📞",
+
+  "errors.generic": "Ой, что-то пошло не так 😔 Попробуйте ещё раз.",
+  "errors.outdated": "Эта кнопка уже неактуальна. Откройте раздел из меню заново 🙏",
+
+  "format.hours": "{n} ч",
+  "format.minutes": "{n} мин"
+}
