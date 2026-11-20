@@ -1,10 +1,6 @@
-from html import escape
-
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db import repo
 from app.db.models import Client
 from app.i18n import all_translations, t
 from app.keyboards.menu import language_keyboard, main_menu
@@ -15,13 +11,6 @@ router = Router(name="menu")
 @router.message(F.text.in_(all_translations("menu.language")))
 async def handle_language_menu(message: Message, lang: str) -> None:
     await message.answer(t("language.choose", lang), reply_markup=language_keyboard())
-
-
-# "My bookings" arrives in stage 4; until then the salon phone is shown.
-@router.message(F.text.in_(all_translations("menu.my_bookings")))
-async def handle_my_bookings(message: Message, session: AsyncSession, lang: str) -> None:
-    settings = await repo.get_salon_settings(session)
-    await message.answer(t("soon.my_bookings", lang, phone=escape(settings.phone or "")))
 
 
 fallback_router = Router(name="fallback")

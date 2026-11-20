@@ -76,3 +76,25 @@ class BookAction(StrEnum):
 
 class BookCb(CallbackData, prefix="bk"):
     action: BookAction
+
+
+# --- My bookings, reminders, reviews --------------------------------------------------
+
+
+class MyAction(StrEnum):
+    LIST = "list"
+    CARD = "card"
+    CANCEL = "cancel"  # ask for confirmation
+    CANCEL_YES = "cyes"
+    RESCHEDULE = "move"
+    COMING = "come"  # "I'll come" from a reminder
+
+
+class MyCb(CallbackData, prefix="my"):
+    action: MyAction
+    id: str = ""  # booking UUID (empty for the list)
+
+
+class ReviewCb(CallbackData, prefix="rv"):
+    id: uuid.UUID  # booking
+    rating: int  # 1..5; 0 = skip the comment

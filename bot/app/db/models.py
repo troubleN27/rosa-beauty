@@ -121,6 +121,8 @@ class TimeOffPeriod(Base):
 
 class Booking(Base):
     __tablename__ = "bookings"
+    # created_at/updated_at are filled by the DB and needed right after insert
+    __mapper_args__ = {"eager_defaults": True}
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     client_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("clients.id"))
@@ -157,3 +159,15 @@ class BookingStatusHistory(Base):
     new_status: Mapped[str]
     changed_by: Mapped[str]
     changed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Review(Base):
+    __tablename__ = "reviews"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    booking_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("bookings.id"), unique=True)
+    client_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("clients.id"))
+    master_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("masters.id"))
+    rating: Mapped[int]
+    comment: Mapped[str | None] = mapped_column(default=None)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

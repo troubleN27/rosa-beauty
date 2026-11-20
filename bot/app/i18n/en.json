@@ -3,7 +3,6 @@
   "start.welcome_back": "Welcome back, {name}! 🌸\nHow can we help you today?",
   "start.language_saved": "Great, we'll chat in English 🇬🇧\n\nBook a master, check services and prices. Everything is in the menu below 👇",
   "start.choose_language_first": "Please choose a language first 🌐",
-
   "menu.book": "✨ Book now",
   "menu.my_bookings": "📅 My bookings",
   "menu.services": "💰 Services & prices",
@@ -11,31 +10,25 @@
   "menu.contacts": "📍 Contacts",
   "menu.language": "🌐 Language",
   "menu.hint": "Pick what you need in the menu below 👇",
-
   "language.choose": "Choose your language 🌐",
   "language.ru": "🇷🇺 Русский",
   "language.en": "🇬🇧 English",
-
   "nav.back": "⬅️ Back",
-
   "services.choose_category": "💰 <b>Services & prices</b>\n\nChoose a category:",
   "services.empty": "Our service list is being updated. Call us for prices: {phone} 📞",
   "services.category_empty": "No services in this category yet.",
   "services.item": "<b>{name}</b>\n⏱ {duration} · {price}",
-
   "masters.choose": "👩‍🎨 <b>Our masters</b>\n\nTap a name to learn more:",
   "masters.empty": "Our masters will be here soon 💫",
   "masters.not_found": "This master isn't taking bookings right now. Check out the others 💫",
   "masters.experience": "Experience: {years}",
   "masters.book_button": "✨ Book with this master",
-
   "contacts.title": "📍 <b>{name}</b>",
   "contacts.address": "🏠 {address}",
   "contacts.phone": "📞 {phone}",
   "contacts.hours": "🕐 {hours}",
   "contacts.instagram": "📸 <a href=\"{url}\">Instagram</a>",
   "contacts.map": "Find us on the map 👇",
-
   "booking.cancel_button": "✖️ Cancel",
   "booking.choose_category": "✨ <b>Booking</b>\n\nChoose a category:",
   "booking.master_line": "👩‍🎨 Master: {master}",
@@ -70,17 +63,40 @@
   "booking.edit_contacts": "👤 Contacts",
   "booking.success": "🎉 <b>You're booked!</b>\n\n💇‍♀️ {service}\n👩‍🎨 {master}\n📅 {date}, {time}\n💰 {price}\n📍 {address}\n\nSee you soon! If your plans change, you can cancel or reschedule in «📅 My bookings».",
   "booking.cancelled": "Booking cancelled. We'd love to see you another time 🌸",
-
   "cal.weekdays": "Mo,Tu,We,Th,Fr,Sa,Su",
   "cal.months": "January,February,March,April,May,June,July,August,September,October,November,December",
   "cal.months_genitive": "January,February,March,April,May,June,July,August,September,October,November,December",
-
-  "soon.my_bookings": "📅 Your bookings will appear here soon.\nAny questions? Call us: {phone} 📞",
-
   "errors.generic": "Oops, something went wrong 😔 Please try again.",
   "errors.outdated": "This button is no longer active. Please open the section from the menu again 🙏",
-
   "format.hours": "{n} h",
   "format.minutes": "{n} min",
-  "format.date": "{weekday}, {day} {month}"
+  "format.date": "{weekday}, {day} {month}",
+  "bookings.empty": "📅 No bookings yet.\nTap «✨ Book now» — it only takes a couple of minutes 🌸",
+  "bookings.list_title": "📅 <b>Your bookings</b>\n\nTap a booking to cancel or reschedule it:",
+  "bookings.card_title": "📅 <b>Your booking</b>",
+  "bookings.details": "💇‍♀️ {service}\n👩‍🎨 {master}\n📅 {when}\n💰 {price}\n📍 {address}",
+  "bookings.too_late": "Your visit is less than {hours} h away, so it can't be changed here anymore. Please call us: {phone} 📞",
+  "bookings.cancel_button": "❌ Cancel",
+  "bookings.reschedule_button": "🔁 Reschedule",
+  "bookings.cancel_question": "Cancel this booking?",
+  "bookings.cancel_yes": "Yes, cancel",
+  "bookings.cancel_no": "No, keep it",
+  "bookings.cancelled": "Your booking on {when} is cancelled. We'd love to see you another time 🌸",
+  "reschedule.header": "🔁 <b>Reschedule</b>\n{service} · {master}\nCurrent: {current}",
+  "reschedule.choose_day": "{month}\nChoose a new date:",
+  "reschedule.choose_time": "🕐 <b>Choose a new time</b>\n{service} · {master}\n📅 {date}",
+  "reschedule.confirm": "🔁 <b>Reschedule this booking?</b>\n\n💇‍♀️ {service}\n👩‍🎨 {master}\nWas: {old}\nNew: {new}",
+  "reschedule.done": "✅ Done! Your booking is rescheduled (was: {old}).",
+  "reschedule.cancelled": "Okay, your booking stays as it is 👌",
+  "reminder.day_before": "⏰ A friendly reminder about your visit to Rosa Beauty",
+  "reminder.soon": "⏰ See you very soon at Rosa Beauty!",
+  "reminder.coming_button": "✅ I'll be there",
+  "reminder.coming_reply": "✅ Great, see you soon! 🌸",
+  "review.request": "🌸 How was your visit?\n{service} · {master}\n\nPlease rate it from 1 to 5:",
+  "review.thanks": "Thank you for the {rating} ⭐ rating!",
+  "review.ask_comment": "Feel free to write a few words about your visit — we read everything ✍️",
+  "review.skip_button": "Skip",
+  "review.done": "Thank you for your feedback! 💛",
+  "review.already": "You've already rated this visit — thank you! 💛",
+  "review.comment_too_long": "That's a bit long — please keep it under {limit} characters."
 }

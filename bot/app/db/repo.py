@@ -14,6 +14,7 @@ from app.db.models import (
     Client,
     Master,
     MasterService,
+    Review,
     SalonSettings,
     Service,
     TimeOffPeriod,
@@ -184,6 +185,74 @@ async def list_confirmed_bookings(
             Booking.status == "confirmed",
             Booking.starts_at < end,
             Booking.ends_at > start,
+        )
+    )
+    return list(result.scalars())
+
+
+# --- Client bookings --------------------------------------------------------------
+
+
+async def list_upcoming_bookings(
+    session: AsyncSession, client_id: uuid.UUID, now: datetime
+) -> list[Booking]:
+    result = await session.execute(
+        select(Booking)
+        .where(
+            Booking.client_id == client_id,
+            Booking.status == "confirmed",
+            Booking.starts_at > now,
+        )
+        .order_by(Booking.starts_at)
+    )
+    return list(result.scalars())
+
+
+async def get_client_booking(
+    session: AsyncSession, booking_id: uuid.UUID, client_id: uuid.UUID
+) -> Booking | None:
+    """A booking only if it belongs to the client (ids come from callback data)."""
+    result = await session.execute(
+        select(Booking).where(Booking.id == booking_id, Booking.client_id == client_id)
+    )
+    return result.scalar_one_or_none()
+
+
+# --- Scheduler ----------------------------------------------------------------------
+
+
+async def list_bookings_for_reminders(
+    session: AsyncSession, start: datetime, end: datetime
+) -> list[Booking]:
+    """Confirmed bookings of Telegram clients starting in [start, end)."""
+    result = await session.execute(
+        select(Booking)
+        .join(Client, Client.id == Booking.client_id)
+        .where(
+            Booking.status == "confirmed",
+            Booking.starts_at >= start,
+            Booking.starts_at < end,
+            Client.telegram_id.is_not(None),
+        )
+    )
+    return list(result.scalars())
+
+
+async def list_bookings_for_review(
+    session: AsyncSession, ended_after: datetime, ended_before: datetime
+) -> list[Booking]:
+    """Completed bookings of Telegram clients without a review request yet."""
+    has_review = exists().where(Review.booking_id == Booking.id)
+    result = await session.execute(
+        select(Booking)
+        .join(Client, Client.id == Booking.client_id)
+        .where(
+            Booking.status == "completed",
+            Booking.ends_at >= ended_after,
+            Booking.ends_at < ended_before,
+            Booking.review_requested_at.is_(None),
+            Client.telegram_id.is_not(None),
+            ~has_review,
         )
     )
     return list(result.scalars())

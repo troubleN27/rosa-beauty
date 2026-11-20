@@ -10,14 +10,13 @@ from html import escape
 from zoneinfo import ZoneInfo
 
 from aiogram import Bot, F, Router
-from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import repo
 from app.db.models import Category, Client, Master, Service
-from app.handlers.common import StaleFlowError, callback_message
+from app.handlers.common import StaleFlowError, callback_message, show
 from app.i18n import all_translations, t
 from app.keyboards.booking import (
     calendar_keyboard,
@@ -43,6 +42,7 @@ from app.keyboards.callbacks import (
     SlotCb,
 )
 from app.keyboards.menu import language_keyboard, main_menu
+from app.scheduler import ReminderScheduler
 from app.services.availability import free_slots
 from app.services.booking import SlotTakenError, create_booking
 from app.services.notify import new_booking_text, notify_admin
@@ -60,19 +60,6 @@ View = tuple[str, InlineKeyboardMarkup | None]
 
 def _now() -> datetime:
     return datetime.now(UTC)
-
-
-async def _show(message: Message, text: str, keyboard: InlineKeyboardMarkup | None) -> None:
-    """Replace the step message; photo messages (master card) are replaced by a new one."""
-    if message.photo or message.text is None:
-        await message.delete()
-        await message.answer(text, reply_markup=keyboard)
-        return
-    try:
-        await message.edit_text(text, reply_markup=keyboard)
-    except TelegramBadRequest as error:
-        if "message is not modified" not in str(error):
-            raise
 
 
 # --- Loading flow data --------------------------------------------------------------
@@ -281,7 +268,7 @@ async def start_booking_with_master(
     await state.set_state(BookingFlow.category)
     text, keyboard = await _categories_view(session, data, lang)
     await callback.answer()
-    await _show(message, text, keyboard)
+    await show(message, text, keyboard)
 
 
 # --- Inline steps ----------------------------------------------------------------
@@ -302,7 +289,7 @@ async def choose_category(
     text, keyboard = await _services_view(session, data, lang)
     await state.set_state(BookingFlow.service)
     await callback.answer()
-    await _show(message, text, keyboard)
+    await show(message, text, keyboard)
 
 
 @router.callback_query(BookingFlow.service, ServiceCb.filter())
@@ -325,7 +312,7 @@ async def choose_service(
         text, keyboard = await _masters_view(session, data, lang)
         await state.set_state(BookingFlow.master)
     await callback.answer()
-    await _show(message, text, keyboard)
+    await show(message, text, keyboard)
 
 
 @router.callback_query(BookingFlow.master, MasterCb.filter())
@@ -343,7 +330,7 @@ async def choose_master(
     text, keyboard = await _days_view(session, data, lang)
     await state.set_state(BookingFlow.day)
     await callback.answer()
-    await _show(message, text, keyboard)
+    await show(message, text, keyboard)
 
 
 @router.callback_query(BookingFlow.day, DayCb.filter())
@@ -361,7 +348,7 @@ async def choose_day(
     text, keyboard = await _times_view(session, data, lang)
     await state.set_state(BookingFlow.time)
     await callback.answer()
-    await _show(message, text, keyboard)
+    await show(message, text, keyboard)
 
 
 @router.callback_query(BookingFlow.time, SlotCb.filter())
@@ -386,10 +373,10 @@ async def choose_slot(
     if client.phone and not data.get("edit_contacts"):
         text, keyboard = await _summary_view(session, data, client, lang)
         await state.set_state(BookingFlow.confirm)
-        await _show(message, text, keyboard)
+        await show(message, text, keyboard)
         return
 
-    await _show(message, await _selected_text(session, data, lang), None)
+    await show(message, await _selected_text(session, data, lang), None)
     await _ask_phone(message, state, lang)
 
 
@@ -410,7 +397,7 @@ async def cancel_inline(callback: CallbackQuery, state: FSMContext, lang: str) -
         return
     await state.clear()
     await callback.answer()
-    await _show(message, t("booking.cancelled", lang), None)
+    await show(message, t("booking.cancelled", lang), None)
 
 
 @router.callback_query(BookingFlow(), BookCb.filter(F.action == BookAction.BACK))
@@ -430,7 +417,7 @@ async def go_back(
     if current == BookingFlow.category.state:
         await state.clear()
         await callback.answer()
-        await _show(message, t("booking.cancelled", lang), None)
+        await show(message, t("booking.cancelled", lang), None)
         return
     if current == BookingFlow.service.state:
         view, target = await _categories_view(session, data, lang), BookingFlow.category
@@ -453,7 +440,7 @@ async def go_back(
 
     await state.set_state(target)
     await callback.answer()
-    await _show(message, *view)
+    await show(message, *view)
 
 
 # --- Confirmation and "Change" menu -------------------------------------------------
@@ -466,6 +453,7 @@ async def confirm_booking(
     session: AsyncSession,
     client: Client,
     bot: Bot,
+    reminders: ReminderScheduler,
     lang: str,
 ) -> None:
     message = await callback_message(callback, lang)
@@ -486,10 +474,11 @@ async def confirm_booking(
         )
         await state.set_state(BookingFlow.time)
         await callback.answer()
-        await _show(message, text, keyboard)
+        await show(message, text, keyboard)
         return
     await session.commit()
     await state.clear()
+    reminders.schedule_booking(booking)
 
     settings = await repo.get_salon_settings(session)
     master = await session.get(Master, booking.master_id)
@@ -505,7 +494,7 @@ async def confirm_booking(
         address=localized_html(settings, "address", lang),
     )
     await callback.answer()
-    await _show(message, text, None)
+    await show(message, text, None)
     await notify_admin(bot, new_booking_text(booking, client, service, master, settings))
 
 
@@ -516,7 +505,7 @@ async def open_edit_menu(callback: CallbackQuery, state: FSMContext, lang: str) 
         return
     await state.set_state(BookingFlow.edit_menu)
     await callback.answer()
-    await _show(message, t("booking.edit_menu", lang), edit_keyboard(lang))
+    await show(message, t("booking.edit_menu", lang), edit_keyboard(lang))
 
 
 @router.callback_query(BookingFlow.edit_menu, BookCb.filter())
@@ -543,7 +532,7 @@ async def edit_choice(
     elif action == BookAction.EDIT_CONTACTS:
         await state.update_data(edit_contacts=True)
         await callback.answer()
-        await _show(message, await _selected_text(session, await state.get_data(), lang), None)
+        await show(message, await _selected_text(session, await state.get_data(), lang), None)
         await _ask_phone(message, state, lang)
         return
     else:
@@ -551,7 +540,7 @@ async def edit_choice(
         return
     await state.set_state(target)
     await callback.answer()
-    await _show(message, *view)
+    await show(message, *view)
 
 
 # --- Contacts (reply keyboard steps) -------------------------------------------------

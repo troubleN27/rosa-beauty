@@ -41,8 +41,13 @@ class MasterSchedule:
 
 
 async def load_schedules(
-    session: AsyncSession, master_ids: list[uuid.UUID], days: list[date], tz: ZoneInfo
+    session: AsyncSession,
+    master_ids: list[uuid.UUID],
+    days: list[date],
+    tz: ZoneInfo,
+    exclude_booking_id: uuid.UUID | None = None,
 ) -> dict[uuid.UUID, MasterSchedule]:
+    """exclude_booking_id: a booking being rescheduled does not block its own time."""
     schedules = {
         master_id: MasterSchedule(working={}, time_off=[], bookings=[]) for master_id in master_ids
     }
@@ -60,6 +65,8 @@ async def load_schedules(
     for row in await repo.list_time_off(session, master_ids, first, last):
         schedules[row.master_id].time_off.append(TimeOff(row.date_from, row.date_to))
     for row in await repo.list_confirmed_bookings(session, master_ids, range_start, range_end):
+        if row.id == exclude_booking_id:
+            continue
         schedules[row.master_id].bookings.append(
             BusyBooking(row.starts_at, row.ends_at, row.status)
         )
@@ -87,6 +94,7 @@ async def free_slots(
     settings: SalonSettings,
     now: datetime,
     days: list[date] | None = None,
+    exclude_booking_id: uuid.UUID | None = None,
 ) -> dict[date, dict[datetime, uuid.UUID]]:
     """Free start times per day; for each time — the first free master in `master_ids` order.
 
@@ -94,7 +102,7 @@ async def free_slots(
     """
     rules = slot_rules(settings)
     days = days if days is not None else bookable_days(now, rules)
-    schedules = await load_schedules(session, master_ids, days, rules.timezone)
+    schedules = await load_schedules(session, master_ids, days, rules.timezone, exclude_booking_id)
     result: dict[date, dict[datetime, uuid.UUID]] = {}
     for day in days:
         per_master = [
@@ -112,11 +120,12 @@ async def masters_free_at(
     settings: SalonSettings,
     now: datetime,
     starts_at: datetime,
+    exclude_booking_id: uuid.UUID | None = None,
 ) -> list[uuid.UUID]:
     """All masters (in the given order) for whom `starts_at` is still a valid free slot."""
     rules = slot_rules(settings)
     day = starts_at.astimezone(rules.timezone).date()
-    schedules = await load_schedules(session, master_ids, [day], rules.timezone)
+    schedules = await load_schedules(session, master_ids, [day], rules.timezone, exclude_booking_id)
     return [
         master_id
         for master_id in master_ids

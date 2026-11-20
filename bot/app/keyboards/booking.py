@@ -174,3 +174,12 @@ def name_keyboard(suggestion: str, lang: str) -> ReplyKeyboardMarkup:
     rows = [[KeyboardButton(text=suggestion)]] if suggestion else []
     rows.append(_reply_nav_row(lang))
     return ReplyKeyboardMarkup(keyboard=rows, resize_keyboard=True)
+
+
+def confirm_only_keyboard(lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [_action(t("booking.confirm_button", lang), BookAction.CONFIRM)],
+            _nav_buttons(lang),
+        ]
+    )

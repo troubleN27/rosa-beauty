@@ -3,7 +3,6 @@
   "start.welcome_back": "С возвращением, {name}! 🌸\nЧем можем помочь сегодня?",
   "start.language_saved": "Отлично, общаемся на русском 🇷🇺\n\nЗдесь можно записаться к мастеру, посмотреть услуги и цены. Всё в меню ниже 👇",
   "start.choose_language_first": "Сначала выберите язык, пожалуйста 🌐",
-
   "menu.book": "✨ Записаться",
   "menu.my_bookings": "📅 Мои записи",
   "menu.services": "💰 Услуги и цены",
@@ -11,31 +10,25 @@
   "menu.contacts": "📍 Контакты",
   "menu.language": "🌐 Язык",
   "menu.hint": "Выберите, что нужно, в меню ниже 👇",
-
   "language.choose": "Выберите язык 🌐",
   "language.ru": "🇷🇺 Русский",
   "language.en": "🇬🇧 English",
-
   "nav.back": "⬅️ Назад",
-
   "services.choose_category": "💰 <b>Услуги и цены</b>\n\nВыберите категорию:",
   "services.empty": "Список услуг скоро обновится. Уточнить цены можно по телефону {phone} 📞",
   "services.category_empty": "В этой категории пока нет услуг.",
   "services.item": "<b>{name}</b>\n⏱ {duration} · {price}",
-
   "masters.choose": "👩‍🎨 <b>Наши мастера</b>\n\nНажмите на имя, чтобы узнать больше:",
   "masters.empty": "Скоро здесь появятся наши мастера 💫",
   "masters.not_found": "Этот мастер сейчас не принимает. Посмотрите других 💫",
   "masters.experience": "Опыт: {years}",
   "masters.book_button": "✨ Записаться к мастеру",
-
   "contacts.title": "📍 <b>{name}</b>",
   "contacts.address": "🏠 {address}",
   "contacts.phone": "📞 {phone}",
   "contacts.hours": "🕐 {hours}",
   "contacts.instagram": "📸 <a href=\"{url}\">Instagram</a>",
   "contacts.map": "Мы на карте 👇",
-
   "booking.cancel_button": "✖️ Отмена",
   "booking.choose_category": "✨ <b>Запись</b>\n\nВыберите категорию услуг:",
   "booking.master_line": "👩‍🎨 Мастер: {master}",
@@ -70,17 +63,40 @@
   "booking.edit_contacts": "👤 Контакты",
   "booking.success": "🎉 <b>Готово, вы записаны!</b>\n\n💇‍♀️ {service}\n👩‍🎨 {master}\n📅 {date}, {time}\n💰 {price}\n📍 {address}\n\nЖдём вас! Если планы изменятся, запись можно отменить или перенести в «📅 Мои записи».",
   "booking.cancelled": "Запись отменена. Будем рады видеть вас в другой раз 🌸",
-
   "cal.weekdays": "Пн,Вт,Ср,Чт,Пт,Сб,Вс",
   "cal.months": "Январь,Февраль,Март,Апрель,Май,Июнь,Июль,Август,Сентябрь,Октябрь,Ноябрь,Декабрь",
   "cal.months_genitive": "января,февраля,марта,апреля,мая,июня,июля,августа,сентября,октября,ноября,декабря",
-
-  "soon.my_bookings": "📅 Скоро здесь появятся ваши записи.\nЕсли нужно что-то уточнить, звоните: {phone} 📞",
-
   "errors.generic": "Ой, что-то пошло не так 😔 Попробуйте ещё раз.",
   "errors.outdated": "Эта кнопка уже неактуальна. Откройте раздел из меню заново 🙏",
-
   "format.hours": "{n} ч",
   "format.minutes": "{n} мин",
-  "format.date": "{weekday}, {day} {month}"
+  "format.date": "{weekday}, {day} {month}",
+  "bookings.empty": "📅 Записей пока нет.\nЗапишитесь через «✨ Записаться» — это займёт пару минут 🌸",
+  "bookings.list_title": "📅 <b>Ваши записи</b>\n\nНажмите на запись, чтобы отменить или перенести её:",
+  "bookings.card_title": "📅 <b>Ваша запись</b>",
+  "bookings.details": "💇‍♀️ {service}\n👩‍🎨 {master}\n📅 {when}\n💰 {price}\n📍 {address}",
+  "bookings.too_late": "До визита меньше {hours} ч — отменить или перенести запись здесь уже нельзя. Позвоните нам, пожалуйста: {phone} 📞",
+  "bookings.cancel_button": "❌ Отменить",
+  "bookings.reschedule_button": "🔁 Перенести",
+  "bookings.cancel_question": "Точно отменить запись?",
+  "bookings.cancel_yes": "Да, отменить",
+  "bookings.cancel_no": "Нет, оставить",
+  "bookings.cancelled": "Запись на {when} отменена. Будем рады видеть вас в другой раз 🌸",
+  "reschedule.header": "🔁 <b>Перенос записи</b>\n{service} · {master}\nСейчас: {current}",
+  "reschedule.choose_day": "{month}\nВыберите новую дату:",
+  "reschedule.choose_time": "🕐 <b>Выберите новое время</b>\n{service} · {master}\n📅 {date}",
+  "reschedule.confirm": "🔁 <b>Перенести запись?</b>\n\n💇‍♀️ {service}\n👩‍🎨 {master}\nБыло: {old}\nСтанет: {new}",
+  "reschedule.done": "✅ Готово! Запись перенесена (было: {old}).",
+  "reschedule.cancelled": "Хорошо, запись остаётся без изменений 👌",
+  "reminder.day_before": "⏰ Напоминаем о вашей записи в Rosa Beauty",
+  "reminder.soon": "⏰ Совсем скоро ждём вас в Rosa Beauty!",
+  "reminder.coming_button": "✅ Приду",
+  "reminder.coming_reply": "✅ Отлично, ждём вас! 🌸",
+  "review.request": "🌸 Как прошёл визит?\n{service} · {master}\n\nОцените, пожалуйста, от 1 до 5:",
+  "review.thanks": "Спасибо за оценку {rating} ⭐!",
+  "review.ask_comment": "Если хотите, напишите пару слов о визите — мы всё читаем ✍️",
+  "review.skip_button": "Пропустить",
+  "review.done": "Спасибо за отзыв! 💛",
+  "review.already": "Вы уже оценили этот визит — спасибо! 💛",
+  "review.comment_too_long": "Комментарий получился длинным — уложитесь, пожалуйста, в {limit} символов."
 }

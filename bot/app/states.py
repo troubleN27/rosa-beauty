@@ -11,3 +11,13 @@ class BookingFlow(StatesGroup):
     name = State()
     confirm = State()
     edit_menu = State()
+
+
+class RescheduleFlow(StatesGroup):
+    day = State()
+    time = State()
+    confirm = State()
+
+
+class ReviewFlow(StatesGroup):
+    comment = State()

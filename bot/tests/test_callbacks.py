@@ -13,8 +13,11 @@ from app.keyboards.callbacks import (
     InfoMasterCb,
     LanguageCb,
     MasterCb,
+    MyAction,
+    MyCb,
     NavCb,
     NavTarget,
+    ReviewCb,
     ServiceCb,
     SlotCb,
 )
@@ -34,6 +37,9 @@ LONGEST_EXAMPLES: list[CallbackData] = [
     SlotCb(ts=9_999_999_999, master=SOME_ID),
     BookFromMasterCb(id=SOME_ID),
     *[BookCb(action=action) for action in BookAction],
+    *[MyCb(action=action, id=str(SOME_ID)) for action in MyAction],
+    MyCb(action=MyAction.LIST),
+    ReviewCb(id=SOME_ID, rating=5),
 ]
 
 
