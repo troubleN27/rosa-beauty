@@ -10,8 +10,13 @@ from app.db import repo
 from app.db.models import Master, SalonSettings, Service
 from app.handlers.common import callback_message
 from app.i18n import all_translations, t
-from app.keyboards.callbacks import CategoryCb, MasterCb, NavCb, NavTarget
-from app.keyboards.info import back_keyboard, categories_keyboard, masters_keyboard
+from app.keyboards.callbacks import InfoCategoryCb, InfoMasterCb, NavCb, NavTarget
+from app.keyboards.info import (
+    back_keyboard,
+    categories_keyboard,
+    master_card_keyboard,
+    masters_keyboard,
+)
 from app.utils.format import format_duration, format_price, format_years
 from app.utils.text import localized, localized_html
 
@@ -49,9 +54,9 @@ async def handle_services(message: Message, session: AsyncSession, lang: str) ->
     await message.answer(text, reply_markup=keyboard)
 
 
-@router.callback_query(CategoryCb.filter())
+@router.callback_query(InfoCategoryCb.filter())
 async def handle_category(
-    callback: CallbackQuery, callback_data: CategoryCb, session: AsyncSession, lang: str
+    callback: CallbackQuery, callback_data: InfoCategoryCb, session: AsyncSession, lang: str
 ) -> None:
     message = await callback_message(callback, lang)
     if message is None:
@@ -115,9 +120,9 @@ async def handle_masters(message: Message, session: AsyncSession, lang: str) -> 
     await message.answer(text, reply_markup=keyboard)
 
 
-@router.callback_query(MasterCb.filter())
+@router.callback_query(InfoMasterCb.filter())
 async def handle_master(
-    callback: CallbackQuery, callback_data: MasterCb, session: AsyncSession, lang: str
+    callback: CallbackQuery, callback_data: InfoMasterCb, session: AsyncSession, lang: str
 ) -> None:
     message = await callback_message(callback, lang)
     if message is None:
@@ -128,7 +133,7 @@ async def handle_master(
         return
 
     card = _master_card(master, lang)
-    keyboard = back_keyboard(NavTarget.MASTERS, lang)
+    keyboard = master_card_keyboard(master, lang)
     await callback.answer()
     if master.photo_url:
         # A text message cannot become a photo, so the list is replaced by a new message

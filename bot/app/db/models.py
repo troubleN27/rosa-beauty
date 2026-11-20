@@ -4,10 +4,10 @@ The bot never creates or alters tables: the schema is owned by admin/src/db/sche
 """
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 
-from sqlalchemy import BigInteger, ForeignKey, Numeric
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Numeric, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -95,3 +95,65 @@ class Client(Base):
     phone: Mapped[str | None]
     language: Mapped[str]
     created_at: Mapped[datetime]
+
+
+class WorkingHours(Base):
+    __tablename__ = "working_hours"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    master_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("masters.id"))
+    weekday: Mapped[int]  # 1 = Monday ... 7 = Sunday
+    start_time: Mapped[time]
+    end_time: Mapped[time]
+    break_start: Mapped[time | None]
+    break_end: Mapped[time | None]
+
+
+class TimeOffPeriod(Base):
+    __tablename__ = "time_off"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    master_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("masters.id"))
+    date_from: Mapped[date]
+    date_to: Mapped[date]
+    reason: Mapped[str | None]
+
+
+class Booking(Base):
+    __tablename__ = "bookings"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    client_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("clients.id"))
+    master_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("masters.id"))
+    service_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("services.id"))
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    status: Mapped[str]
+    source: Mapped[str]
+    comment: Mapped[str | None] = mapped_column(default=None)
+    reminder_24h_sent_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None
+    )
+    reminder_2h_sent_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None
+    )
+    review_requested_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None
+    )
+    cancelled_by: Mapped[str | None] = mapped_column(default=None)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class BookingStatusHistory(Base):
+    __tablename__ = "booking_status_history"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    booking_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("bookings.id"))
+    old_status: Mapped[str | None]
+    new_status: Mapped[str]
+    changed_by: Mapped[str]
+    changed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -11,11 +11,14 @@ class LanguageCb(CallbackData, prefix="lang"):
     code: str
 
 
-class CategoryCb(CallbackData, prefix="cat"):
+# --- Information sections ----------------------------------------------------------
+
+
+class InfoCategoryCb(CallbackData, prefix="icat"):
     id: uuid.UUID
 
 
-class MasterCb(CallbackData, prefix="mst"):
+class InfoMasterCb(CallbackData, prefix="imst"):
     id: uuid.UUID
 
 
@@ -26,3 +29,50 @@ class NavTarget(StrEnum):
 
 class NavCb(CallbackData, prefix="nav"):
     to: NavTarget
+
+
+# --- Booking flow (SPEC 4.3) --------------------------------------------------------
+
+ANY_MASTER = "any"
+
+
+class CategoryCb(CallbackData, prefix="cat"):
+    id: uuid.UUID
+
+
+class ServiceCb(CallbackData, prefix="svc"):
+    id: uuid.UUID
+
+
+class MasterCb(CallbackData, prefix="mst"):
+    id: str  # master UUID or ANY_MASTER
+
+
+class DayCb(CallbackData, prefix="day"):
+    day: str  # ISO date, salon timezone
+
+
+class SlotCb(CallbackData, prefix="slot"):
+    ts: int  # start, unix seconds
+    master: uuid.UUID  # master assigned to this time
+
+
+class BookFromMasterCb(CallbackData, prefix="bkm"):
+    id: uuid.UUID
+
+
+class BookAction(StrEnum):
+    BACK = "back"
+    CANCEL = "cancel"
+    CONFIRM = "ok"
+    EDIT = "edit"
+    EDIT_SERVICE = "e_svc"
+    EDIT_MASTER = "e_mst"
+    EDIT_TIME = "e_time"
+    EDIT_CONTACTS = "e_cnt"
+    NOOP = "noop"  # a calendar day without free time
+    IGNORE = "ign"  # decorative buttons (weekday header, empty cells)
+
+
+class BookCb(CallbackData, prefix="bk"):
+    action: BookAction

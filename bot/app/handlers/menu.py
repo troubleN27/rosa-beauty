@@ -17,13 +17,7 @@ async def handle_language_menu(message: Message, lang: str) -> None:
     await message.answer(t("language.choose", lang), reply_markup=language_keyboard())
 
 
-# Booking and "My bookings" scenarios arrive in stages 3–4; until then the salon phone is shown.
-@router.message(F.text.in_(all_translations("menu.book")))
-async def handle_book(message: Message, session: AsyncSession, lang: str) -> None:
-    settings = await repo.get_salon_settings(session)
-    await message.answer(t("soon.book", lang, phone=escape(settings.phone or "")))
-
-
+# "My bookings" arrives in stage 4; until then the salon phone is shown.
 @router.message(F.text.in_(all_translations("menu.my_bookings")))
 async def handle_my_bookings(message: Message, session: AsyncSession, lang: str) -> None:
     settings = await repo.get_salon_settings(session)

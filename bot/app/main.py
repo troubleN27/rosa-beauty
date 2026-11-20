@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.config import get_settings
 from app.db.engine import create_engine, create_session_factory
-from app.handlers import errors, info, menu, start
+from app.handlers import booking, errors, info, menu, start
 from app.middlewares import ClientMiddleware, DbSessionMiddleware
 
 logger = logging.getLogger(__name__)
@@ -24,6 +24,7 @@ def create_dispatcher(session_factory: async_sessionmaker[AsyncSession]) -> Disp
     dp.include_routers(
         errors.router,
         start.router,
+        booking.router,
         menu.router,
         info.router,
         menu.fallback_router,  # must stay last
