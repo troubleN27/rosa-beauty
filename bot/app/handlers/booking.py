@@ -376,6 +376,11 @@ async def choose_slot(
     message = await callback_message(callback, lang)
     if message is None:
         return
+    # Callback data is client-controlled: the master must be one allowed by the flow
+    data = await state.get_data()
+    allowed = await _service_masters(session, data, await _service(session, data))
+    if callback_data.master not in {m.id for m in allowed}:
+        raise StaleFlowError("slot_master")
     data = await state.update_data(slot_ts=callback_data.ts, slot_master=str(callback_data.master))
     await callback.answer()
     if client.phone and not data.get("edit_contacts"):
@@ -469,7 +474,8 @@ async def confirm_booking(
     data = await state.get_data()
     service = await _service(session, data)
     master_choice = data.get("master")
-    preferred = None if master_choice == ANY_MASTER else _uuid(data, "slot_master")
+    # The master comes from the validated flow choice; the slot only says when
+    preferred = None if master_choice == ANY_MASTER else _uuid(data, "master")
     starts_at = datetime.fromtimestamp(data["slot_ts"], UTC)
 
     try:

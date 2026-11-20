@@ -43,10 +43,15 @@ async def create_booking(
     The caller commits the session.
     """
     settings = await repo.get_salon_settings(session)
+    # Only active masters who perform this service may be booked (ids may come from
+    # client-controlled callback data, so they are never trusted as is)
+    service_masters = [m.id for m in await repo.list_service_masters(session, service.id)]
     if master_id is None:
-        candidates = [m.id for m in await repo.list_service_masters(session, service.id)]
-    else:
+        candidates = service_masters
+    elif master_id in service_masters:
         candidates = [master_id]
+    else:
+        raise SlotTakenError
 
     free_masters = await masters_free_at(
         session, candidates, service.duration_min, settings, now, starts_at
