@@ -11,6 +11,7 @@ import {
   masters,
   services,
 } from "@/db/schema";
+import { ActionError } from "@/lib/actions";
 import { freeSlots } from "@/lib/availability";
 import { clientMessage } from "@/lib/client-messages";
 import type { BookingStatus } from "@/lib/constants";
@@ -19,7 +20,7 @@ import { formatDateTime, phoneDigits } from "@/lib/format";
 import { localDate } from "@/lib/slots";
 import { escapeHtml, sendToClient, type DeliveryResult } from "@/lib/telegram";
 
-export class BookingError extends Error {}
+export class BookingError extends ActionError {}
 
 export const SLOT_TAKEN = "Это время уже занято. Выберите другое.";
 const EXCLUSION_VIOLATION = "23P01";

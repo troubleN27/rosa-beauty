@@ -1,16 +1,15 @@
 "use server";
 
 import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { db } from "@/db";
 import { clients, masterServices, masters, services } from "@/db/schema";
 import { freeSlots } from "@/lib/availability";
+import { refreshAll as refresh, run, type ActionResult } from "@/lib/actions";
 import { BookingError, changeStatus, createManualBooking, rescheduleBooking } from "@/lib/bookings";
 import { getSalonSettings } from "@/lib/data/settings";
 import { formatTime } from "@/lib/format";
-import { assertSession, UnauthorizedError } from "@/lib/session";
 import type { DeliveryResult } from "@/lib/telegram";
 import {
   freeSlotsSchema,
@@ -18,26 +17,6 @@ import {
   rescheduleSchema,
   statusSchema,
 } from "@/lib/validations/booking";
-
-export type ActionResult<T = object> = ({ ok: true } & T) | { ok: false; error: string };
-
-const GENERIC_ERROR = "Не удалось сохранить изменения. Попробуйте ещё раз.";
-
-async function run<T extends object>(work: () => Promise<T>): Promise<ActionResult<T>> {
-  try {
-    await assertSession();
-    return { ok: true, ...(await work()) };
-  } catch (error) {
-    if (error instanceof UnauthorizedError) return { ok: false, error: "Сессия истекла. Войдите снова." };
-    if (error instanceof BookingError) return { ok: false, error: error.message };
-    console.error(error);
-    return { ok: false, error: GENERIC_ERROR };
-  }
-}
-
-function refresh() {
-  revalidatePath("/", "layout");
-}
 
 export async function changeStatusAction(
   input: unknown,

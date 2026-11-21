@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import "@/lib/validations/common";
+
 import { BOOKING_SOURCES, BOOKING_STATUSES } from "@/lib/constants";
 
 const isoDay = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Выберите дату");

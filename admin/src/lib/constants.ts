@@ -20,3 +20,13 @@ export const CHANGED_BY_LABELS: Record<string, string> = {
   client: "Клиент",
   admin: "Администратор",
 };
+
+export const MASTER_TABS = [
+  { value: "profile", label: "Данные" },
+  { value: "photo", label: "Фото" },
+  { value: "services", label: "Услуги" },
+  { value: "schedule", label: "График" },
+  { value: "timeoff", label: "Выходные" },
+] as const;
+
+export type MasterTab = (typeof MASTER_TABS)[number]["value"];

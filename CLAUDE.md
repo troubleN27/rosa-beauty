@@ -43,7 +43,9 @@ Admin (`cd admin`):
 
 Admin notes: Next.js 16 uses `src/proxy.ts` (not middleware) for the optimistic login redirect; the real
 session check is `requireSession()` in pages/layouts and `assertSession()` in every Server Action.
-`cacheComponents` is off — the panel is fully dynamic. `src/lib/slots.ts` must stay identical in behaviour
+`cacheComponents` is off — the panel is fully dynamic. Master photos are uploaded from the browser straight
+to Vercel Blob (`/api/blob/master-photo` issues the token; Vercel functions accept ≤ 4.5 MB bodies), then
+`savePhotoAction` re-checks the URL and file signature. Server Actions use `run()` from `src/lib/actions.ts`. `src/lib/slots.ts` must stay identical in behaviour
 to `bot/app/services/slots.py`.
 
 Bot (`cd bot`):

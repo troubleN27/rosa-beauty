@@ -14,6 +14,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except the login page, auth API, Next internals and static files
-  matcher: ["/((?!login|api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|svg|webp|ico)$).*)"],
+  // Everything except the login page, auth API, the Blob upload route (checks the session itself), Next internals and static files
+  matcher: ["/((?!login|api/auth|api/blob|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|svg|webp|ico)$).*)"],
 };
