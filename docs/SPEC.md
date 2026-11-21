@@ -58,7 +58,6 @@ rosa-beauty/
 │   └── seed.sql               # стартовые данные (раздел 3.3)
 ├── bot/
 │   ├── pyproject.toml
-│   ├── railway.json       # команда запуска для Railway
 │   ├── .env.example
 │   ├── app/
 │   │   ├── main.py            # запуск бота и планировщика
@@ -396,7 +395,7 @@ TELEGRAM_BOT_TOKEN=        # только на сервере
 ## 10. Деплой (выполняет владелец проекта, Claude готовит инструкции)
 
 - **Neon:** создать проект (регион ближе к серверу бота) → получить прямую и pooled строки подключения → применить миграции (`npm run db:migrate`) и стартовые данные (`npm run db:seed`) → создать администратора (`npm run create-admin`).
-- **Бот → Railway:** деплой из GitHub, Root Directory `bot`, Railway сам собирает Python-проект по `pyproject.toml` (Docker не используется), команда запуска — из `bot/railway.json`; переменные из 4.9 (`DATABASE_URL` — прямая строка Neon в формате `postgresql+asyncpg://…`, SSL обязателен).
+- **Бот → Railway:** деплой из GitHub, Root Directory `bot`, Railway сам собирает Python-проект по `pyproject.toml` (Docker не используется), команда запуска `python -m app.main` задаётся в настройках сервиса Railway; переменные из 4.9 (`DATABASE_URL` — прямая строка Neon в формате `postgresql+asyncpg://…`, SSL обязателен).
 - **Админка → Vercel:** Root Directory `admin`, переменные из 6.5; подключить хранилище Vercel Blob к проекту.
 - В настройках вычислений Neon установить размер compute **0.25 CU** (минимальный) и оставить автоматическое «засыпание» включённым — так бесплатного лимита хватает на весь месяц.
 

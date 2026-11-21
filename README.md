@@ -148,10 +148,11 @@ cd admin; npm run lint; npm run build
 
 1. Загрузите репозиторий на GitHub (файлы `.env` в git не попадают).
 2. В Railway: **New Project → Deploy from GitHub repo** → выберите репозиторий.
-3. В настройках сервиса: **Root Directory** = `bot`. Railway соберёт проект сам (Railpack: Python из `.python-version`, зависимости из `uv.lock`, Docker не нужен); команда запуска берётся из `bot/railway.json` (`python -m app.main`).
-4. **Variables:** `BOT_TOKEN`, `ADMIN_CHAT_ID`, `DATABASE_URL` (direct-строка ветки `main` в формате `postgresql+asyncpg://…`), `LOG_LEVEL=INFO`.
-5. **Region:** EU West (Amsterdam) — рядом с Neon во Франкфурте, так ответы бота быстрее.
-6. Домен и порт не нужны — бот работает через long polling. В логах после старта должны быть строки `Database connection is ready` и `Scheduler sync: …`.
+3. В настройках сервиса: **Root Directory** = `bot`. Railway соберёт проект сам (Railpack: Python из `.python-version`, зависимости из `uv.lock`, Docker не нужен).
+4. **Settings → Deploy:** Start Command = `python -m app.main`, Restart Policy = On Failure (10 попыток). Настройки хранятся в самом сервисе Railway — файла `railway.json` в проекте нет.
+5. **Variables:** `BOT_TOKEN`, `ADMIN_CHAT_ID`, `DATABASE_URL` (direct-строка ветки `main` в формате `postgresql+asyncpg://…`), `LOG_LEVEL=INFO`.
+6. **Region:** EU West (Amsterdam) — рядом с Neon во Франкфурте, так ответы бота быстрее.
+7. Домен и порт не нужны — бот работает через long polling. В логах после старта должны быть строки `Database connection is ready` и `Scheduler sync: …`.
 
 ### Панель → Vercel
 
