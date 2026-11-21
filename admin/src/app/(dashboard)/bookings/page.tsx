@@ -1,10 +1,11 @@
-import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarPlus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { BookingsFilters } from "@/components/bookings/bookings-filters";
 import { BookingsTable, type BookingTableRow } from "@/components/bookings/bookings-table";
 import { PageHeader } from "@/components/layout/page-header";
+import { Pagination } from "@/components/pagination";
 import { Button } from "@/components/ui/button";
 import { SOURCE_LABELS, type BookingSource } from "@/lib/constants";
 import { listBookings, listMastersForFilter, PAGE_SIZE } from "@/lib/data/bookings";
@@ -17,8 +18,7 @@ export const metadata: Metadata = { title: "Записи" };
 
 export default async function BookingsPage({ searchParams }: PageProps<"/bookings">) {
   await requireSession();
-  const raw = await searchParams;
-  const filters = bookingFiltersSchema.parse(raw);
+  const filters = bookingFiltersSchema.parse(await searchParams);
   const settings = await getSalonSettings();
   const tz = settings.timezone;
 
@@ -52,15 +52,6 @@ export default async function BookingsPage({ searchParams }: PageProps<"/booking
   }));
 
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const pageHref = (page: number) => {
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(raw)) {
-      if (typeof value === "string" && key !== "page") params.set(key, value);
-    }
-    if (page > 1) params.set("page", String(page));
-    const query = params.toString();
-    return query ? `/bookings?${query}` : "/bookings";
-  };
   const hasFilters = Boolean(filters.from || filters.to || filters.master || filters.status || filters.source);
 
   return (
@@ -90,35 +81,19 @@ export default async function BookingsPage({ searchParams }: PageProps<"/booking
       ) : (
         <>
           <BookingsTable data={data} />
-          {pages > 1 && (
-            <nav className="mt-4 flex items-center justify-between text-sm" aria-label="Страницы">
-              <span className="text-muted-foreground">
-                Страница {filters.page} из {pages}
-              </span>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  nativeButton={false}
-                  disabled={filters.page <= 1}
-                  render={<Link href={pageHref(filters.page - 1)} aria-disabled={filters.page <= 1} />}
-                >
-                  <ChevronLeft aria-hidden />
-                  Назад
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  nativeButton={false}
-                  disabled={filters.page >= pages}
-                  render={<Link href={pageHref(filters.page + 1)} aria-disabled={filters.page >= pages} />}
-                >
-                  Дальше
-                  <ChevronRight aria-hidden />
-                </Button>
-              </div>
-            </nav>
-          )}
+          <Pagination
+            basePath="/bookings"
+            params={{
+              from: filters.from,
+              to: filters.to,
+              master: filters.master,
+              status: filters.status,
+              source: filters.source,
+              sort: filters.sort === "starts_desc" ? undefined : filters.sort,
+            }}
+            page={filters.page}
+            pages={pages}
+          />
         </>
       )}
     </>

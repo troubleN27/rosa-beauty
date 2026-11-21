@@ -2,7 +2,6 @@
   "start.welcome_new": "🌸 Добро пожаловать в Rosa Beauty!\nWelcome to Rosa Beauty!\n\nВыберите язык · Choose your language",
   "start.welcome_back": "Welcome back, {name}! 🌸\nHow can we help you today?",
   "start.language_saved": "Great, we'll chat in English 🇬🇧\n\nBook a master, check services and prices. Everything is in the menu below 👇",
-  "start.choose_language_first": "Please choose a language first 🌐",
   "menu.book": "✨ Book now",
   "menu.my_bookings": "📅 My bookings",
   "menu.services": "💰 Services & prices",
