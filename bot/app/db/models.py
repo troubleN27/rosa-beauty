@@ -94,7 +94,7 @@ class Client(Base):
     name: Mapped[str]
     phone: Mapped[str | None]
     language: Mapped[str]
-    created_at: Mapped[datetime]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class WorkingHours(Base):

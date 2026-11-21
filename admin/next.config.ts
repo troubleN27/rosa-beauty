@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // The admin panel is fully dynamic: every page reads the session and fresh data,
+  // so Cache Components / partial prefetching are not used.
   turbopack: {
     rules: {
       "*.css": {

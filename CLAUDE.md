@@ -39,6 +39,12 @@ Admin (`cd admin`):
 - `npm run db:generate` — generate a migration from the schema
 - `npm run db:migrate` — apply migrations to `DATABASE_URL`
 - `npm run db:seed` — apply `db/seed.sql` (idempotent)
+- `npm run create-admin -- --email … --password …` — create an admin (sign-up is disabled)
+
+Admin notes: Next.js 16 uses `src/proxy.ts` (not middleware) for the optimistic login redirect; the real
+session check is `requireSession()` in pages/layouts and `assertSession()` in every Server Action.
+`cacheComponents` is off — the panel is fully dynamic. `src/lib/slots.ts` must stay identical in behaviour
+to `bot/app/services/slots.py`.
 
 Bot (`cd bot`):
 - `uv sync` — install dependencies
