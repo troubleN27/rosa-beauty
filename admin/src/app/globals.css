@@ -670,16 +670,6 @@
 .sched-card[data-status="cancelled"] {
   --tone: var(--muted-foreground);
 }
-.sched-card::before {
-  content: "";
-  position: absolute;
-  left: 5px;
-  top: 6px;
-  bottom: 6px;
-  width: 3px;
-  border-radius: 999px;
-  background: var(--tone);
-}
 .sched-card:hover {
   translate: 0 -2px;
   box-shadow:

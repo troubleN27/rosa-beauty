@@ -254,8 +254,8 @@ export function ScheduleGrid({
                     scroll={false}
                     title={`${booking.time} ${booking.title}, ${booking.subtitle} (${booking.categoryName}: ${STATUS_LABELS[status].toLowerCase()})`}
                     className={cn(
-                      "sched-card absolute z-10 overflow-hidden pr-2 pl-3.5 text-xs leading-tight focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
-                      narrow ? "py-1.5 pr-1 pl-3" : compact ? "flex items-center gap-1.5 py-0" : "py-1.5",
+                      "sched-card absolute z-10 overflow-hidden px-2.5 text-xs leading-tight focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+                      narrow ? "px-1.5 py-1.5" : compact ? "flex items-center gap-1.5 py-0" : "py-1.5",
                       status === "no_show" && "opacity-70",
                     )}
                     data-status={status}
