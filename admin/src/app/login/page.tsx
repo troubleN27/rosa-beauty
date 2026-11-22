@@ -22,11 +22,12 @@ export default async function LoginPage() {
   const { t } = await getI18n();
 
   return (
-    <main className="grid min-h-svh bg-background lg:grid-cols-[minmax(0,1.1fr)_minmax(440px,1fr)]">
+    <main className="relative grid min-h-svh bg-background lg:grid-cols-[minmax(0,1.1fr)_minmax(440px,1fr)]">
+      <LoginPreferences className="absolute top-4 right-4 z-10 sm:top-6 sm:right-6" />
       {/* The evening salon, framed like the arched vanity mirror */}
       <section
         aria-hidden
-        className="relative flex justify-center overflow-hidden bg-[#170e13] px-6 pt-10 pb-8 lg:items-center lg:p-14"
+        className="relative flex justify-center overflow-hidden bg-[#170e13] px-6 pt-16 pb-8 lg:items-center lg:p-14"
       >
         <div className="absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_45%,#d8aa6233,transparent_70%),radial-gradient(80%_60%_at_100%_100%,#5a1f3a66,transparent_70%)]" />
         <div className="relative aspect-[3/4] w-full max-w-[200px] sm:max-w-[240px] lg:max-w-[440px]">
@@ -47,7 +48,6 @@ export default async function LoginPage() {
 
       <section className="flex items-start justify-center px-4 pt-10 pb-12 lg:items-center lg:py-12">
         <div className="w-full max-w-sm">
-          <LoginPreferences className="mb-8" />
           <div className="mb-8 flex flex-col items-center text-center">
             <Image src="/brand/emblem.png" alt="" width={498} height={720} priority className="hidden h-28 w-auto lg:block" />
             <p className="font-display text-3xl font-semibold tracking-wide lg:mt-5">Rosa Beauty</p>
