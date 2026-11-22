@@ -7,8 +7,8 @@ import { toast } from "sonner";
 
 import { saveScheduleAction } from "@/app/(dashboard)/masters/actions";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { TimePicker } from "@/components/time-picker";
 import { scheduleDaySchema } from "@/lib/validations/master";
 
 const WEEKDAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
@@ -24,7 +24,7 @@ export type ScheduleDay = {
 
 function TimeInput({ label, value, onChange, invalid }: { label: string; value: string; onChange: (v: string) => void; invalid?: boolean }) {
   return (
-    <Input type="time" step={300} aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} aria-invalid={invalid} className="w-[6.5rem]" />
+    <TimePicker label={label} value={value} onChange={onChange} invalid={invalid} />
   );
 }
 

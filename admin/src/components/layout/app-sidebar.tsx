@@ -11,8 +11,12 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useRef } from "react";
 
 import {
   Sidebar,
@@ -49,6 +53,36 @@ export function AppSidebar({ userName }: { userName: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const { setOpenMobile } = useSidebar();
+  const menuRef = useRef<HTMLUListElement>(null);
+  const activeIndex = NAV.findIndex((item) => isActive(pathname, item.href));
+
+  // The velvet highlight with the rose glides to the chosen section.
+  useGSAP(
+    () => {
+      const menu = menuRef.current;
+      const marker = menu?.querySelector<HTMLElement>("[data-nav-marker]");
+      const rose = marker?.querySelector<HTMLElement>("[data-nav-rose]");
+      const item = menu?.querySelector<HTMLElement>(`[data-nav-index="${activeIndex}"]`);
+      if (!marker || !rose) return;
+      if (!item) {
+        gsap.to(marker, { autoAlpha: 0, duration: 0.25 });
+        return;
+      }
+      const target = { y: item.offsetTop, height: item.offsetHeight };
+      if (marker.dataset.placed !== "true") {
+        gsap.set(marker, { ...target, autoAlpha: 1 });
+        marker.dataset.placed = "true";
+      } else {
+        gsap.to(marker, { ...target, autoAlpha: 1, duration: 0.55, ease: "power3.inOut" });
+      }
+      gsap.fromTo(
+        rose,
+        { rotate: -35, scale: 0.4, autoAlpha: 0 },
+        { rotate: 0, scale: 1, autoAlpha: 1, duration: 0.7, delay: 0.25, ease: "back.out(2.2)" },
+      );
+    },
+    { dependencies: [activeIndex], scope: menuRef },
+  );
 
   async function signOut() {
     await authClient.signOut();
@@ -68,20 +102,30 @@ export function AppSidebar({ userName }: { userName: string }) {
         <SidebarContent>
           <SidebarGroup className="px-3">
             <SidebarGroupContent>
-              <SidebarMenu className="gap-1">
-                {NAV.map((item) => (
-                  <SidebarMenuItem key={item.href}>
+              <SidebarMenu ref={menuRef} className="relative gap-1">
+                <li
+                  aria-hidden
+                  data-nav-marker
+                  className="pointer-events-none invisible absolute inset-x-0 top-0 flex items-center justify-end rounded-md bg-sidebar-accent pr-2 shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--sidebar-primary)_30%,transparent)]"
+                >
+                  <Image
+                    data-nav-rose
+                    src="/brand/rose.png"
+                    alt=""
+                    width={167}
+                    height={240}
+                    className="h-6 w-auto drop-shadow-[0_0_6px_rgb(216_170_98/0.55)]"
+                  />
+                </li>
+                {NAV.map((item, index) => (
+                  <SidebarMenuItem key={item.href} data-nav-index={index} className="z-10">
                     <SidebarMenuButton
                       isActive={isActive(pathname, item.href)}
                       render={<Link href={item.href} onClick={() => setOpenMobile(false)} />}
-                      className="group/nav h-9 gap-3 px-3 text-sidebar-foreground/80 hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:text-sidebar-primary data-active:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--sidebar-primary)_30%,transparent)]"
+                      className="h-9 gap-3 px-3 text-sidebar-foreground/80 transition-colors duration-300 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground data-active:bg-transparent data-active:text-sidebar-primary data-active:hover:bg-transparent"
                     >
                       <item.icon aria-hidden />
                       <span>{item.label}</span>
-                      <span
-                        aria-hidden
-                        className="bulb-glow ml-auto hidden size-1.5 shrink-0 rounded-full bg-sidebar-primary group-data-active/nav:block"
-                      />
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

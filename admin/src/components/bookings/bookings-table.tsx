@@ -54,9 +54,9 @@ const columns: ColumnDef<typeof features, BookingTableRow>[] = [
     id: "when",
     header: () => <SortHeader label="Дата и время" field="starts" />,
     cell: ({ row }) => (
-      <Link href={`/bookings/${row.original.id}`} className="block whitespace-nowrap font-medium hover:text-primary">
-        {row.original.date}
-        <span className="ml-2 tabular-nums text-muted-foreground">{row.original.time}</span>
+      <Link href={`/bookings/${row.original.id}`} className="block whitespace-nowrap hover:text-primary">
+        <span className="block font-display text-xl leading-none font-semibold tabular-nums">{row.original.time}</span>
+        <span className="mt-1 block text-xs text-muted-foreground">{row.original.date}</span>
       </Link>
     ),
   },
@@ -64,23 +64,23 @@ const columns: ColumnDef<typeof features, BookingTableRow>[] = [
     id: "client",
     header: "Клиент",
     cell: ({ row }) => (
-      <div className="min-w-36">
+      <div className="min-w-32">
         <p className="truncate">{row.original.client}</p>
         {row.original.phone && <p className="truncate text-xs text-muted-foreground">{row.original.phone}</p>}
       </div>
     ),
   },
   { id: "service", header: "Услуга", cell: ({ row }) => (
-      <span className="flex min-w-40 items-center gap-2" style={categoryTone(row.original.categorySort)}>
+      <span className="flex min-w-36 items-center gap-2 whitespace-normal" style={categoryTone(row.original.categorySort)}>
         <span className="tone-dot size-2 shrink-0 rounded-full" aria-hidden />
         {row.original.service}
       </span>
     ),
   },
   { id: "master", header: "Мастер", cell: ({ row }) => <span className="whitespace-nowrap">{row.original.master}</span> },
-  { id: "price", header: "Цена", cell: ({ row }) => <span className="tabular-nums">{row.original.price}</span> },
+  { id: "price", header: "Цена", cell: ({ row }) => <span className="font-display text-lg tabular-nums">{row.original.price}</span> },
   { id: "status", header: "Статус", cell: ({ row }) => <StatusBadge status={row.original.status} /> },
-  { id: "source", header: "Источник", cell: ({ row }) => <span className="text-muted-foreground">{row.original.source}</span> },
+  { id: "source", header: "Источник", cell: ({ row }) => <span className="text-xs text-muted-foreground">{row.original.source}</span> },
 ];
 
 export function BookingsTable({ data }: { data: BookingTableRow[] }) {

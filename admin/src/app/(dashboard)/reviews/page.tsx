@@ -1,4 +1,3 @@
-import { Star } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { z } from "zod";
@@ -6,6 +5,7 @@ import { z } from "zod";
 import { PageHeader } from "@/components/layout/page-header";
 import { Pagination } from "@/components/pagination";
 import { RatingFilter } from "@/components/reviews/rating-filter";
+import { RoseRating } from "@/components/rose-rating";
 import { listReviews, REVIEWS_PAGE_SIZE } from "@/lib/data/clients";
 import { getSalonSettings } from "@/lib/data/settings";
 import { formatDay } from "@/lib/format";
@@ -17,20 +17,6 @@ const paramsSchema = z.object({
   rating: z.enum(["1", "2", "3", "4", "5", "low"]).optional().catch(undefined),
   page: z.coerce.number().int().min(1).catch(1),
 });
-
-function Stars({ rating }: { rating: number }) {
-  return (
-    <span className="inline-flex gap-0.5" role="img" aria-label={`Оценка ${rating} из 5`}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <Star
-          key={i}
-          className={i < rating ? "size-4 fill-current text-primary" : "size-4 text-border"}
-          aria-hidden
-        />
-      ))}
-    </span>
-  );
-}
 
 export default async function ReviewsPage({ searchParams }: PageProps<"/reviews">) {
   await requireSession();
@@ -50,11 +36,14 @@ export default async function ReviewsPage({ searchParams }: PageProps<"/reviews"
           {rating ? "Отзывов с такой оценкой нет." : "Отзывов пока нет."}
         </p>
       ) : (
-        <ul className="space-y-3">
+        <ul data-stagger className="space-y-3">
           {rows.map((review) => (
             <li key={review.id} className="rounded-xl border bg-card p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <Stars rating={review.rating} />
+                <span className="flex items-center gap-3">
+                  <RoseRating rating={review.rating} />
+                  <span className="font-display text-2xl leading-none font-semibold">{review.rating}</span>
+                </span>
                 <span className="text-xs text-muted-foreground">{formatDay(review.createdAt, settings.timezone)}</span>
               </div>
               {review.comment ? (

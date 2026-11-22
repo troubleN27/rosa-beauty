@@ -4,9 +4,9 @@ import { X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SOURCE_LABELS, STATUS_LABELS } from "@/lib/constants";
+import { DatePicker } from "@/components/date-picker";
 
 const ALL = "all";
 
@@ -55,22 +55,22 @@ export function BookingsFilters({ masters }: { masters: { id: string; name: stri
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2">
       <div className="flex items-center gap-1.5">
-        <Input
-          type="date"
-          aria-label="С даты"
+        <DatePicker
+          ariaLabel="С даты"
+          placeholder="С даты"
+          clearable
           value={searchParams.get("from") ?? ""}
-          onChange={(event) => set("from", event.target.value)}
-          className="w-38"
+          onChange={(value) => set("from", value)}
         />
         <span className="text-muted-foreground" aria-hidden>
           —
         </span>
-        <Input
-          type="date"
-          aria-label="По дату"
+        <DatePicker
+          ariaLabel="По дату"
+          placeholder="По дату"
+          clearable
           value={searchParams.get("to") ?? ""}
-          onChange={(event) => set("to", event.target.value)}
-          className="w-38"
+          onChange={(value) => set("to", value)}
         />
       </div>
       <FilterSelect

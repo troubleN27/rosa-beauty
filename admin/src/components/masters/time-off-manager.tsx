@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { addTimeOffAction, deleteTimeOffAction } from "@/app/(dashboard)/masters/actions";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { timeOffSchema, type TimeOffOutput, type TimeOffValues } from "@/lib/validations/master";
+import { DatePicker } from "@/components/date-picker";
 
 type Period = { id: string; label: string; reason: string | null };
 
@@ -25,6 +26,7 @@ export function TimeOffManager({ masterId, periods, today }: { masterId: string;
     resolver: zodResolver(timeOffSchema),
     defaultValues: { masterId, dateFrom: today, dateTo: today, reason: "" },
   });
+  const [dateFrom, dateTo] = useWatch({ control: form.control, name: ["dateFrom", "dateTo"] });
   const { errors } = form.formState;
 
   function onSubmit(values: TimeOffOutput) {
@@ -56,12 +58,24 @@ export function TimeOffManager({ masterId, periods, today }: { masterId: string;
         <div className="flex flex-wrap items-start gap-3">
           <Field data-invalid={!!errors.dateFrom} className="w-auto">
             <FieldLabel htmlFor="off-from">С</FieldLabel>
-            <Input id="off-from" type="date" min={today} {...form.register("dateFrom")} className="w-40" />
+            <DatePicker
+              id="off-from"
+              min={today}
+              value={dateFrom}
+              onChange={(value) => form.setValue("dateFrom", value, { shouldValidate: form.formState.isSubmitted })}
+              invalid={!!errors.dateFrom}
+            />
             <FieldError errors={[errors.dateFrom]} />
           </Field>
           <Field data-invalid={!!errors.dateTo} className="w-auto">
             <FieldLabel htmlFor="off-to">По</FieldLabel>
-            <Input id="off-to" type="date" min={today} {...form.register("dateTo")} className="w-40" />
+            <DatePicker
+              id="off-to"
+              min={today}
+              value={dateTo}
+              onChange={(value) => form.setValue("dateTo", value, { shouldValidate: form.formState.isSubmitted })}
+              invalid={!!errors.dateTo}
+            />
             <FieldError errors={[errors.dateTo]} />
           </Field>
           <Field data-invalid={!!errors.reason} className="min-w-48 flex-1">

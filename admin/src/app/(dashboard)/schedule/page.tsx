@@ -103,6 +103,7 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
       title: master.name,
       work: workFor(master.id, date),
       offLabel: offLabel(master.id, date),
+      isToday: date === today,
       bookings: data.bookings
         .filter((b) => b.masterId === master.id && localDate(b.startsAt, tz) === date)
         .map((b) => toGridBooking(b, false)),
@@ -129,6 +130,7 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
         key: day,
         title: dayTitle(day, "EEEEEE, d MMM"),
         highlight: day === today,
+        isToday: day === today,
         work,
         offLabel: single ? offLabel(single.id, day) : "Никто не работает",
         bookings: data.bookings
@@ -172,7 +174,12 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
           Активных мастеров пока нет. Добавьте мастера в разделе «Мастера».
         </p>
       ) : (
-        <ScheduleGrid columns={columns} startMin={startMin} endMin={endMin} />
+        <ScheduleGrid
+          columns={columns}
+          startMin={startMin}
+          endMin={endMin}
+          nowMin={toMinutes(formatInTimeZone(new Date(), tz, "HH:mm"))}
+        />
       )}
       {legend.length > 0 && (
         <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground" aria-label="Категории услуг">

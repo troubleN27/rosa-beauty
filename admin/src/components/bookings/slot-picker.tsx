@@ -5,7 +5,7 @@ import { useEffect, useState, useTransition } from "react";
 
 import { freeSlotsAction } from "@/app/(dashboard)/bookings/actions";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/date-picker";
 
 type Slot = { value: string; label: string };
 
@@ -57,16 +57,15 @@ export function SlotPicker({
     <div className="space-y-3">
       <Field>
         <FieldLabel htmlFor="slot-day">Дата</FieldLabel>
-        <Input
+        <DatePicker
           id="slot-day"
-          type="date"
           min={minDay}
           value={day}
-          onChange={(event) => {
+          onChange={(value) => {
             onChange(null);
-            onDayChange(event.target.value);
+            onDayChange(value);
           }}
-          className="w-44"
+          className="w-52"
         />
       </Field>
       <div>

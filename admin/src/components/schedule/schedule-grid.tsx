@@ -27,6 +27,8 @@ export type GridColumn = {
   title: string;
   subtitle?: string;
   highlight?: boolean;
+  /** Draw the "now" line in this column */
+  isToday?: boolean;
   /** Working interval in minutes from midnight; null = day off */
   work: { start: number; end: number; breakStart: number | null; breakEnd: number | null } | null;
   offLabel?: string;
@@ -65,11 +67,15 @@ export function ScheduleGrid({
   columns,
   startMin,
   endMin,
+  nowMin,
 }: {
   columns: GridColumn[];
   startMin: number;
   endMin: number;
+  /** Current salon-local time in minutes, for the "now" line */
+  nowMin?: number;
 }) {
+  const showNow = nowMin !== undefined && nowMin > startMin && nowMin < endMin;
   const height = (endMin - startMin) * PX_PER_MINUTE;
   const rows = Array.from(
     { length: Math.ceil((endMin - startMin) / SLOT_MINUTES) },
@@ -90,7 +96,9 @@ export function ScheduleGrid({
             key={column.key}
             className={cn("border-b border-l px-3 py-2.5", column.highlight && "bg-accent/60")}
           >
-            <p className="truncate text-sm font-medium">{column.title}</p>
+            <p className={cn("truncate font-display text-lg leading-tight font-semibold", column.highlight && "text-primary")}>
+              {column.title}
+            </p>
             {column.subtitle && <p className="truncate text-xs text-muted-foreground">{column.subtitle}</p>}
           </div>
         ))}
@@ -100,10 +108,22 @@ export function ScheduleGrid({
           {rows.map((minutes) => (
             <div
               key={minutes}
-              className="relative text-right text-[11px] text-muted-foreground tabular-nums"
+              className="relative"
               style={{ height: SLOT_MINUTES * PX_PER_MINUTE }}
             >
-              {minutes % 60 === 0 && <span className="absolute -top-2 right-2">{minutesLabel(minutes)}</span>}
+              {minutes % 60 === 0 ? (
+                <span
+                  className={cn(
+                    "absolute right-2.5 font-display text-[15px] leading-none font-medium tabular-nums",
+                    // the first label sits below the header line instead of on it
+                    minutes === startMin ? "top-1.5" : "-top-2",
+                  )}
+                >
+                  {minutesLabel(minutes)}
+                </span>
+              ) : (
+                <span className="absolute -top-px right-0 h-px w-2 bg-gold/50" aria-hidden />
+              )}
             </div>
           ))}
         </div>
@@ -143,6 +163,13 @@ export function ScheduleGrid({
                 style={{ top: y(minutes) }}
               />
             ))}
+            {showNow && column.isToday && (
+              <div
+                aria-hidden
+                className="now-line pointer-events-none absolute inset-x-0 z-0"
+                style={{ top: y(nowMin) }}
+              />
+            )}
             {layout(column.bookings).map((booking) => {
               const status = statusKey(booking.status);
               const top = y(booking.startMin);

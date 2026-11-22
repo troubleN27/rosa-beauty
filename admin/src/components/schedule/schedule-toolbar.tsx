@@ -4,9 +4,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DatePicker } from "@/components/date-picker";
 
 export function ScheduleToolbar({
   view,
@@ -60,13 +60,7 @@ export function ScheduleToolbar({
           <ChevronRight aria-hidden />
         </Button>
       </div>
-      <Input
-        type="date"
-        aria-label="Дата"
-        value={date}
-        onChange={(event) => event.target.value && go({ date: event.target.value })}
-        className="w-40"
-      />
+      <DatePicker ariaLabel="Дата" value={date} onChange={(value) => value && go({ date: value })} className="w-48" />
       {view === "week" && (
         <Select items={masterItems} value={master} onValueChange={(value) => go({ master: value === "all" ? null : String(value) })}>
           <SelectTrigger aria-label="Мастер" className="min-w-44">

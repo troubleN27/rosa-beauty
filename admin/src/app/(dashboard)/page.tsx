@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Flourish } from "@/components/brand";
 import { BookingsChart } from "@/components/dashboard/bookings-chart";
 import { PageHeader } from "@/components/layout/page-header";
+import { RoseRating } from "@/components/rose-rating";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { categoryTone } from "@/lib/category-tone";
@@ -53,13 +54,18 @@ export default async function DashboardPage() {
     {
       label: "Средняя оценка",
       value: data.rating.average === null ? "—" : data.rating.average.toFixed(1),
+      rating: data.rating.average,
       hint: data.rating.count ? `${data.rating.count} отз. за неделю` : "нет отзывов за неделю",
     },
   ];
   const next = data.todayList.find((booking) => booking.status === "confirmed" && booking.startsAt > now);
 
   const today = dayLabel(data.today, "EEEE, d MMMM");
-  const chart = data.chart.map((point) => ({ ...point, label: dayLabel(point.day, "d.MM") }));
+  const chart = data.chart.map((point) => ({
+    ...point,
+    label: dayLabel(point.day, "d"),
+    weekday: dayLabel(point.day, "EEEEEE"),
+  }));
 
   return (
     <>
@@ -102,6 +108,11 @@ export default async function DashboardPage() {
               <dd className="mt-auto pt-3 font-display text-3xl leading-none font-medium tabular-nums sm:text-[40px]">
                 {metric.value}
               </dd>
+              {metric.rating != null && (
+                <dd className="mt-2">
+                  <RoseRating rating={metric.rating} className="[&_img]:h-5" />
+                </dd>
+              )}
               {metric.hint && <dd className="mt-1.5 text-xs text-muted-foreground">{metric.hint}</dd>}
             </div>
           ))}
@@ -124,7 +135,7 @@ export default async function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <ol className="divide-y">
+            <ol data-stagger className="divide-y">
               {data.todayList.map((booking) => (
                 <li key={booking.id} style={categoryTone(booking.categorySort)}>
                   <Link
