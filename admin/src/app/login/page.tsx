@@ -49,7 +49,6 @@ export default async function LoginPage() {
             <p className="mt-2 text-sm text-muted-foreground">Email и пароль администратора.</p>
           </div>
           <LoginForm />
-          <p className="mt-10 text-center text-xs text-muted-foreground">Москва, ул. Пятницкая, 37</p>
         </div>
       </section>
     </main>
