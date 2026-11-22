@@ -1,4 +1,4 @@
-"""«📅 Мои записи»: upcoming bookings, cancel and reschedule (PRD 4.3, SPEC 4.5).
+"""«🗓️ Мои записи»: upcoming bookings, cancel and reschedule (PRD 4.3, SPEC 4.5).
 
 Also handles the "I'll come" / "Cancel" buttons of reminders.
 """

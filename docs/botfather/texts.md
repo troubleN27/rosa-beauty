@@ -9,7 +9,7 @@
 📝 Запись к мастеру за пару минут — без звонков
 💅 Стрижки, окрашивание, маникюр, брови и ресницы, макияж, уход за лицом
 👩‍🎨 Мастера, которые слышат вас
-📅 Перенос и отмена визита в пару касаний
+🗓️ Перенос и отмена визита в пару касаний
 ⏰ Напомним о визите за день и за два часа
 
 Нажмите «Старт» — и выберите удобное время 🌹
@@ -21,7 +21,7 @@
 📝 Book a master in a couple of minutes — no calls needed
 💅 Haircuts, coloring, manicure, brows & lashes, makeup, facials
 👩‍🎨 Masters who truly listen
-📅 Reschedule or cancel in a couple of taps
+🗓️ Reschedule or cancel in a couple of taps
 ⏰ We'll remind you a day and two hours before
 
 Tap «Start» and pick a time that suits you 🌹

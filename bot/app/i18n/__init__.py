@@ -30,6 +30,7 @@ def t(key: str, lang: str | None, **params: object) -> str:
 # a new one, so these must still open the right section.
 _LEGACY_BUTTONS: dict[str, set[str]] = {
     "menu.book": {"✨ Записаться", "✨ Book now"},
+    "menu.my_bookings": {"📅 Мои записи", "📅 My bookings"},
 }
 
 

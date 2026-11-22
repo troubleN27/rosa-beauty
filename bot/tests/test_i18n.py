@@ -46,6 +46,7 @@ def test_menu_buttons_keep_former_labels() -> None:
     texts = menu_button_texts("menu.book")
     assert all_translations("menu.book") <= texts
     assert {"✨ Записаться", "✨ Book now"} <= texts
+    assert {"📅 Мои записи", "📅 My bookings"} <= menu_button_texts("menu.my_bookings")
 
 
 def test_every_command_has_a_description() -> None:

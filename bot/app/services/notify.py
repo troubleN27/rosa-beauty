@@ -44,7 +44,7 @@ def new_booking_text(
             f"👤 {_contact(client)}",
             _service_line(booking, service, settings),
             f"👩‍🎨 Мастер: {escape(master.name_ru)}",
-            f"📅 {_when(booking.starts_at, settings)}",
+            f"🗓️ {_when(booking.starts_at, settings)}",
             f"📲 Источник: {SOURCE_LABELS.get(booking.source, booking.source)}",
         ]
     )
@@ -59,7 +59,7 @@ def cancellation_text(
             f"👤 {_contact(client)}",
             _service_line(booking, service, settings),
             f"👩‍🎨 Мастер: {escape(master.name_ru)}",
-            f"📅 {_when(booking.starts_at, settings)}",
+            f"🗓️ {_when(booking.starts_at, settings)}",
             "📲 Отменил клиент в боте",
         ]
     )
@@ -79,8 +79,8 @@ def reschedule_text(
             f"👤 {_contact(client)}",
             _service_line(booking, service, settings),
             f"👩‍🎨 Мастер: {escape(master.name_ru)}",
-            f"📅 Было: {_when(old_starts_at, settings)}",
-            f"📅 Стало: {_when(booking.starts_at, settings)}",
+            f"🗓️ Было: {_when(old_starts_at, settings)}",
+            f"🗓️ Стало: {_when(booking.starts_at, settings)}",
             "📲 Перенёс клиент в боте",
         ]
     )
@@ -100,7 +100,7 @@ def review_text(
             f"👤 {_contact(client)}",
             f"💇‍♀️ {escape(service.name_ru)}",
             f"👩‍🎨 Мастер: {escape(master.name_ru)}",
-            f"📅 Визит: {_when(booking.starts_at, settings)}",
+            f"🗓️ Визит: {_when(booking.starts_at, settings)}",
         ]
     )
 
