@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 from app.db.models import Booking, Master, SalonSettings, Service
 from app.i18n import t
 from app.utils.dates import format_date, format_time
-from app.utils.format import format_price
+from app.utils.format import format_duration, format_price
 from app.utils.text import localized_html
 
 
@@ -24,6 +24,9 @@ def booking_details(
         service=localized_html(service, "name", lang),
         master=localized_html(master, "name", lang),
         when=when(booking, settings, lang),
+        duration=format_duration(
+            int((booking.ends_at - booking.starts_at).total_seconds() // 60), lang
+        ),
         price=format_price(booking.price, settings.currency),
         address=localized_html(settings, "address", lang),
     )

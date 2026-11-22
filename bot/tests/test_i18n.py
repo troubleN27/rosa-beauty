@@ -16,7 +16,7 @@ def test_languages_have_same_keys() -> None:
 
 
 def test_params_are_substituted() -> None:
-    assert t("start.welcome_back", "en", name="Anna").startswith("Welcome back, Anna!")
+    assert "Welcome back, Anna!" in t("start.welcome_back", "en", name="Anna")
 
 
 def test_unknown_language_falls_back_to_russian() -> None:

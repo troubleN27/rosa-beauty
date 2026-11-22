@@ -93,7 +93,7 @@ async def _service_masters(session: AsyncSession, data: dict, service: Service) 
 
 def _master_label(data: dict, masters: list[Master], lang: str) -> str:
     if data.get("master") == ANY_MASTER:
-        return t("booking.any_master", lang)
+        return t("booking.any_master_label", lang)
     return localized_html(masters[0], "name", lang)
 
 
@@ -108,13 +108,14 @@ async def _categories_view(session: AsyncSession, data: dict, lang: str) -> View
         settings = await repo.get_salon_settings(session)
         text = t("booking.no_categories", lang, phone=escape(settings.phone or ""))
         return text, nav_keyboard(lang, back=False)
-    text = t("booking.choose_category", lang)
+    master_line = ""
     if fixed_id is not None:
         master = await repo.get_active_master(session, fixed_id)
         if master is None:
             raise StaleFlowError("fixed_master")
         master_name = localized_html(master, "name", lang)
-        text += "\n" + t("booking.master_line", lang, master=master_name)
+        master_line = t("booking.master_line", lang, master=master_name) + "\n\n"
+    text = t("booking.choose_category", lang, master=master_line)
     return text, categories_keyboard(categories, lang)
 
 
@@ -490,6 +491,7 @@ async def confirm_booking(
         master=localized_html(master, "name", lang),
         date=format_date(start.date(), lang),
         time=format_time(start),
+        duration=format_duration(service.duration_min, lang),
         price=format_price(booking.price, settings.currency),
         address=localized_html(settings, "address", lang),
     )

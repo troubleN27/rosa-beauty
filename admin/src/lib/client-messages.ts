@@ -1,27 +1,34 @@
 /**
  * Telegram messages sent to clients by admin actions, in the client's language.
- * Tone matches the bot (bot/app/i18n): short, friendly, a few emoji.
+ * Styled like the bot (bot/app/i18n, SPEC 4.2.1): a rose heading, the «༺ 🌹 ༻» divider
+ * and «★» bullets.
  */
 import type { Lang } from "@/lib/format";
 
 type Template = (params: Record<string, string>) => string;
 
+const DIVIDER = "༺ 🌹 ༻";
+
 const MESSAGES: Record<"cancelled" | "rescheduled", Record<Lang, Template>> = {
   cancelled: {
     ru: (p) =>
-      `❌ <b>Ваша запись отменена</b>\n\n💇‍♀️ ${p.service}\n👩‍🎨 ${p.master}\n📅 ${p.when}\n\n` +
-      `Если хотите выбрать другое время — запишитесь в боте через «✨ Записаться» или позвоните нам: ${p.phone}`,
+      `🌹 <b>Ваш визит отменён</b>\n${DIVIDER}\n\n★ ${p.service}\n★ Мастер — ${p.master}\n★ ${p.when}\n\n` +
+      `Нам жаль, что встреча не состоится. Выбрать другое время можно в боте через «🌹 Записаться» ` +
+      `или по телефону ${p.phone}.`,
     en: (p) =>
-      `❌ <b>Your booking has been cancelled</b>\n\n💇‍♀️ ${p.service}\n👩‍🎨 ${p.master}\n📅 ${p.when}\n\n` +
-      `To pick another time, tap «✨ Book now» in the bot or call us: ${p.phone}`,
+      `🌹 <b>Your visit has been cancelled</b>\n${DIVIDER}\n\n★ ${p.service}\n★ Master — ${p.master}\n★ ${p.when}\n\n` +
+      `We're sorry we won't see you this time. To pick another time, tap «🌹 Book now» in the bot ` +
+      `or call us: ${p.phone}.`,
   },
   rescheduled: {
     ru: (p) =>
-      `🔁 <b>Ваша запись перенесена</b>\n\n💇‍♀️ ${p.service}\n👩‍🎨 ${p.master}\n` +
-      `📅 Было: ${p.old}\n📅 Стало: ${p.when}\n📍 ${p.address}\n\nЕсли новое время не подходит — позвоните нам: ${p.phone}`,
+      `🌹 <b>Ваш визит перенесён</b>\n${DIVIDER}\n\n★ ${p.service}\n★ Мастер — ${p.master}\n` +
+      `★ Было: ${p.old}\n★ Стало: ${p.when}\n★ ${p.address}\n\n` +
+      `Если новое время вам не подходит, позвоните нам, пожалуйста: ${p.phone}.`,
     en: (p) =>
-      `🔁 <b>Your booking has been rescheduled</b>\n\n💇‍♀️ ${p.service}\n👩‍🎨 ${p.master}\n` +
-      `📅 Was: ${p.old}\n📅 Now: ${p.when}\n📍 ${p.address}\n\nIf the new time doesn't work for you, please call us: ${p.phone}`,
+      `🌹 <b>Your visit has been rescheduled</b>\n${DIVIDER}\n\n★ ${p.service}\n★ Master — ${p.master}\n` +
+      `★ Was: ${p.old}\n★ Now: ${p.when}\n★ ${p.address}\n\n` +
+      `If the new time doesn't suit you, please call us: ${p.phone}.`,
   },
 };
 

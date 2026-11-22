@@ -39,15 +39,16 @@ async def _categories_view(
 
 
 def _service_text(service: Service, settings: SalonSettings, lang: str) -> str:
-    text = t(
+    """One service block: name, the full description, then duration and price."""
+    description = localized(service, "description", lang)
+    return t(
         "services.item",
         lang,
         name=localized_html(service, "name", lang),
+        description=f"\n<i>{escape(description)}</i>" if description else "",
         duration=format_duration(service.duration_min, lang),
         price=format_price(service.price, settings.currency),
     )
-    description = localized(service, "description", lang)
-    return f"{text}\n<i>{escape(description)}</i>" if description else text
 
 
 @router.message(F.text.in_(menu_button_texts("menu.services")))
@@ -70,7 +71,7 @@ async def handle_category(
     services = await repo.list_category_services(session, category.id)
     settings = await repo.get_salon_settings(session)
 
-    title = f"<b>{localized_html(category, 'name', lang)}</b>"
+    title = t("services.category_title", lang, name=localized_html(category, "name", lang))
     if services:
         body = "\n\n".join(_service_text(service, settings, lang) for service in services)
     else:
