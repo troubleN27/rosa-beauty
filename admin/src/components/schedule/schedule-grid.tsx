@@ -237,13 +237,22 @@ export function ScheduleGrid({
                 </div>
               )}
 
-              {showNow && column.isToday && (
-                <div
-                  aria-hidden
-                  data-rose={columnIndex === firstToday ? "true" : undefined}
-                  className="sched-now pointer-events-none absolute inset-x-0"
-                  style={{ top: y(nowMin!) }}
-                />
+              {showNow && (
+                <>
+                  {/* solid gold in today's column, a faint dashed trace across the other days,
+                      so the time chip on the thread always connects to today */}
+                  <div
+                    aria-hidden
+                    className={cn(
+                      "pointer-events-none absolute inset-x-0",
+                      column.isToday ? "sched-now" : "sched-now-trace",
+                    )}
+                    style={{ top: y(nowMin!) }}
+                  />
+                  {columnIndex === firstToday && (
+                    <span aria-hidden className="sched-now-rose pointer-events-none absolute" style={{ top: y(nowMin!) }} />
+                  )}
+                </>
               )}
 
               {layout(column.bookings).map((booking) => {

@@ -633,13 +633,18 @@
   background: linear-gradient(90deg, var(--gold), color-mix(in oklab, var(--gold) 25%, transparent));
   box-shadow: 0 0 8px color-mix(in oklab, var(--gold) 70%, transparent);
 }
-.sched-now[data-rose]::before {
-  content: "";
-  position: absolute;
-  left: 3px;
-  top: -10px;
+.sched-now-trace {
+  z-index: 2;
+  height: 0;
+  border-top: 1px dashed color-mix(in oklab, var(--gold) 55%, transparent);
+}
+/* The rose marks where today's column starts; it sits on the column edge, above the cards */
+.sched-now-rose {
+  z-index: 20;
+  left: -8px;
   width: 15px;
   height: 22px;
+  margin-top: -11px;
   background: url("/brand/rose.png") center / contain no-repeat;
   filter: drop-shadow(0 0 4px rgb(216 170 98 / 0.7));
   animation: now-pulse 2.4s ease-in-out infinite;
