@@ -3,6 +3,7 @@
 import {
   CalendarDays,
   ClipboardList,
+  Languages,
   LayoutDashboard,
   LogOut,
   MessageSquareHeart,
@@ -31,7 +32,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { BrandMark } from "@/components/brand";
-import { LanguageToggle } from "@/components/layout/language-toggle";
+import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useI18n } from "@/i18n/client";
 import { authClient } from "@/lib/auth-client";
@@ -144,8 +145,10 @@ export function AppSidebar({ userName }: { userName: string }) {
             <SidebarMenuItem>
               <ThemeToggle />
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <LanguageToggle />
+            <SidebarMenuItem className="flex h-9 items-center gap-3 px-2 text-sm text-sidebar-foreground/80">
+              <Languages className="size-4 shrink-0" aria-hidden />
+              <span>{t("nav.languageLabel")}</span>
+              <LanguageSwitch variant="sidebar" className="ml-auto" />
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton onClick={signOut} className="text-sidebar-foreground/80">

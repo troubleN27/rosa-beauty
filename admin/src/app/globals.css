@@ -681,3 +681,32 @@ input[type="search"]::-webkit-search-cancel-button {
   appearance: none;
   display: none;
 }
+
+/* Language switch: the pill glides with a spring, options give a little under the finger */
+.lang-switch-pill {
+  box-shadow: 0 2px 8px -3px color-mix(in oklab, var(--gold) 70%, transparent);
+  transition: transform 520ms var(--ease-bloom);
+}
+.lang-switch-option {
+  transition:
+    color 300ms var(--ease-silk),
+    transform 250ms var(--ease-bloom);
+}
+.lang-switch-option:active {
+  transform: scale(0.9);
+}
+.theme-switch {
+  transition:
+    background-color 300ms var(--ease-silk),
+    color 300ms var(--ease-silk),
+    transform 250ms var(--ease-bloom);
+}
+.theme-switch:active {
+  transform: scale(0.88);
+}
+.theme-switch svg {
+  transition: transform 520ms var(--ease-bloom);
+}
+.theme-switch:hover svg {
+  transform: rotate(-20deg);
+}
