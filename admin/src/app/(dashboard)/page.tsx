@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Flourish } from "@/components/brand";
 import { BookingsChart } from "@/components/dashboard/bookings-chart";
 import { PageHeader } from "@/components/layout/page-header";
-import { RoseRating } from "@/components/rose-rating";
+import { StarRating } from "@/components/star-rating";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { getDashboard } from "@/lib/data/dashboard";
@@ -109,7 +109,7 @@ export default async function DashboardPage() {
               </dd>
               {metric.rating != null && (
                 <dd className="mt-2">
-                  <RoseRating rating={metric.rating} className="[&_img]:h-5" />
+                  <StarRating rating={metric.rating} size={16} />
                 </dd>
               )}
               {metric.hint && <dd className="mt-1.5 text-xs text-muted-foreground">{metric.hint}</dd>}

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { PageHeader } from "@/components/layout/page-header";
 import { Pagination } from "@/components/pagination";
 import { RatingFilter } from "@/components/reviews/rating-filter";
-import { RoseRating } from "@/components/rose-rating";
+import { StarRating } from "@/components/star-rating";
 import { listReviews, REVIEWS_PAGE_SIZE } from "@/lib/data/clients";
 import { getSalonSettings } from "@/lib/data/settings";
 import { formatDay } from "@/lib/format";
@@ -41,7 +41,7 @@ export default async function ReviewsPage({ searchParams }: PageProps<"/reviews"
             <li key={review.id} className="rounded-xl border bg-card p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-3">
-                  <RoseRating rating={review.rating} />
+                  <StarRating rating={review.rating} size={20} />
                   <span className="font-display text-2xl leading-none font-semibold">{review.rating}</span>
                 </span>
                 <span className="text-xs text-muted-foreground">{formatDay(review.createdAt, settings.timezone)}</span>
