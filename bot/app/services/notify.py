@@ -40,7 +40,7 @@ def new_booking_text(
 ) -> str:
     return "\n".join(
         [
-            "<b>Новая запись</b>",
+            "🌹 <b>Новая запись</b>",
             f"👤 {_contact(client)}",
             _service_line(booking, service, settings),
             f"👩‍🎨 Мастер: {escape(master.name_ru)}",
