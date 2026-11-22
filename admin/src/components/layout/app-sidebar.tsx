@@ -3,7 +3,6 @@
 import {
   CalendarDays,
   ClipboardList,
-  Languages,
   LayoutDashboard,
   LogOut,
   MessageSquareHeart,
@@ -142,13 +141,12 @@ export function AppSidebar({ userName }: { userName: string }) {
             {userName}
           </p>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <ThemeToggle />
-            </SidebarMenuItem>
-            <SidebarMenuItem className="flex h-9 items-center gap-3 px-2 text-sm text-sidebar-foreground/80">
-              <Languages className="size-4 shrink-0" aria-hidden />
-              <span>{t("nav.languageLabel")}</span>
-              <LanguageSwitch variant="sidebar" className="ml-auto" />
+            {/* theme and language share one row: the theme item on the left, RU / EN on the right */}
+            <SidebarMenuItem className="flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <ThemeToggle />
+              </div>
+              <LanguageSwitch variant="sidebar" className="shrink-0" />
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton onClick={signOut} className="text-sidebar-foreground/80">
