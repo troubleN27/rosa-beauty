@@ -22,8 +22,7 @@ export async function POST(request: Request) {
       body,
       request,
       onBeforeGenerateToken: async (pathname) => {
-        // Issuing an upload token changes data: check the session in the database, not the cookie cache
-        const session = await auth.api.getSession({ headers: await headers(), query: { disableCookieCache: true } });
+        const session = await auth.api.getSession({ headers: await headers() });
         if (!session) throw new Error("Требуется вход");
         if (!pathname.startsWith("masters/")) throw new Error("Недопустимый путь");
         return {

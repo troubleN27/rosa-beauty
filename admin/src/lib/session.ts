@@ -24,13 +24,9 @@ export class UnauthorizedError extends Error {
   }
 }
 
-/**
- * Session check for Server Actions: throws instead of redirecting.
- * Changes always check the database, so a revoked session cannot edit data even
- * while its cookie cache is still fresh.
- */
+/** Session check for Server Actions: throws instead of redirecting. */
 export async function assertSession() {
-  const session = await auth.api.getSession({ headers: await headers(), query: { disableCookieCache: true } });
+  const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
     throw new UnauthorizedError();
   }
