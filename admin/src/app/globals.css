@@ -356,14 +356,11 @@
   border-radius: 999px;
   font-feature-settings: "lnum" 1;
   transition:
-    background-color 220ms var(--ease-silk),
-    color 220ms var(--ease-silk),
-    border-radius 300ms var(--ease-silk),
-    transform 220ms var(--ease-silk);
+    background-color 200ms var(--ease-silk),
+    color 200ms var(--ease-silk);
 }
-.rose-calendar .rdp-day:not(.rdp-disabled) button:hover {
-  background-color: color-mix(in oklab, var(--primary) 14%, transparent);
-  transform: translateY(-1px);
+.rose-calendar .rdp-day:not(.rdp-disabled):not(.rdp-selected) button:hover {
+  background-color: color-mix(in oklab, var(--primary) 12%, transparent);
 }
 .rose-calendar .rdp-weekend:not(.rdp-selected) button {
   color: color-mix(in oklab, var(--primary) 70%, var(--foreground));
@@ -374,46 +371,34 @@
 .rose-calendar .rdp-today:not(.rdp-selected) button {
   font-weight: 700;
 }
-.rose-calendar .rdp-today button::after {
-  content: "";
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  width: 4px;
-  height: 4px;
-  margin-left: -2px;
-  border-radius: 999px;
-  background: var(--gold);
-  box-shadow: 0 0 6px 1px color-mix(in oklab, var(--gold) 70%, transparent);
+.rose-calendar .rdp-today:not(.rdp-selected) button {
+  color: var(--primary);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--gold) 70%, transparent);
+}
+/* The base calendar paints "today" and the focused day with extra squares and rings; keep one shape per day */
+.rose-calendar td.rdp-today,
+.rose-calendar td.rdp-day {
+  background: transparent !important;
+}
+.rose-calendar .rdp-day button:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--gold) 70%, transparent);
+  outline-offset: 1px;
+  box-shadow: none;
+}
+.rose-calendar .rdp-day[data-focused="true"] button:not(:focus-visible) {
+  box-shadow: none;
+  border-color: transparent;
 }
 .rose-calendar button[data-selected-single="true"] {
   background: var(--primary);
   color: var(--primary-foreground);
-  border-radius: 999px 999px 0.45rem 0.45rem;
-  box-shadow:
-    0 0 0 2px var(--popover),
-    0 0 0 3px color-mix(in oklab, var(--gold) 75%, transparent),
-    0 8px 16px -8px color-mix(in oklab, var(--gold) 80%, transparent);
-  animation: day-bloom 420ms var(--ease-bloom);
-}
-.rose-calendar button[data-selected-single="true"]::after {
-  background: var(--primary-foreground);
-  box-shadow: none;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px -4px color-mix(in oklab, var(--primary) 70%, transparent);
 }
 .rose-calendar .rdp-button_previous,
 .rose-calendar .rdp-button_next {
   border-radius: 999px;
   color: var(--gold);
-}
-
-@keyframes day-bloom {
-  from {
-    transform: scale(0.6);
-    border-radius: 999px;
-  }
-  to {
-    transform: scale(1);
-  }
 }
 
 /* ------------------------------------------------------------------------------------------
@@ -713,4 +698,11 @@
   box-shadow:
     inset 0 0 0 1px color-mix(in oklab, var(--tone) 55%, transparent),
     0 14px 22px -12px color-mix(in oklab, var(--tone) 95%, transparent);
+}
+
+/* Native clear button of search fields is replaced by our own */
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
 }

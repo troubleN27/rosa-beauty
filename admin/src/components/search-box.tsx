@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -36,8 +36,18 @@ export function SearchBox({ placeholder, label }: { placeholder: string; label: 
         placeholder={placeholder}
         value={value}
         onChange={(event) => setValue(event.target.value)}
-        className="pl-8"
+        className="pr-8 pl-8"
       />
+      {value && (
+        <button
+          type="button"
+          onClick={() => setValue("")}
+          aria-label="Очистить поиск"
+          className="absolute top-1/2 right-1.5 grid size-5 -translate-y-1/2 place-items-center rounded-full text-gold transition-colors duration-200 hover:bg-primary/15 hover:text-primary"
+        >
+          <X className="size-3.5" aria-hidden />
+        </button>
+      )}
     </div>
   );
 }

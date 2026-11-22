@@ -78,7 +78,6 @@ export function DatePicker({
       <PopoverContent align="start" className="w-auto p-2">
         <Calendar
           mode="single"
-          animate
           locale={ru}
           weekStartsOn={1}
           selected={selected}
