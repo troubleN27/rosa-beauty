@@ -29,6 +29,29 @@ function toMinutes(clock: string) {
   return h * 60 + m;
 }
 
+function monogram(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0].toUpperCase())
+    .join("");
+}
+
+/** Share of the shift taken by bookings, 0..1; null on a day off. */
+function shiftLoad(work: GridColumn["work"], bookings: GridBooking[]) {
+  if (!work) return null;
+  const breakMinutes =
+    work.breakStart != null && work.breakEnd != null ? Math.max(0, work.breakEnd - work.breakStart) : 0;
+  const shift = work.end - work.start - breakMinutes;
+  if (shift <= 0) return null;
+  const booked = bookings.reduce(
+    (sum, b) => sum + Math.max(0, Math.min(b.endMin, work.end) - Math.max(b.startMin, work.start)),
+    0,
+  );
+  return Math.min(1, booked / shift);
+}
+
 function dayTitle(day: string, pattern: string) {
   const text = format(new Date(`${day}T12:00:00Z`), pattern, { locale: ru });
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -98,16 +121,23 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
 
   let columns: GridColumn[];
   if (view === "day") {
-    columns = shownMasters.map((master) => ({
-      key: master.id,
-      title: master.name,
-      work: workFor(master.id, date),
-      offLabel: offLabel(master.id, date),
-      isToday: date === today,
-      bookings: data.bookings
+    columns = shownMasters.map((master) => {
+      const work = workFor(master.id, date);
+      const bookings = data.bookings
         .filter((b) => b.masterId === master.id && localDate(b.startsAt, tz) === date)
-        .map((b) => toGridBooking(b, false)),
-    }));
+        .map((b) => toGridBooking(b, false));
+      return {
+        key: master.id,
+        title: master.name,
+        badge: monogram(master.name),
+        badgeKind: "monogram" as const,
+        work,
+        offLabel: offLabel(master.id, date),
+        isToday: date === today,
+        load: shiftLoad(work, bookings),
+        bookings,
+      };
+    });
   } else {
     const single = shownMasters.length === 1 ? shownMasters[0] : null;
     columns = days.map((day) => {
@@ -126,16 +156,22 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
             }
           : null;
       }
+      const bookings = data.bookings
+        .filter((b) => localDate(b.startsAt, tz) === day)
+        .map((b) => toGridBooking(b, !single));
       return {
         key: day,
-        title: dayTitle(day, "EEEEEE, d MMM"),
+        title: dayTitle(day, "EEEE"),
+        subtitle: dayTitle(day, "d MMMM").split(" ")[1],
+        badge: dayTitle(day, "d"),
+        badgeKind: "day" as const,
         highlight: day === today,
         isToday: day === today,
         work,
         offLabel: single ? offLabel(single.id, day) : "Никто не работает",
-        bookings: data.bookings
-          .filter((b) => localDate(b.startsAt, tz) === day)
-          .map((b) => toGridBooking(b, !single)),
+        // load is meaningful only for one master's shift
+        load: single ? shiftLoad(work, bookings) : undefined,
+        bookings,
       };
     });
   }

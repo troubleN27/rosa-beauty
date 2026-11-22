@@ -220,14 +220,6 @@
     opacity: 0.45;
   }
 
-  /* Hatched background for off-hours and breaks in the schedule */
-  .hatch {
-    background-image: repeating-linear-gradient(
-      135deg,
-      color-mix(in oklab, var(--muted) 90%, transparent) 0 6px,
-      transparent 6px 12px
-    );
-  }
 
   /* Evening salon: a faint warm glow over the work area, like bulbs behind the mirror */
   .dark [data-slot="sidebar-inset"] {
@@ -563,30 +555,6 @@
   border: 1px dashed color-mix(in oklab, var(--gold) 45%, transparent);
 }
 
-/* "Now" line in today's schedule column: a gold thread with a rose at its start.
-   It runs under the booking blocks, so it never crosses their text. */
-.now-line {
-  height: 2px;
-  background: linear-gradient(90deg, var(--gold), color-mix(in oklab, var(--gold) 20%, transparent));
-  box-shadow: 0 0 8px color-mix(in oklab, var(--gold) 70%, transparent);
-}
-.now-line::before {
-  content: "";
-  position: absolute;
-  left: 2px;
-  top: -9px;
-  width: 14px;
-  height: 20px;
-  background: url("/brand/rose.png") center / contain no-repeat;
-  filter: drop-shadow(0 0 4px rgb(216 170 98 / 0.7));
-  animation: now-pulse 2.4s ease-in-out infinite;
-}
-@keyframes now-pulse {
-  50% {
-    transform: scale(1.18);
-  }
-}
-
 /* ------------------------------------------------------------------------------------------
    Tables as a salon ledger: gold column titles, dashed rules, a rose wash sweeping in on hover
    ------------------------------------------------------------------------------------------ */
@@ -624,4 +592,125 @@
 }
 [data-slot="table-body"] [data-slot="table-row"]:hover > [data-slot="table-cell"]:first-child {
   box-shadow: inset 3px 0 0 var(--gold);
+}
+
+/* ------------------------------------------------------------------------------------------
+   Schedule "mirror gallery": gold thread with beads, arched heads, glass shifts on velvet,
+   a ribbon for breaks and cards hung at their time
+   ------------------------------------------------------------------------------------------ */
+.sched-thread {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in oklab, var(--gold) 70%, transparent) 4%,
+    color-mix(in oklab, var(--gold) 70%, transparent) 96%,
+    transparent
+  );
+}
+.sched-bead {
+  background: radial-gradient(circle at 35% 30%, rgb(255 248 236 / 0.95) 0 20%, var(--gold) 65%);
+  box-shadow: 0 0 6px color-mix(in oklab, var(--gold) 60%, transparent);
+}
+.sched-now-chip {
+  background: var(--gold);
+  color: #24140f;
+  box-shadow: 0 0 12px color-mix(in oklab, var(--gold) 70%, transparent);
+}
+
+.sched-arch {
+  border: 1px solid color-mix(in oklab, var(--gold) 35%, transparent);
+  border-radius: 999px 999px 0.9rem 0.9rem;
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--primary) 9%, var(--card)), var(--card) 70%);
+  transition:
+    box-shadow 400ms var(--ease-silk),
+    translate 400ms var(--ease-silk);
+}
+.sched-arch:hover {
+  translate: 0 -2px;
+  box-shadow: 0 10px 22px -14px color-mix(in oklab, var(--gold) 80%, transparent);
+}
+.sched-arch-today {
+  border-color: color-mix(in oklab, var(--gold) 75%, transparent);
+  box-shadow:
+    inset 0 0 0 3px var(--card),
+    inset 0 0 0 4px color-mix(in oklab, var(--gold) 30%, transparent),
+    0 0 22px -6px color-mix(in oklab, var(--gold) 70%, transparent);
+}
+
+.sched-velvet {
+  background-color: color-mix(in oklab, var(--muted) 55%, transparent);
+  background-image: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.025) 0 2px, transparent 2px 8px);
+}
+.dark .sched-velvet {
+  background-color: color-mix(in oklab, var(--muted) 70%, transparent);
+}
+.sched-glass {
+  border-radius: 1.3rem 1.3rem 0.9rem 0.9rem;
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--card) 92%, white), var(--card));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--gold) 22%, transparent),
+    0 6px 18px -14px rgb(53 32 43 / 0.5);
+}
+.dark .sched-glass {
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--card) 88%, var(--gold)), var(--card));
+}
+.sched-ribbon {
+  z-index: 1;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--gold) 16%, transparent) 0 7px,
+    color-mix(in oklab, var(--gold) 6%, transparent) 7px 14px
+  );
+  border-block: 1px solid color-mix(in oklab, var(--gold) 50%, transparent);
+}
+
+.sched-now {
+  z-index: 2;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), color-mix(in oklab, var(--gold) 25%, transparent));
+  box-shadow: 0 0 8px color-mix(in oklab, var(--gold) 70%, transparent);
+}
+.sched-now[data-rose]::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: -10px;
+  width: 15px;
+  height: 22px;
+  background: url("/brand/rose.png") center / contain no-repeat;
+  filter: drop-shadow(0 0 4px rgb(216 170 98 / 0.7));
+  animation: now-pulse 2.4s ease-in-out infinite;
+}
+@keyframes now-pulse {
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+.sched-card {
+  border-radius: 0.85rem;
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--tone) 20%, var(--card));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--tone) 35%, transparent),
+    0 8px 16px -12px color-mix(in oklab, var(--tone) 90%, transparent);
+  transition:
+    translate 350ms var(--ease-bloom),
+    box-shadow 350ms var(--ease-silk);
+}
+.sched-card::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--tone);
+}
+.sched-card:hover {
+  translate: 0 -2px;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--tone) 55%, transparent),
+    0 14px 22px -12px color-mix(in oklab, var(--tone) 95%, transparent);
 }

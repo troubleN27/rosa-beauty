@@ -1,12 +1,20 @@
-import { cn } from "cn";
+"use client";
+
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { useRef, type CSSProperties } from "react";
 
 import { STATUS_STYLES, statusKey } from "@/components/status-badge";
 import { STATUS_LABELS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
-export const SLOT_MINUTES = 30;
-const PX_PER_MINUTE = 1.4; // 30 min = 42px
+gsap.registerPlugin(useGSAP);
+
+const SLOT_MINUTES = 30;
+const PX_PER_MINUTE = 1.6; // 30 min = 48px
+const PAD = 18; // room above the first and below the last hour label
+const COMPACT_HEIGHT = 50;
 
 export type GridBooking = {
   id: string;
@@ -26,17 +34,30 @@ export type GridColumn = {
   key: string;
   title: string;
   subtitle?: string;
+  /** Initials of the master, or the day number in the week view */
+  badge?: string;
+  badgeKind?: "monogram" | "day";
   highlight?: boolean;
   /** Draw the "now" line in this column */
   isToday?: boolean;
+  /** Share of the shift taken by bookings, 0..1; null on a day off, undefined when not meaningful */
+  load?: number | null;
   /** Working interval in minutes from midnight; null = day off */
   work: { start: number; end: number; breakStart: number | null; breakEnd: number | null } | null;
   offLabel?: string;
   bookings: GridBooking[];
 };
 
-function minutesLabel(minutes: number) {
+function clock(minutes: number) {
   return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+}
+
+function bookingsLabel(count: number) {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return `${count} запись`;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} записи`;
+  return `${count} записей`;
 }
 
 /** Lays out overlapping blocks side by side (e.g. several masters in the week view). */
@@ -63,6 +84,35 @@ function layout(bookings: GridBooking[]) {
   return placed;
 }
 
+/** Half-ring gauge of how full the shift is. */
+function LoadGauge({ load }: { load: number }) {
+  const percent = Math.round(load * 100);
+  return (
+    <span className="flex items-end gap-1.5" title={`Загрузка смены ${percent}%`}>
+      <svg viewBox="0 0 40 22" className="h-[18px] w-8" aria-hidden>
+        <path d="M4 20 A16 16 0 0 1 36 20" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-gold/25" />
+        <path
+          data-gauge
+          d="M4 20 A16 16 0 0 1 36 20"
+          fill="none"
+          strokeWidth="3"
+          strokeLinecap="round"
+          pathLength={100}
+          strokeDasharray={`${percent} 100`}
+          className="stroke-primary"
+        />
+      </svg>
+      <span className="font-display text-base leading-none font-semibold tabular-nums">{percent}%</span>
+    </span>
+  );
+}
+
+/**
+ * "Mirror gallery" schedule: a gold thread with hour beads on the left, an arched mirror
+ * heading each column, the shift as a pane of glass on velvet, breaks as a gold ribbon and
+ * bookings as cards hung at their time. Nothing is drawn across text: hour rules stay faint
+ * and behind the cards, the "now" time sits in its own chip on the thread.
+ */
 export function ScheduleGrid({
   columns,
   startMin,
@@ -75,138 +125,228 @@ export function ScheduleGrid({
   /** Current salon-local time in minutes, for the "now" line */
   nowMin?: number;
 }) {
-  const showNow = nowMin !== undefined && nowMin > startMin && nowMin < endMin;
-  const height = (endMin - startMin) * PX_PER_MINUTE;
-  const rows = Array.from(
-    { length: Math.ceil((endMin - startMin) / SLOT_MINUTES) },
-    (_, i) => startMin + i * SLOT_MINUTES,
+  const root = useRef<HTMLDivElement>(null);
+  const height = (endMin - startMin) * PX_PER_MINUTE + PAD * 2;
+  const marks = Array.from({ length: (endMin - startMin) / SLOT_MINUTES + 1 }, (_, i) => startMin + i * SLOT_MINUTES);
+  const y = (minutes: number) => PAD + (Math.min(Math.max(minutes, startMin), endMin) - startMin) * PX_PER_MINUTE;
+  const showNow =
+    nowMin !== undefined && nowMin > startMin && nowMin < endMin && columns.some((column) => column.isToday);
+  const firstToday = columns.findIndex((column) => column.isToday);
+  const contentKey = `${startMin}-${endMin}-${columns.map((c) => `${c.key}:${c.bookings.map((b) => b.id).join(",")}`).join("|")}`;
+
+  useGSAP(
+    () => {
+      gsap.from("[data-arch]", { autoAlpha: 0, y: 14, duration: 0.6, ease: "power3.out", stagger: 0.06 });
+      gsap.from("[data-bead]", { scale: 0, autoAlpha: 0, duration: 0.35, ease: "back.out(3)", stagger: 0.025, delay: 0.1 });
+      gsap.from("[data-glass]", { autoAlpha: 0, scaleY: 0.96, transformOrigin: "top", duration: 0.6, ease: "power2.out", stagger: 0.05 });
+      const cards = gsap.utils
+        .toArray<HTMLElement>("[data-card]")
+        .sort((a, b) => Number(a.dataset.start) - Number(b.dataset.start));
+      if (cards.length) {
+        gsap.from(cards, {
+          autoAlpha: 0,
+          y: -18,
+          rotate: -1.5,
+          duration: 0.6,
+          ease: "back.out(1.6)",
+          stagger: 0.05,
+          delay: 0.25,
+          clearProps: "transform,opacity,visibility",
+        });
+      }
+      if (root.current?.querySelector("[data-gauge]")) {
+        gsap.from("[data-gauge]", { attr: { "stroke-dasharray": "0 100" }, duration: 1.1, ease: "power2.out", delay: 0.3 });
+      }
+    },
+    { scope: root, dependencies: [contentKey], revertOnUpdate: true },
   );
-  const y = (minutes: number) => (Math.min(Math.max(minutes, startMin), endMin) - startMin) * PX_PER_MINUTE;
 
   return (
-    <div className="overflow-x-auto rounded-xl border bg-card">
-      <div
-        className="grid min-w-full"
-        style={{ gridTemplateColumns: `3.5rem repeat(${columns.length}, minmax(9.5rem, 1fr))` }}
-      >
-        {/* header */}
-        <div className="sticky left-0 z-10 border-b bg-card" />
-        {columns.map((column) => (
-          <div
-            key={column.key}
-            className={cn("border-b border-l px-3 py-2.5", column.highlight && "bg-accent/60")}
-          >
-            <p className={cn("truncate font-display text-lg leading-tight font-semibold", column.highlight && "text-primary")}>
-              {column.title}
-            </p>
-            {column.subtitle && <p className="truncate text-xs text-muted-foreground">{column.subtitle}</p>}
-          </div>
-        ))}
+    <div ref={root} className="overflow-hidden rounded-2xl border bg-card">
+      <div className="snap-x snap-mandatory overflow-x-auto md:snap-none">
+        <div
+          className="grid min-w-full"
+          style={{ gridTemplateColumns: `4.75rem repeat(${columns.length}, minmax(${columns.length > 5 ? "7.5rem" : "10.5rem"}, 1fr))` }}
+        >
+          {/* corner */}
+          <div className="sticky left-0 z-30 border-b border-gold/25 bg-card" />
 
-        {/* time axis */}
-        <div className="sticky left-0 z-10 bg-card" style={{ height }}>
-          {rows.map((minutes) => (
-            <div
-              key={minutes}
-              className="relative"
-              style={{ height: SLOT_MINUTES * PX_PER_MINUTE }}
-            >
-              {minutes % 60 === 0 ? (
-                <span
-                  className={cn(
-                    "absolute right-2.5 font-display text-[15px] leading-none font-medium tabular-nums",
-                    // the first label sits below the header line instead of on it
-                    minutes === startMin ? "top-1.5" : "-top-2",
-                  )}
-                >
-                  {minutesLabel(minutes)}
+          {/* arched heads */}
+          {columns.map((column) => (
+            <div key={column.key} className="snap-start scroll-ml-[4.75rem] border-b border-gold/25 px-2 pt-3 pb-3">
+              <div
+                data-arch
+                className={cn(
+                  "sched-arch flex h-[124px] flex-col items-center justify-end px-2 pb-2.5 text-center",
+                  column.highlight && "sched-arch-today",
+                )}
+              >
+                {column.badge && (
+                  <span
+                    className={cn(
+                      "font-display leading-none font-semibold text-gold",
+                      column.badgeKind === "day" ? "text-4xl" : "text-[28px] tracking-wide",
+                    )}
+                  >
+                    {column.badge}
+                  </span>
+                )}
+                <span className={cn("mt-1.5 w-full truncate font-medium", column.badgeKind === "day" ? "text-[13px]" : "text-sm")}>
+                  {column.title}
                 </span>
-              ) : (
-                <span className="absolute -top-px right-0 h-px w-2 bg-gold/50" aria-hidden />
+                {column.subtitle && <span className="w-full truncate text-xs text-muted-foreground">{column.subtitle}</span>}
+                <span className="mt-2 flex min-h-[18px] items-center gap-2 text-xs text-muted-foreground">
+                  {column.load != null && <LoadGauge load={column.load} />}
+                  <span>{column.work ? bookingsLabel(column.bookings.length) : (column.offLabel ?? "Выходной")}</span>
+                </span>
+              </div>
+            </div>
+          ))}
+
+          {/* the gold thread with hour beads */}
+          <div className="sticky left-0 z-20 bg-card" style={{ height }}>
+            <span className="sched-thread absolute top-0 right-[11px] bottom-0 w-px" aria-hidden />
+            {marks.map((minutes) => {
+              const hour = minutes % 60 === 0;
+              const nearNow = showNow && Math.abs(minutes - (nowMin ?? 0)) < 14;
+              return (
+                <div key={minutes} className="absolute inset-x-0" style={{ top: y(minutes) }}>
+                  <span
+                    data-bead
+                    aria-hidden
+                    className={cn(
+                      "sched-bead absolute -translate-y-1/2 rounded-full",
+                      hour ? "right-[8px] size-[7px]" : "right-[10px] size-[3px] opacity-70",
+                    )}
+                  />
+                  {hour && !nearNow && (
+                    <span className="absolute right-5 -translate-y-1/2 font-display text-[15px] leading-none font-medium tabular-nums">
+                      {clock(minutes)}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+            {showNow && (
+              <span
+                className="sched-now-chip absolute right-1 z-10 -translate-y-1/2 rounded-full px-1.5 py-0.5 text-[11px] font-semibold tabular-nums"
+                style={{ top: y(nowMin!) }}
+              >
+                {clock(nowMin!)}
+              </span>
+            )}
+          </div>
+
+          {/* columns */}
+          {columns.map((column, columnIndex) => (
+            <div key={column.key} className="sched-velvet relative border-l border-gold/15" style={{ height }}>
+              {marks
+                .filter((minutes) => minutes % 60 === 0)
+                .map((minutes) => (
+                  <span
+                    key={minutes}
+                    aria-hidden
+                    className="pointer-events-none absolute inset-x-0 border-t border-dashed border-border/45"
+                    style={{ top: y(minutes) }}
+                  />
+                ))}
+
+              {column.work && (
+                <div
+                  data-glass
+                  className="sched-glass absolute inset-x-1.5"
+                  style={{ top: y(column.work.start), height: y(column.work.end) - y(column.work.start) }}
+                />
               )}
+
+              {column.work?.breakStart != null && column.work.breakEnd != null && (
+                <div
+                  className="sched-ribbon absolute inset-x-0 flex items-center justify-center"
+                  style={{
+                    top: y(column.work.breakStart),
+                    height: y(column.work.breakEnd) - y(column.work.breakStart),
+                  }}
+                >
+                  <span className="rounded-full bg-card px-2.5 py-0.5 text-[11px] text-muted-foreground shadow-sm">
+                    Перерыв {clock(column.work.breakStart)}–{clock(column.work.breakEnd)}
+                  </span>
+                </div>
+              )}
+
+              {showNow && column.isToday && (
+                <div
+                  aria-hidden
+                  data-rose={columnIndex === firstToday ? "true" : undefined}
+                  className="sched-now pointer-events-none absolute inset-x-0"
+                  style={{ top: y(nowMin!) }}
+                />
+              )}
+
+              {layout(column.bookings).map((booking) => {
+                const status = statusKey(booking.status);
+                const top = y(booking.startMin);
+                const blockHeight = Math.max(y(booking.endMin) - top - 3, 24);
+                const compact = blockHeight < COMPACT_HEIGHT;
+                // side-by-side cards in a narrow column keep only the start time; the rest is in the tooltip
+                const narrow = booking.lanes > 1 && columns.length > 5;
+                return (
+                  <Link
+                    key={booking.id}
+                    data-card
+                    data-start={booking.startMin}
+                    href={booking.href}
+                    scroll={false}
+                    title={`${booking.time} ${booking.title}, ${booking.subtitle} (${booking.categoryName}: ${STATUS_LABELS[status].toLowerCase()})`}
+                    className={cn(
+                      "sched-card absolute z-10 overflow-hidden pr-2 pl-3.5 text-xs leading-tight focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+                      narrow ? "py-1.5 pr-1 pl-3" : compact ? "flex items-center gap-1.5 py-0" : "py-1.5",
+                      status === "no_show" && "opacity-70",
+                    )}
+                    style={{
+                      ...booking.tone,
+                      top: top + 1.5,
+                      height: blockHeight,
+                      left: `calc(${(booking.lane / booking.lanes) * 100}% + 8px)`,
+                      width: `calc(${100 / booking.lanes}% - 16px)`,
+                    }}
+                  >
+                    {narrow ? (
+                      <span className="block font-display text-sm leading-none font-semibold whitespace-nowrap tabular-nums">
+                        {booking.time.split("–")[0]}
+                      </span>
+                    ) : compact ? (
+                      <>
+                        <span className="shrink-0 font-display text-sm font-semibold tabular-nums">
+                          {booking.time.split("–")[0]}
+                        </span>
+                        <span className="min-w-0 truncate font-medium">{booking.title}</span>
+                        <span
+                          className={cn("ml-auto size-1.5 shrink-0 rounded-full bg-(--status)", STATUS_STYLES[status].badge)}
+                          aria-hidden
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <span className="flex items-center gap-1.5">
+                          <span className="font-display text-[15px] leading-none font-semibold whitespace-nowrap tabular-nums">
+                            {booking.time}
+                          </span>
+                          <span
+                            className={cn("ml-auto size-1.5 shrink-0 rounded-full bg-(--status)", STATUS_STYLES[status].badge)}
+                            aria-hidden
+                          />
+                        </span>
+                        <span className="mt-1 block truncate font-medium">{booking.title}</span>
+                        <span className="block truncate text-muted-foreground">{booking.subtitle}</span>
+                      </>
+                    )}
+                    <span className="sr-only">{STATUS_LABELS[status]}</span>
+                  </Link>
+                );
+              })}
             </div>
           ))}
         </div>
-
-        {columns.map((column) => (
-          <div
-            key={column.key}
-            className="hatch relative border-l bg-muted/50"
-            style={{ height }}
-          >
-            {column.work && (
-              <div
-                className="absolute inset-x-0 bg-card"
-                style={{ top: y(column.work.start), height: y(column.work.end) - y(column.work.start) }}
-              />
-            )}
-            {column.work?.breakStart != null && column.work.breakEnd != null && (
-              <div
-                className="hatch absolute inset-x-0 flex items-center justify-center bg-muted/50 text-[11px] text-muted-foreground"
-                style={{ top: y(column.work.breakStart), height: y(column.work.breakEnd) - y(column.work.breakStart) }}
-              >
-                Перерыв
-              </div>
-            )}
-            {!column.work && (
-              <p className="absolute inset-x-0 top-4 text-center text-xs text-muted-foreground">
-                {column.offLabel ?? "Выходной"}
-              </p>
-            )}
-            {rows.map((minutes) => (
-              <div
-                key={minutes}
-                className={cn(
-                  "pointer-events-none absolute inset-x-0 border-t",
-                  minutes % 60 === 0 ? "border-border" : "border-border/40 border-dashed",
-                )}
-                style={{ top: y(minutes) }}
-              />
-            ))}
-            {showNow && column.isToday && (
-              <div
-                aria-hidden
-                className="now-line pointer-events-none absolute inset-x-0 z-0"
-                style={{ top: y(nowMin) }}
-              />
-            )}
-            {layout(column.bookings).map((booking) => {
-              const status = statusKey(booking.status);
-              const top = y(booking.startMin);
-              const blockHeight = Math.max(y(booking.endMin) - top - 2, 20);
-              return (
-                <Link
-                  key={booking.id}
-                  href={booking.href}
-                  scroll={false}
-                  title={`${booking.categoryName}: ${STATUS_LABELS[status].toLowerCase()}`}
-                  className={cn(
-                    "tone-block absolute overflow-hidden rounded-md px-2 py-1 text-xs leading-tight text-foreground transition-[filter] hover:brightness-[0.97] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none dark:hover:brightness-110",
-                    status === "no_show" && "opacity-70",
-                  )}
-                  style={{
-                    ...booking.tone,
-                    top: top + 1,
-                    height: blockHeight,
-                    left: `calc(${(booking.lane / booking.lanes) * 100}% + 3px)`,
-                    width: `calc(${100 / booking.lanes}% - 6px)`,
-                  }}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <span className="font-semibold tabular-nums">{booking.time}</span>
-                    <span
-                      className={cn("ml-auto size-1.5 shrink-0 rounded-full bg-(--status)", STATUS_STYLES[status].badge)}
-                      aria-hidden
-                    />
-                    <span className="sr-only">{STATUS_LABELS[status]}</span>
-                  </span>
-                  <span className="block truncate font-medium">{booking.title}</span>
-                  <span className="block truncate text-muted-foreground">{booking.subtitle}</span>
-                </Link>
-              );
-            })}
-          </div>
-        ))}
       </div>
     </div>
   );
