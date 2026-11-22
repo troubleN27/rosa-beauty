@@ -11,6 +11,13 @@ class LanguageCb(CallbackData, prefix="lang"):
     code: str
 
 
+class CloseCb(CallbackData, prefix="x"):
+    """«Закрыть»: removes the message; `also` is another message of the same section
+    (the contacts text above the map), 0 if none."""
+
+    also: int = 0
+
+
 # --- Information sections ----------------------------------------------------------
 
 

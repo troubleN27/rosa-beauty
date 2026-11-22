@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import repo
 from app.db.models import Category, Client, Master, Service
 from app.handlers.common import StaleFlowError, callback_message, show
-from app.i18n import all_translations, t
+from app.i18n import all_translations, menu_button_texts, t
 from app.keyboards.booking import (
     calendar_keyboard,
     categories_keyboard,
@@ -229,7 +229,7 @@ async def _ask_phone(message: Message, state: FSMContext, lang: str) -> None:
 # --- Start -------------------------------------------------------------------
 
 
-@router.message(F.text.in_(all_translations("menu.book")))
+@router.message(F.text.in_(menu_button_texts("menu.book")))
 async def start_booking(
     message: Message, state: FSMContext, session: AsyncSession, client: Client | None, lang: str
 ) -> None:

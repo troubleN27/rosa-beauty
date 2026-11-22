@@ -9,8 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import repo
 from app.db.models import Master, SalonSettings, Service
 from app.handlers.common import callback_message
-from app.i18n import all_translations, t
+from app.i18n import menu_button_texts, t
 from app.keyboards.callbacks import InfoCategoryCb, InfoMasterCb, NavCb, NavTarget
+from app.keyboards.common import close_keyboard
 from app.keyboards.info import (
     back_keyboard,
     categories_keyboard,
@@ -32,7 +33,8 @@ async def _categories_view(
     categories = await repo.list_categories_with_services(session)
     if not categories:
         settings = await repo.get_salon_settings(session)
-        return t("services.empty", lang, phone=escape(settings.phone or "")), None
+        phone = escape(settings.phone or "")
+        return t("services.empty", lang, phone=phone), close_keyboard(lang)
     return t("services.choose_category", lang), categories_keyboard(categories, lang)
 
 
@@ -48,7 +50,7 @@ def _service_text(service: Service, settings: SalonSettings, lang: str) -> str:
     return f"{text}\n<i>{escape(description)}</i>" if description else text
 
 
-@router.message(F.text.in_(all_translations("menu.services")))
+@router.message(F.text.in_(menu_button_texts("menu.services")))
 async def handle_services(message: Message, session: AsyncSession, lang: str) -> None:
     text, keyboard = await _categories_view(session, lang)
     await message.answer(text, reply_markup=keyboard)
@@ -99,7 +101,7 @@ async def _masters_view(
 ) -> tuple[str, InlineKeyboardMarkup | None]:
     masters = await repo.list_active_masters(session)
     if not masters:
-        return t("masters.empty", lang), None
+        return t("masters.empty", lang), close_keyboard(lang)
     return t("masters.choose", lang), masters_keyboard(masters, lang)
 
 
@@ -114,7 +116,7 @@ def _master_card(master: Master, lang: str) -> str:
     return "\n".join(lines)
 
 
-@router.message(F.text.in_(all_translations("menu.masters")))
+@router.message(F.text.in_(menu_button_texts("menu.masters")))
 async def handle_masters(message: Message, session: AsyncSession, lang: str) -> None:
     text, keyboard = await _masters_view(session, lang)
     await message.answer(text, reply_markup=keyboard)
@@ -160,7 +162,7 @@ async def handle_back_to_masters(callback: CallbackQuery, session: AsyncSession,
 # --- Contacts -----------------------------------------------------------------
 
 
-@router.message(F.text.in_(all_translations("menu.contacts")))
+@router.message(F.text.in_(menu_button_texts("menu.contacts")))
 async def handle_contacts(message: Message, session: AsyncSession, lang: str) -> None:
     settings = await repo.get_salon_settings(session)
     lines = [t("contacts.title", lang, name=escape(settings.name))]
@@ -178,8 +180,15 @@ async def handle_contacts(message: Message, session: AsyncSession, lang: str) ->
     has_location = settings.latitude is not None and settings.longitude is not None
     if has_location:
         lines.append(f"\n{t('contacts.map', lang)}")
-    await message.answer(
-        "\n".join(lines), link_preview_options=LinkPreviewOptions(is_disabled=True)
+    sent = await message.answer(
+        "\n".join(lines),
+        link_preview_options=LinkPreviewOptions(is_disabled=True),
+        reply_markup=None if has_location else close_keyboard(lang),
     )
     if has_location:
-        await message.answer_location(latitude=settings.latitude, longitude=settings.longitude)
+        # «Закрыть» under the map removes both the map and the text above it
+        await message.answer_location(
+            latitude=settings.latitude,
+            longitude=settings.longitude,
+            reply_markup=close_keyboard(lang, also=sent.message_id),
+        )

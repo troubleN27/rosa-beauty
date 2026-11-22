@@ -11,7 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.config import get_settings
 from app.db.engine import create_engine, create_session_factory
-from app.handlers import booking, errors, info, menu, my_bookings, review, start
+from app.handlers import booking, commands, errors, info, menu, my_bookings, review, start
+from app.i18n import t
 from app.middlewares import ClientMiddleware, DbSessionMiddleware
 from app.scheduler import ReminderScheduler
 
@@ -27,6 +28,7 @@ def create_dispatcher(
     dp.include_routers(
         errors.router,
         start.router,
+        commands.router,  # before the booking flow: see handlers/commands.py
         booking.router,
         my_bookings.router,
         menu.router,
@@ -37,12 +39,19 @@ def create_dispatcher(
     return dp
 
 
+COMMANDS = ("menu", "book", "my", "services", "masters", "contacts", "language")
+
+
 async def set_commands(bot: Bot) -> None:
-    for lang, description in (("ru", "Главное меню"), ("en", "Main menu")):
+    """The command list in Telegram's menu: Russian by default, English for English clients."""
+    for lang, language_code in (("ru", None), ("en", "en")):
         await bot.set_my_commands(
-            [BotCommand(command="start", description=description)],
+            [
+                BotCommand(command=name, description=t(f"commands.{name}", lang))
+                for name in COMMANDS
+            ],
             scope=BotCommandScopeDefault(),
-            language_code=None if lang == "ru" else lang,
+            language_code=language_code,
         )
 
 

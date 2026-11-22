@@ -2,7 +2,7 @@
   "start.welcome_new": "🌸 Добро пожаловать в Rosa Beauty!\nWelcome to Rosa Beauty!\n\nВыберите язык · Choose your language",
   "start.welcome_back": "С возвращением, {name}! 🌸\nЧем можем помочь сегодня?",
   "start.language_saved": "Отлично, общаемся на русском 🇷🇺\n\nЗдесь можно записаться к мастеру, посмотреть услуги и цены. Всё в меню ниже 👇",
-  "menu.book": "✨ Записаться",
+  "menu.book": "🌹 Записаться",
   "menu.my_bookings": "📅 Мои записи",
   "menu.services": "💰 Услуги и цены",
   "menu.masters": "👩‍🎨 Мастера",
@@ -13,6 +13,7 @@
   "language.ru": "🇷🇺 Русский",
   "language.en": "🇬🇧 English",
   "nav.back": "⬅️ Назад",
+  "nav.close": "✖️ Закрыть",
   "services.choose_category": "💰 <b>Услуги и цены</b>\n\nВыберите категорию:",
   "services.empty": "Список услуг скоро обновится. Уточнить цены можно по телефону {phone} 📞",
   "services.category_empty": "В этой категории пока нет услуг.",
@@ -97,5 +98,12 @@
   "review.skip_button": "Пропустить",
   "review.done": "Спасибо за отзыв! 💛",
   "review.already": "Вы уже оценили этот визит — спасибо! 💛",
-  "review.comment_too_long": "Комментарий получился длинным — уложитесь, пожалуйста, в {limit} символов."
+  "review.comment_too_long": "Комментарий получился длинным — уложитесь, пожалуйста, в {limit} символов.",
+  "commands.menu": "Главное меню",
+  "commands.book": "Записаться",
+  "commands.my": "Мои записи",
+  "commands.services": "Услуги и цены",
+  "commands.masters": "Мастера",
+  "commands.contacts": "Контакты",
+  "commands.language": "Язык"
 }

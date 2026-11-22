@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import repo
 from app.db.models import Booking, Client, Master, SalonSettings, Service
 from app.handlers.common import StaleFlowError, callback_message, show
-from app.i18n import all_translations, t
+from app.i18n import menu_button_texts, t
 from app.keyboards.booking import (
     calendar_keyboard,
     confirm_only_keyboard,
@@ -24,6 +24,7 @@ from app.keyboards.booking import (
     times_keyboard,
 )
 from app.keyboards.callbacks import BookAction, BookCb, DayCb, MyAction, MyCb, SlotCb
+from app.keyboards.common import close_keyboard
 from app.keyboards.my_bookings import (
     booking_card_keyboard,
     bookings_list_keyboard,
@@ -80,17 +81,17 @@ def _too_late_text(settings: SalonSettings, lang: str) -> str:
 async def _list_view(session: AsyncSession, client: Client, lang: str):
     bookings = await repo.list_upcoming_bookings(session, client.id, _now())
     if not bookings:
-        return t("bookings.empty", lang), None
+        return t("bookings.empty", lang), close_keyboard(lang)
     settings = await repo.get_salon_settings(session)
     items = []
     for booking in bookings:
         service = await session.get(Service, booking.service_id)
         label = f"{when(booking, settings, lang)} · {localized(service, 'name', lang)}"
         items.append((booking, label))
-    return t("bookings.list_title", lang), bookings_list_keyboard(items)
+    return t("bookings.list_title", lang), bookings_list_keyboard(items, lang)
 
 
-@router.message(F.text.in_(all_translations("menu.my_bookings")))
+@router.message(F.text.in_(menu_button_texts("menu.my_bookings")))
 async def my_bookings(
     message: Message,
     state: FSMContext,
@@ -100,7 +101,7 @@ async def my_bookings(
 ) -> None:
     await state.clear()
     if client is None:
-        await message.answer(t("bookings.empty", lang))
+        await message.answer(t("bookings.empty", lang), reply_markup=close_keyboard(lang))
         return
     text, keyboard = await _list_view(session, client, lang)
     await message.answer(text, reply_markup=keyboard)

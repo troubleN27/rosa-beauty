@@ -2,7 +2,7 @@
   "start.welcome_new": "🌸 Добро пожаловать в Rosa Beauty!\nWelcome to Rosa Beauty!\n\nВыберите язык · Choose your language",
   "start.welcome_back": "Welcome back, {name}! 🌸\nHow can we help you today?",
   "start.language_saved": "Great, we'll chat in English 🇬🇧\n\nBook a master, check services and prices. Everything is in the menu below 👇",
-  "menu.book": "✨ Book now",
+  "menu.book": "🌹 Book now",
   "menu.my_bookings": "📅 My bookings",
   "menu.services": "💰 Services & prices",
   "menu.masters": "👩‍🎨 Our masters",
@@ -13,6 +13,7 @@
   "language.ru": "🇷🇺 Русский",
   "language.en": "🇬🇧 English",
   "nav.back": "⬅️ Back",
+  "nav.close": "✖️ Close",
   "services.choose_category": "💰 <b>Services & prices</b>\n\nChoose a category:",
   "services.empty": "Our service list is being updated. Call us for prices: {phone} 📞",
   "services.category_empty": "No services in this category yet.",
@@ -97,5 +98,12 @@
   "review.skip_button": "Skip",
   "review.done": "Thank you for your feedback! 💛",
   "review.already": "You've already rated this visit — thank you! 💛",
-  "review.comment_too_long": "That's a bit long — please keep it under {limit} characters."
+  "review.comment_too_long": "That's a bit long — please keep it under {limit} characters.",
+  "commands.menu": "Main menu",
+  "commands.book": "Book a visit",
+  "commands.my": "My bookings",
+  "commands.services": "Services & prices",
+  "commands.masters": "Our masters",
+  "commands.contacts": "Contacts",
+  "commands.language": "Language"
 }

@@ -26,9 +26,21 @@ def t(key: str, lang: str | None, **params: object) -> str:
     return template.format(**params) if params else template
 
 
+# Former labels of reply-keyboard buttons: clients keep an old keyboard until the bot sends
+# a new one, so these must still open the right section.
+_LEGACY_BUTTONS: dict[str, set[str]] = {
+    "menu.book": {"✨ Записаться", "✨ Book now"},
+}
+
+
 def all_translations(key: str) -> set[str]:
     """The text of a key in every language (to match reply-keyboard buttons)."""
     return {t(key, lang) for lang in LANGUAGES}
+
+
+def menu_button_texts(key: str) -> set[str]:
+    """Every text a main-menu button may carry: current labels and former ones."""
+    return all_translations(key) | _LEGACY_BUTTONS.get(key, set())
 
 
 def language_from_telegram(language_code: str | None) -> str:

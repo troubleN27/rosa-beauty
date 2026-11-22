@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
 
-from app.i18n import all_translations, language_from_telegram, t
+from app.i18n import all_translations, language_from_telegram, menu_button_texts, t
+from app.main import COMMANDS
 
 I18N_DIR = Path(__file__).parent.parent / "app" / "i18n"
 
@@ -39,3 +40,15 @@ def test_language_from_telegram() -> None:
     assert language_from_telegram("en-US") == "en"
     assert language_from_telegram("de") == "en"
     assert language_from_telegram(None) == "ru"
+
+
+def test_menu_buttons_keep_former_labels() -> None:
+    texts = menu_button_texts("menu.book")
+    assert all_translations("menu.book") <= texts
+    assert {"✨ Записаться", "✨ Book now"} <= texts
+
+
+def test_every_command_has_a_description() -> None:
+    for lang in ("ru", "en"):
+        for name in COMMANDS:
+            assert t(f"commands.{name}", lang)
