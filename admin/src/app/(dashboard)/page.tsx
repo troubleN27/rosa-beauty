@@ -135,7 +135,7 @@ export default async function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <ol data-stagger className="divide-y">
+            <ol className="divide-y">
               {data.todayList.map((booking) => (
                 <li key={booking.id} style={categoryTone(booking.categorySort)}>
                   <Link

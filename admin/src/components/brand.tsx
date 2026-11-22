@@ -15,16 +15,13 @@ export function BrandMark({ className, compact = false }: { className?: string; 
   );
 }
 
-/** Ornamental flourish used between sections, drawn after the frame of the logo. */
+/** Divider between sections: the logo's rose between two gold hairlines that fade out. */
 export function Flourish({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 120 12" aria-hidden className={cn("h-3 w-28 text-gold", className)} fill="none">
-      <path d="M0 6h46M74 6h46" stroke="currentColor" strokeWidth="0.75" />
-      <path
-        d="M60 1.5c2.4 2.2 2.4 6.8 0 9-2.4-2.2-2.4-6.8 0-9Zm-9 4.5c3-1.8 6-1.8 9 0-3 1.8-6 1.8-9 0Zm18 0c-3-1.8-6-1.8-9 0 3 1.8 6 1.8 9 0Z"
-        stroke="currentColor"
-        strokeWidth="0.75"
-      />
-    </svg>
+    <span aria-hidden className={cn("flex w-36 items-center gap-2", className)}>
+      <span className="h-px flex-1 bg-gradient-to-r from-transparent to-gold/70" />
+      <Image src="/brand/rose.png" alt="" width={167} height={240} className="h-5 w-auto drop-shadow-[0_0_4px_rgb(216_170_98/0.45)]" />
+      <span className="h-px flex-1 bg-gradient-to-l from-transparent to-gold/70" />
+    </span>
   );
 }

@@ -36,7 +36,7 @@ export default async function ReviewsPage({ searchParams }: PageProps<"/reviews"
           {rating ? "Отзывов с такой оценкой нет." : "Отзывов пока нет."}
         </p>
       ) : (
-        <ul data-stagger className="space-y-3">
+        <ul className="space-y-3">
           {rows.map((review) => (
             <li key={review.id} className="rounded-xl border bg-card p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">

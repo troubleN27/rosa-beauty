@@ -1,15 +1,9 @@
-"use client";
-
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
 import Link from "next/link";
-import { useRef, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 
 import { STATUS_STYLES, statusKey } from "@/components/status-badge";
 import { STATUS_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-
-gsap.registerPlugin(useGSAP);
 
 const SLOT_MINUTES = 30;
 const PX_PER_MINUTE = 1.6; // 30 min = 48px
@@ -92,7 +86,6 @@ function LoadGauge({ load }: { load: number }) {
       <svg viewBox="0 0 40 22" className="h-[18px] w-8" aria-hidden>
         <path d="M4 20 A16 16 0 0 1 36 20" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-gold/25" />
         <path
-          data-gauge
           d="M4 20 A16 16 0 0 1 36 20"
           fill="none"
           strokeWidth="3"
@@ -125,44 +118,16 @@ export function ScheduleGrid({
   /** Current salon-local time in minutes, for the "now" line */
   nowMin?: number;
 }) {
-  const root = useRef<HTMLDivElement>(null);
   const height = (endMin - startMin) * PX_PER_MINUTE + PAD * 2;
   const marks = Array.from({ length: (endMin - startMin) / SLOT_MINUTES + 1 }, (_, i) => startMin + i * SLOT_MINUTES);
   const y = (minutes: number) => PAD + (Math.min(Math.max(minutes, startMin), endMin) - startMin) * PX_PER_MINUTE;
   const showNow =
     nowMin !== undefined && nowMin > startMin && nowMin < endMin && columns.some((column) => column.isToday);
   const firstToday = columns.findIndex((column) => column.isToday);
-  const contentKey = `${startMin}-${endMin}-${columns.map((c) => `${c.key}:${c.bookings.map((b) => b.id).join(",")}`).join("|")}`;
 
-  useGSAP(
-    () => {
-      gsap.from("[data-arch]", { autoAlpha: 0, y: 14, duration: 0.6, ease: "power3.out", stagger: 0.06 });
-      gsap.from("[data-bead]", { scale: 0, autoAlpha: 0, duration: 0.35, ease: "back.out(3)", stagger: 0.025, delay: 0.1 });
-      gsap.from("[data-glass]", { autoAlpha: 0, scaleY: 0.96, transformOrigin: "top", duration: 0.6, ease: "power2.out", stagger: 0.05 });
-      const cards = gsap.utils
-        .toArray<HTMLElement>("[data-card]")
-        .sort((a, b) => Number(a.dataset.start) - Number(b.dataset.start));
-      if (cards.length) {
-        gsap.from(cards, {
-          autoAlpha: 0,
-          y: -18,
-          rotate: -1.5,
-          duration: 0.6,
-          ease: "back.out(1.6)",
-          stagger: 0.05,
-          delay: 0.25,
-          clearProps: "transform,opacity,visibility",
-        });
-      }
-      if (root.current?.querySelector("[data-gauge]")) {
-        gsap.from("[data-gauge]", { attr: { "stroke-dasharray": "0 100" }, duration: 1.1, ease: "power2.out", delay: 0.3 });
-      }
-    },
-    { scope: root, dependencies: [contentKey], revertOnUpdate: true },
-  );
 
   return (
-    <div ref={root} className="overflow-hidden rounded-2xl border bg-card">
+    <div className="overflow-hidden rounded-2xl border bg-card">
       <div className="snap-x snap-mandatory overflow-x-auto md:snap-none">
         <div
           className="grid min-w-full"
@@ -175,7 +140,6 @@ export function ScheduleGrid({
           {columns.map((column) => (
             <div key={column.key} className="snap-start scroll-ml-[4.75rem] border-b border-gold/25 px-2 pt-3 pb-3">
               <div
-                data-arch
                 className={cn(
                   "sched-arch flex h-[124px] flex-col items-center justify-end px-2 pb-2.5 text-center",
                   column.highlight && "sched-arch-today",
@@ -212,7 +176,6 @@ export function ScheduleGrid({
               return (
                 <div key={minutes} className="absolute inset-x-0" style={{ top: y(minutes) }}>
                   <span
-                    data-bead
                     aria-hidden
                     className={cn(
                       "sched-bead absolute -translate-y-1/2 rounded-full",
@@ -253,7 +216,6 @@ export function ScheduleGrid({
 
               {column.work && (
                 <div
-                  data-glass
                   className="sched-glass absolute inset-x-1.5"
                   style={{ top: y(column.work.start), height: y(column.work.end) - y(column.work.start) }}
                 />
@@ -292,8 +254,6 @@ export function ScheduleGrid({
                 return (
                   <Link
                     key={booking.id}
-                    data-card
-                    data-start={booking.startMin}
                     href={booking.href}
                     scroll={false}
                     title={`${booking.time} ${booking.title}, ${booking.subtitle} (${booking.categoryName}: ${STATUS_LABELS[status].toLowerCase()})`}

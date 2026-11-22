@@ -69,7 +69,7 @@ export default async function ClientPage({ params }: PageProps<"/clients/[id]">)
         {history.length === 0 ? (
           <p className="empty-state px-4 py-10 text-center text-sm text-muted-foreground">Записей пока нет.</p>
         ) : (
-          <ol data-stagger className="divide-y">
+          <ol className="divide-y">
             {history.map((booking) => (
               <li key={booking.id}>
                 <Link
