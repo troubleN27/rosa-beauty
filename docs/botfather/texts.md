@@ -38,8 +38,10 @@ Tap «Start» and pick a time that suits you 🌹
 
 ### RU
 
-Салон красоты Rosa Beauty 🌹 Онлайн-запись к мастеру, услуги и цены, напоминания о визите.
+Салон красоты Rosa Beauty 🌹
+Онлайн-запись к мастеру, услуги и цены, напоминания о визите.
 
 ### EN
 
-Rosa Beauty salon 🌹 Book a master online, see services and prices, get visit reminders.
+Rosa Beauty salon 🌹
+Book a master online, see services and prices, get visit reminders.
