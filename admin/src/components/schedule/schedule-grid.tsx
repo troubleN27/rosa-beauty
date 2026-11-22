@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { statusKey } from "@/components/status-badge";
+import { STATUS_STYLES, statusKey } from "@/components/status-badge";
 import { STATUS_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -256,7 +256,8 @@ export function ScheduleGrid({
                     className={cn(
                       "sched-card absolute z-10 overflow-hidden px-2.5 text-xs leading-tight focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
                       narrow ? "px-1.5 py-1.5" : compact ? "flex items-center gap-1.5 py-0" : "py-1.5",
-                      status === "no_show" && "opacity-70",
+                      STATUS_STYLES[status].badge,
+                      status === "no_show" && "opacity-80",
                     )}
                     data-status={status}
                     style={{

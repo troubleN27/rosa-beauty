@@ -650,9 +650,9 @@
   }
 }
 
-/* Cards take the salon's own tones: rose for upcoming, gold once done, grey for a no-show */
+/* Cards take the colour of their status, the same muted hues as the status badges */
 .sched-card {
-  --tone: var(--primary);
+  --tone: var(--status);
   border-radius: 0.85rem;
   color: var(--foreground);
   background: color-mix(in oklab, var(--tone) 20%, var(--card));
@@ -662,13 +662,6 @@
   transition:
     translate 350ms var(--ease-bloom),
     box-shadow 350ms var(--ease-silk);
-}
-.sched-card[data-status="completed"] {
-  --tone: var(--gold);
-}
-.sched-card[data-status="no_show"],
-.sched-card[data-status="cancelled"] {
-  --tone: var(--muted-foreground);
 }
 .sched-card:hover {
   translate: 0 -2px;
