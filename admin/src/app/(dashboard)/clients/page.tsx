@@ -30,7 +30,7 @@ export default async function ClientsPage({ searchParams }: PageProps<"/clients"
       <PageHeader title="Клиенты" description={total ? `Всего: ${total}` : undefined} />
       <SearchBox label="Поиск клиента" placeholder="Имя или телефон" />
       {rows.length === 0 ? (
-        <p className="rounded-xl border bg-card px-4 py-12 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border bg-card empty-state px-4 py-12 text-center text-sm text-muted-foreground">
           {q ? "Никого не нашли. Проверьте имя или номер телефона." : "Клиентов пока нет — они появятся после первой записи."}
         </p>
       ) : (

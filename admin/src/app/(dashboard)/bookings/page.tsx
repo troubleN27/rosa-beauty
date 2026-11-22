@@ -45,6 +45,7 @@ export default async function BookingsPage({ searchParams }: PageProps<"/booking
     client: row.clientName,
     phone: row.clientPhone,
     service: row.serviceName,
+    categorySort: row.categorySort,
     master: row.masterName,
     price: formatPrice(row.price, settings.currency),
     status: row.status,
@@ -68,7 +69,7 @@ export default async function BookingsPage({ searchParams }: PageProps<"/booking
       />
       <BookingsFilters masters={masters.map((m) => ({ id: m.id, name: m.name }))} />
       {data.length === 0 ? (
-        <div className="rounded-xl border bg-card px-4 py-12 text-center">
+        <div className="rounded-xl border bg-card empty-state px-4 py-12 text-center">
           <p className="text-sm text-muted-foreground">
             {hasFilters ? "По этим фильтрам записей нет. Измените период или сбросьте фильтры." : "Записей пока нет."}
           </p>

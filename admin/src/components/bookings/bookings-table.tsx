@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { StatusBadge } from "@/components/status-badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { categoryTone } from "@/lib/category-tone";
 
 export type BookingTableRow = {
   id: string;
@@ -15,6 +16,7 @@ export type BookingTableRow = {
   client: string;
   phone: string | null;
   service: string;
+  categorySort: number;
   master: string;
   price: string;
   status: string;
@@ -68,7 +70,13 @@ const columns: ColumnDef<typeof features, BookingTableRow>[] = [
       </div>
     ),
   },
-  { id: "service", header: "Услуга", cell: ({ row }) => <span className="block min-w-40">{row.original.service}</span> },
+  { id: "service", header: "Услуга", cell: ({ row }) => (
+      <span className="flex min-w-40 items-center gap-2" style={categoryTone(row.original.categorySort)}>
+        <span className="tone-dot size-2 shrink-0 rounded-full" aria-hidden />
+        {row.original.service}
+      </span>
+    ),
+  },
   { id: "master", header: "Мастер", cell: ({ row }) => <span className="whitespace-nowrap">{row.original.master}</span> },
   { id: "price", header: "Цена", cell: ({ row }) => <span className="tabular-nums">{row.original.price}</span> },
   { id: "status", header: "Статус", cell: ({ row }) => <StatusBadge status={row.original.status} /> },

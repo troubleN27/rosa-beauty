@@ -9,14 +9,13 @@ import { PageHeader } from "@/components/layout/page-header";
 import { BookingSheet } from "@/components/schedule/booking-sheet";
 import { ScheduleGrid, type GridBooking, type GridColumn } from "@/components/schedule/schedule-grid";
 import { ScheduleToolbar } from "@/components/schedule/schedule-toolbar";
+import { categoryTone } from "@/lib/category-tone";
 import { getBookingDetails, getScheduleData, listMastersForFilter } from "@/lib/data/bookings";
 import { getSalonSettings } from "@/lib/data/settings";
 import { requireSession } from "@/lib/session";
 import { isoWeekday, localDate, shiftDay as shift, weekStart } from "@/lib/slots";
 
 export const metadata: Metadata = { title: "Расписание" };
-
-const MASTER_ACCENTS = ["#3b6fb6", "#c9707d", "#3f8a5a", "#a0712b", "#7a5ea8", "#2f8a8a"];
 
 const paramsSchema = z.object({
   view: z.enum(["day", "week"]).catch("day"),
@@ -54,8 +53,6 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
   const shownMasters = view === "week" && params.master ? allMasters.filter((m) => m.id === params.master) : allMasters;
   const data = await getScheduleData(days, shownMasters.map((m) => m.id), tz);
 
-  const accent = new Map(allMasters.map((m, i) => [m.id, MASTER_ACCENTS[i % MASTER_ACCENTS.length]]));
-  const masterName = new Map(allMasters.map((m) => [m.id, m.name]));
 
   const linkParams = (bookingId: string) => {
     const query = new URLSearchParams({ view, date });
@@ -74,10 +71,11 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
       endMin,
       status: b.status,
       title: b.serviceName,
-      subtitle: withMaster ? `${b.clientName} · ${b.masterName}` : b.clientName,
+      subtitle: withMaster ? `${b.clientName}, ${b.masterName}` : b.clientName,
       time: `${start}–${end}`,
       href: linkParams(b.id),
-      accent: withMaster ? accent.get(b.masterId) : undefined,
+      tone: categoryTone(b.categorySort),
+      categoryName: b.categoryName,
     };
   };
 
@@ -146,6 +144,10 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
   const startMin = Math.floor((starts.length ? Math.min(...starts) : 10 * 60) / 60) * 60;
   const endMin = Math.ceil((ends.length ? Math.max(...ends) : 20 * 60) / 60) * 60;
 
+  const legend = [...new Map(data.bookings.map((b) => [b.categorySort, b.categoryName])).entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([sort, name]) => ({ sort, name }));
+
   const details = params.booking ? await getBookingDetails(params.booking) : null;
 
   const title =
@@ -166,18 +168,18 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
         masters={allMasters.map((m) => ({ id: m.id, name: m.name }))}
       />
       {shownMasters.length === 0 ? (
-        <p className="rounded-xl border bg-card px-4 py-10 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border bg-card empty-state px-4 py-10 text-center text-sm text-muted-foreground">
           Активных мастеров пока нет. Добавьте мастера в разделе «Мастера».
         </p>
       ) : (
         <ScheduleGrid columns={columns} startMin={startMin} endMin={endMin} />
       )}
-      {view === "week" && !params.master && shownMasters.length > 1 && (
-        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground" aria-label="Мастера">
-          {shownMasters.map((m) => (
-            <li key={m.id} className="inline-flex items-center gap-1.5">
-              <span className="size-2.5 rounded-sm" style={{ background: accent.get(m.id) }} aria-hidden />
-              {masterName.get(m.id)}
+      {legend.length > 0 && (
+        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground" aria-label="Категории услуг">
+          {legend.map((category) => (
+            <li key={category.sort} className="inline-flex items-center gap-1.5" style={categoryTone(category.sort)}>
+              <span className="tone-dot size-2.5 rounded-full" aria-hidden />
+              {category.name}
             </li>
           ))}
         </ul>

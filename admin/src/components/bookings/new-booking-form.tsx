@@ -35,7 +35,7 @@ type ClientOption = { id: string; name: string; phone: string | null; telegram: 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-xl border bg-card p-4 md:p-5">
-      <h2 className="mb-4 font-medium">{title}</h2>
+      <h2 className="mb-4 font-display text-xl font-semibold">{title}</h2>
       {children}
     </section>
   );

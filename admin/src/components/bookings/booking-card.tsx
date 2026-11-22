@@ -38,7 +38,7 @@ export async function BookingCard({ details, variant = "page" }: { details: Deta
         <section className="rounded-xl border bg-card">
           <div className="flex flex-wrap items-start justify-between gap-3 border-b px-4 py-4">
             <div className="min-w-0">
-              <p className="text-lg font-semibold">{booking.clientName}</p>
+              <p className="font-display text-2xl leading-tight font-semibold">{booking.clientName}</p>
               <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                 {booking.clientPhone && (
                   <a href={`tel:${booking.clientPhone}`} className="inline-flex items-center gap-1.5 hover:text-foreground">
@@ -67,7 +67,7 @@ export async function BookingCard({ details, variant = "page" }: { details: Deta
         </section>
 
         <section>
-          <h2 className="mb-2 text-sm font-medium">История статусов</h2>
+          <h2 className="mb-2 font-display text-xl font-semibold">История статусов</h2>
           {history.length === 0 ? (
             <p className="text-sm text-muted-foreground">Изменений пока не было.</p>
           ) : (

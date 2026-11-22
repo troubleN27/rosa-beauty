@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/brand";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { requireSession } from "@/lib/session";
@@ -9,9 +10,9 @@ export default async function DashboardLayout({ children }: LayoutProps<"/">) {
     <SidebarProvider>
       <AppSidebar userName={session.user.email} />
       <SidebarInset className="min-w-0 bg-background">
-        <header className="sticky top-0 z-20 flex h-12 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur md:hidden">
-          <SidebarTrigger aria-label="Открыть меню" />
-          <span className="font-semibold tracking-tight">Rosa Beauty</span>
+        <header className="velvet sticky top-0 z-20 flex h-14 items-center gap-3 px-4 text-sidebar-accent-foreground md:hidden">
+          <SidebarTrigger aria-label="Открыть меню" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
+          <BrandMark compact className="[&_img]:h-7 [&_span>span:first-child]:text-xl" />
         </header>
         <div className="mx-auto w-full max-w-[1400px] px-4 py-6 md:px-8 md:py-8">{children}</div>
       </SidebarInset>

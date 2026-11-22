@@ -6,6 +6,7 @@ import { db } from "@/db";
 import {
   bookingStatusHistory,
   bookings,
+  categories,
   clients,
   masters,
   services,
@@ -33,6 +34,8 @@ const bookingColumns = {
   serviceName: services.nameRu,
   serviceDuration: services.durationMin,
   masterName: masters.nameRu,
+  categoryName: categories.nameRu,
+  categorySort: categories.sort,
 };
 
 function bookingsQuery() {
@@ -41,6 +44,7 @@ function bookingsQuery() {
     .from(bookings)
     .innerJoin(clients, eq(clients.id, bookings.clientId))
     .innerJoin(services, eq(services.id, bookings.serviceId))
+    .innerJoin(categories, eq(categories.id, services.categoryId))
     .innerJoin(masters, eq(masters.id, bookings.masterId));
 }
 

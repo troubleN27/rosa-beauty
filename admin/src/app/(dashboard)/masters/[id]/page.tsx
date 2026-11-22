@@ -117,7 +117,7 @@ export default async function MasterPage({ params, searchParams }: PageProps<"/m
       <div className="mb-6 flex items-center gap-4">
         <MasterAvatar name={master.nameRu} photoUrl={master.photoUrl} size={64} />
         <div className="min-w-0">
-          <h1 className="flex items-center gap-2 text-xl font-semibold tracking-tight md:text-2xl">
+          <h1 className="flex items-center gap-2 font-display text-3xl leading-tight font-semibold md:text-4xl">
             <span className="truncate">{master.nameRu}</span>
             {!master.isActive && (
               <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground">

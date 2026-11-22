@@ -52,7 +52,7 @@ export function TimeOffManager({ masterId, periods, today }: { masterId: string;
   return (
     <div className="grid max-w-3xl gap-4">
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="rounded-xl border bg-card p-4 md:p-5">
-        <h2 className="mb-4 font-medium">Добавить выходной или отпуск</h2>
+        <h2 className="mb-4 font-display text-xl font-semibold">Добавить выходной или отпуск</h2>
         <div className="flex flex-wrap items-start gap-3">
           <Field data-invalid={!!errors.dateFrom} className="w-auto">
             <FieldLabel htmlFor="off-from">С</FieldLabel>
@@ -91,7 +91,7 @@ export function TimeOffManager({ masterId, periods, today }: { masterId: string;
       )}
 
       <section className="rounded-xl border bg-card">
-        <h2 className="border-b px-4 py-3 font-medium">Ближайшие выходные и отпуска</h2>
+        <h2 className="border-b px-4 py-3 font-display text-xl font-semibold">Ближайшие выходные и отпуска</h2>
         {periods.length === 0 ? (
           <p className="px-4 py-8 text-center text-sm text-muted-foreground">Запланированных выходных нет.</p>
         ) : (

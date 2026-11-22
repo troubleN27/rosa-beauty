@@ -9,7 +9,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: ui-monospace, monospace;
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-display);
+  --font-display: var(--font-display);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,73 +52,92 @@
 }
 
 :root {
-  /* Rosa Beauty: warm neutral light theme, dusty rose accent */
-  --background: #faf7f5;
-  --foreground: #1f1a1c;
-  --card: #ffffff;
-  --card-foreground: #1f1a1c;
-  --popover: #ffffff;
-  --popover-foreground: #1f1a1c;
-  --primary: #c9707d;
-  --primary-foreground: #ffffff;
-  --secondary: #f3ece8;
-  --secondary-foreground: #1f1a1c;
-  --muted: #f3ece8;
-  --muted-foreground: #6f6266;
-  --accent: #f6e6e8;
-  --accent-foreground: #1f1a1c;
-  --destructive: #c2410c;
-  --border: #e8dfda;
-  --input: #e2d7d1;
-  --ring: #c9707d;
-  --chart-1: #c9707d;
-  --chart-2: #8a6f7a;
-  --chart-3: #d9a7ae;
-  --chart-4: #5e4b52;
-  --chart-5: #e8c9b9;
-  --radius: 0.625rem;
-  --sidebar: #f5efec;
-  --sidebar-foreground: #1f1a1c;
-  --sidebar-primary: #c9707d;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f6e6e8;
-  --sidebar-accent-foreground: #1f1a1c;
-  --sidebar-border: #e8dfda;
-  --sidebar-ring: #c9707d;
+  /* Rosa Beauty light theme "Boudoir": powder walls, ivory paper, dusty rose, mirror gold, plum ink */
+  --background: #f5ece6;
+  --foreground: #35202b;
+  --card: #fcf8f4;
+  --card-foreground: #35202b;
+  --popover: #fcf8f4;
+  --popover-foreground: #35202b;
+  --primary: #a9566a;
+  --primary-foreground: #fff8f4;
+  --secondary: #efe2da;
+  --secondary-foreground: #35202b;
+  --muted: #efe2da;
+  --muted-foreground: #7a6069;
+  --accent: #f1dcdc;
+  --accent-foreground: #35202b;
+  --destructive: #b3412f;
+  --border: #e5d3c8;
+  --input: #dcc6b9;
+  --ring: #a9566a;
+  --gold: #b08a4f;
+  --gold-soft: #d9c09a;
+  /* Category tones for the schedule: rose, plum, coral, ochre, mauve, sage */
+  --cat-1: #b4566b;
+  --cat-2: #7a3f63;
+  --cat-3: #c46f52;
+  --cat-4: #a07a35;
+  --cat-5: #8e6496;
+  --cat-6: #557f68;
+  --chart-1: #a9566a;
+  --chart-2: #b08a4f;
+  --chart-3: #d79aa6;
+  --chart-4: #6b3a52;
+  --chart-5: #e3cba8;
+  --radius: 0.75rem;
+  /* The sidebar is a velvet curtain in both themes */
+  --sidebar: #2a1520;
+  --sidebar-foreground: #eedfd3;
+  --sidebar-primary: #d8aa62;
+  --sidebar-primary-foreground: #2a1520;
+  --sidebar-accent: #3b2030;
+  --sidebar-accent-foreground: #fbeee3;
+  --sidebar-border: #4a2d3c;
+  --sidebar-ring: #d8aa62;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark theme "Evening salon": aubergine velvet, black marble, warm bulb gold, blush */
+  --background: #170e13;
+  --foreground: #f3e7dc;
+  --card: #21161c;
+  --card-foreground: #f3e7dc;
+  --popover: #261a21;
+  --popover-foreground: #f3e7dc;
+  --primary: #d8aa62;
+  --primary-foreground: #24140f;
+  --secondary: #2e1f27;
+  --secondary-foreground: #f3e7dc;
+  --muted: #2a1c23;
+  --muted-foreground: #b59da5;
+  --accent: #3a2230;
+  --accent-foreground: #f8ebe0;
+  --destructive: #ef8a73;
+  --border: #3b2a32;
+  --input: #46323c;
+  --ring: #d8aa62;
+  --gold: #d8aa62;
+  --gold-soft: #8a6a3e;
+  --cat-1: #e597a8;
+  --cat-2: #c78ab3;
+  --cat-3: #eba489;
+  --cat-4: #dcb469;
+  --cat-5: #c4a2cf;
+  --cat-6: #92bea4;
+  --chart-1: #d8aa62;
+  --chart-2: #e0a1ac;
+  --chart-3: #9b5a73;
+  --chart-4: #f1d3a4;
+  --chart-5: #6f4558;
+  --sidebar: #120a0e;
+  --sidebar-foreground: #e9dacd;
+  --sidebar-primary: #d8aa62;
+  --sidebar-primary-foreground: #1b0f14;
+  --sidebar-accent: #2b1822;
+  --sidebar-accent-foreground: #fbeee3;
+  --sidebar-border: #33212b;
+  --sidebar-ring: #d8aa62;
 }
 
 @layer base {
@@ -127,5 +149,101 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer components {
+  /* Cormorant draws old-style figures by default; numbers in the panel need lining ones */
+  /* font-feature-settings, unlike font-variant-numeric, survives the tabular-nums utility */
+  .font-display {
+    font-feature-settings: "lnum" 1;
+  }
+
+  /* Double hairline frame, echoing the oval mirror of the logo */
+  .frame-gold {
+    border: 1px solid color-mix(in oklab, var(--gold) 55%, transparent);
+    box-shadow:
+      inset 0 0 0 3px var(--card),
+      inset 0 0 0 4px color-mix(in oklab, var(--gold) 28%, transparent);
+  }
+
+  /* Soft velvet pile on the sidebar */
+  .velvet {
+    background-color: var(--sidebar);
+    background-image:
+      radial-gradient(120% 60% at 0% 0%, color-mix(in oklab, #7a2f4f 35%, transparent), transparent 60%),
+      radial-gradient(100% 50% at 100% 100%, color-mix(in oklab, #d8aa62 10%, transparent), transparent 60%),
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.018) 0 2px, transparent 2px 7px);
+  }
+
+  /* Warm glow of a vanity-mirror bulb */
+  .bulb-glow {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--sidebar-primary) 45%, transparent),
+      0 0 18px -4px color-mix(in oklab, var(--sidebar-primary) 70%, transparent);
+  }
+
+  /* Booking statuses (SPEC 6.2 hues), set as --status for badges and dots */
+  .status-confirmed {
+    --status: #3d64a8;
+  }
+  .status-completed {
+    --status: #3c7a55;
+  }
+  .status-cancelled {
+    --status: #857a7e;
+  }
+  .status-no-show {
+    --status: #b3412f;
+  }
+  .dark .status-confirmed {
+    --status: #94b3ea;
+  }
+  .dark .status-completed {
+    --status: #8fcaa4;
+  }
+  .dark .status-cancelled {
+    --status: #ab9fa5;
+  }
+  .dark .status-no-show {
+    --status: #ef8a73;
+  }
+
+  /* Empty lists: a faded rose above the hint */
+  .empty-state::before {
+    content: "";
+    display: block;
+    width: 28px;
+    height: 40px;
+    margin: 0 auto 0.75rem;
+    background: url("/brand/rose.png") center / contain no-repeat;
+    opacity: 0.45;
+  }
+
+  /* Hatched background for off-hours and breaks in the schedule */
+  .hatch {
+    background-image: repeating-linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--muted) 90%, transparent) 0 6px,
+      transparent 6px 12px
+    );
+  }
+
+  /* Evening salon: a faint warm glow over the work area, like bulbs behind the mirror */
+  .dark [data-slot="sidebar-inset"] {
+    background-image: radial-gradient(70% 40% at 60% 0%, rgb(216 170 98 / 0.07), transparent 70%);
+  }
+
+  /* Category tone: set --tone on an element (see lib/category-tone.ts) */
+  .tone-dot {
+    background-color: var(--tone);
+  }
+  .tone-block {
+    border-left: 3px solid var(--tone);
+    background-color: color-mix(in oklab, var(--tone) 20%, var(--card));
+  }
+
+  .arch {
+    border-radius: 999px 999px var(--radius) var(--radius);
   }
 }

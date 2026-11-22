@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { cn } from "cn";
+import Link from "next/link";
+import type { CSSProperties } from "react";
 
-import { STATUS_STYLES } from "@/components/status-badge";
-import type { BookingStatus } from "@/lib/constants";
+import { STATUS_STYLES, statusKey } from "@/components/status-badge";
+import { STATUS_LABELS } from "@/lib/constants";
 
 export const SLOT_MINUTES = 30;
 const PX_PER_MINUTE = 1.4; // 30 min = 42px
@@ -16,7 +17,9 @@ export type GridBooking = {
   subtitle: string;
   time: string;
   href: string;
-  accent?: string; // master colour in the "all masters" week view
+  /** Category colour: a style that sets --tone (see lib/category-tone.ts) */
+  tone: CSSProperties;
+  categoryName: string;
 };
 
 export type GridColumn = {
@@ -108,7 +111,7 @@ export function ScheduleGrid({
         {columns.map((column) => (
           <div
             key={column.key}
-            className="relative border-l bg-[repeating-linear-gradient(135deg,#f3ece8_0_6px,#f8f4f2_6px_12px)]"
+            className="hatch relative border-l bg-muted/50"
             style={{ height }}
           >
             {column.work && (
@@ -119,7 +122,7 @@ export function ScheduleGrid({
             )}
             {column.work?.breakStart != null && column.work.breakEnd != null && (
               <div
-                className="absolute inset-x-0 flex items-center justify-center bg-[repeating-linear-gradient(135deg,#f3ece8_0_6px,#f8f4f2_6px_12px)] text-[11px] text-muted-foreground"
+                className="hatch absolute inset-x-0 flex items-center justify-center bg-muted/50 text-[11px] text-muted-foreground"
                 style={{ top: y(column.work.breakStart), height: y(column.work.breakEnd) - y(column.work.breakStart) }}
               >
                 Перерыв
@@ -141,7 +144,7 @@ export function ScheduleGrid({
               />
             ))}
             {layout(column.bookings).map((booking) => {
-              const styles = STATUS_STYLES[(booking.status as BookingStatus) in STATUS_STYLES ? (booking.status as BookingStatus) : "confirmed"];
+              const status = statusKey(booking.status);
               const top = y(booking.startMin);
               const blockHeight = Math.max(y(booking.endMin) - top - 2, 20);
               return (
@@ -149,21 +152,29 @@ export function ScheduleGrid({
                   key={booking.id}
                   href={booking.href}
                   scroll={false}
+                  title={`${booking.categoryName}: ${STATUS_LABELS[status].toLowerCase()}`}
                   className={cn(
-                    "absolute overflow-hidden rounded-md border-l-[3px] px-2 py-1 text-xs leading-tight shadow-[0_1px_0_rgba(31,26,28,0.06)] transition-[filter] hover:brightness-95 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
-                    styles.block,
+                    "tone-block absolute overflow-hidden rounded-md px-2 py-1 text-xs leading-tight text-foreground transition-[filter] hover:brightness-[0.97] focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none dark:hover:brightness-110",
+                    status === "no_show" && "opacity-70",
                   )}
                   style={{
+                    ...booking.tone,
                     top: top + 1,
                     height: blockHeight,
                     left: `calc(${(booking.lane / booking.lanes) * 100}% + 3px)`,
                     width: `calc(${100 / booking.lanes}% - 6px)`,
-                    ...(booking.accent ? { borderLeftColor: booking.accent } : {}),
                   }}
                 >
-                  <span className="block font-semibold tabular-nums">{booking.time}</span>
-                  <span className="block truncate">{booking.title}</span>
-                  <span className="block truncate opacity-80">{booking.subtitle}</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="font-semibold tabular-nums">{booking.time}</span>
+                    <span
+                      className={cn("ml-auto size-1.5 shrink-0 rounded-full bg-(--status)", STATUS_STYLES[status].badge)}
+                      aria-hidden
+                    />
+                    <span className="sr-only">{STATUS_LABELS[status]}</span>
+                  </span>
+                  <span className="block truncate font-medium">{booking.title}</span>
+                  <span className="block truncate text-muted-foreground">{booking.subtitle}</span>
                 </Link>
               );
             })}

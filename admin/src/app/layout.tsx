@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Cormorant_Garamond, Golos_Text } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import "./globals.css";
 
-const inter = Inter({
+const golos = Golos_Text({
   variable: "--font-sans",
   subsets: ["latin", "cyrillic"],
+});
+
+const cormorant = Cormorant_Garamond({
+  variable: "--font-display",
+  subsets: ["latin", "cyrillic"],
+  weight: ["500", "600"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -18,10 +26,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ru" className={`${inter.variable} h-full antialiased`}>
+    <html lang="ru" className={`${golos.variable} ${cormorant.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full">
-        <TooltipProvider>{children}</TooltipProvider>
-        <Toaster theme="light" position="top-right" richColors={false} />
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster position="top-right" richColors={false} />
+        </ThemeProvider>
       </body>
     </html>
   );

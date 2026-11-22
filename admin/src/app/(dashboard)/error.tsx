@@ -18,7 +18,7 @@ export default function DashboardError({
 
   return (
     <div className="mx-auto max-w-md py-16 text-center">
-      <h1 className="text-lg font-semibold">Не удалось загрузить страницу</h1>
+      <h1 className="font-display text-3xl font-semibold">Не удалось загрузить страницу</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Проверьте подключение к интернету и попробуйте ещё раз. Если ошибка повторяется, обновите страницу через минуту.
       </p>

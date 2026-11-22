@@ -51,7 +51,7 @@ export default async function NewBookingPage() {
         description="Для клиентов, которые позвонили или пришли в салон. Время проверяется по графику мастера."
       />
       {serviceOptions.length === 0 ? (
-        <p className="rounded-xl border bg-card px-4 py-10 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border bg-card empty-state px-4 py-10 text-center text-sm text-muted-foreground">
           Нет активных услуг. Добавьте услуги в разделе «Услуги».
         </p>
       ) : (

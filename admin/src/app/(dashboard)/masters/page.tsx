@@ -35,7 +35,7 @@ export default async function MastersPage() {
         }
       />
       {masters.length === 0 ? (
-        <p className="rounded-xl border bg-card px-4 py-12 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border bg-card empty-state px-4 py-12 text-center text-sm text-muted-foreground">
           Мастеров пока нет. Добавьте первого мастера, чтобы клиенты могли записываться.
         </p>
       ) : (

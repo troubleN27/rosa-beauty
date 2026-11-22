@@ -24,6 +24,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { CategoryValues, ServiceValues } from "@/lib/validations/catalog";
+import { categoryTone } from "@/lib/category-tone";
 
 export type ServiceRow = {
   id: string;
@@ -172,14 +173,15 @@ export function ServicesView({
       </div>
 
       {!selected ? (
-        <p className="rounded-xl border bg-card px-4 py-12 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border bg-card empty-state px-4 py-12 text-center text-sm text-muted-foreground">
           Категорий пока нет. Создайте первую категорию, затем добавьте в неё услуги.
         </p>
       ) : (
         <section className="rounded-xl border bg-card">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
             <div className="flex min-w-0 items-center gap-2">
-              <h2 className="truncate font-medium">{selected.nameRu}</h2>
+              <span className="tone-dot size-2.5 shrink-0 rounded-full" style={categoryTone(selected.sort)} aria-hidden />
+              <h2 className="truncate font-display text-2xl font-semibold">{selected.nameRu}</h2>
               <span className="truncate text-sm text-muted-foreground">{selected.nameEn}</span>
               {!selected.isActive && <HiddenMark />}
             </div>
@@ -222,7 +224,7 @@ export function ServicesView({
           </div>
 
           {selected.services.length === 0 ? (
-            <p className="px-4 py-10 text-center text-sm text-muted-foreground">В этой категории пока нет услуг.</p>
+            <p className="empty-state px-4 py-10 text-center text-sm text-muted-foreground">В этой категории пока нет услуг.</p>
           ) : (
             <Table>
               <TableHeader>

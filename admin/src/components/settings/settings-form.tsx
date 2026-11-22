@@ -24,7 +24,7 @@ import {
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-xl border bg-card p-4 md:p-5">
-      <h2 className="font-medium">{title}</h2>
+      <h2 className="font-display text-xl font-semibold">{title}</h2>
       {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
       <FieldGroup className="mt-4">{children}</FieldGroup>
     </section>

@@ -65,9 +65,9 @@ export default async function ClientPage({ params }: PageProps<"/clients/[id]">)
       </dl>
 
       <section className="rounded-xl border bg-card">
-        <h2 className="border-b px-4 py-3 font-medium">История записей</h2>
+        <h2 className="border-b px-4 py-3 font-display text-xl font-semibold">История записей</h2>
         {history.length === 0 ? (
-          <p className="px-4 py-10 text-center text-sm text-muted-foreground">Записей пока нет.</p>
+          <p className="empty-state px-4 py-10 text-center text-sm text-muted-foreground">Записей пока нет.</p>
         ) : (
           <ol className="divide-y">
             {history.map((booking) => (

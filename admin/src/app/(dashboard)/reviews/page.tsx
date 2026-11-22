@@ -46,7 +46,7 @@ export default async function ReviewsPage({ searchParams }: PageProps<"/reviews"
       />
       <RatingFilter value={rating ?? "all"} />
       {rows.length === 0 ? (
-        <p className="rounded-xl border bg-card px-4 py-12 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border bg-card empty-state px-4 py-12 text-center text-sm text-muted-foreground">
           {rating ? "Отзывов с такой оценкой нет." : "Отзывов пока нет."}
         </p>
       ) : (

@@ -26,6 +26,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { BrandMark } from "@/components/brand";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { authClient } from "@/lib/auth-client";
 
 const NAV = [
@@ -55,45 +57,55 @@ export function AppSidebar({ userName }: { userName: string }) {
   }
 
   return (
-    <Sidebar collapsible="offcanvas">
-      <SidebarHeader className="px-4 pt-5 pb-3">
-        <Link href="/" className="flex items-baseline gap-2" onClick={() => setOpenMobile(false)}>
-          <span className="text-[17px] font-semibold tracking-tight">Rosa Beauty</span>
-        </Link>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {NAV.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    isActive={isActive(pathname, item.href)}
-                    render={<Link href={item.href} onClick={() => setOpenMobile(false)} />}
-                    className="data-active:bg-sidebar-accent data-active:font-medium data-active:text-primary"
-                  >
-                    <item.icon aria-hidden />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border px-3 py-3">
-        <p className="truncate px-2 text-xs text-muted-foreground" title={userName}>
-          {userName}
-        </p>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut}>
-              <LogOut aria-hidden />
-              <span>Выйти</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+    <Sidebar collapsible="offcanvas" className="border-sidebar-border!">
+      <div className="velvet flex h-full min-h-0 flex-col">
+        <SidebarHeader className="px-5 pt-6 pb-4">
+          <Link href="/" className="rounded-md text-sidebar-accent-foreground" onClick={() => setOpenMobile(false)}>
+            <BrandMark />
+          </Link>
+          <div className="mt-4 h-px bg-gradient-to-r from-sidebar-primary/50 via-sidebar-primary/15 to-transparent" />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup className="px-3">
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-1">
+                {NAV.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      isActive={isActive(pathname, item.href)}
+                      render={<Link href={item.href} onClick={() => setOpenMobile(false)} />}
+                      className="group/nav h-9 gap-3 px-3 text-sidebar-foreground/80 hover:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:text-sidebar-primary data-active:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--sidebar-primary)_30%,transparent)]"
+                    >
+                      <item.icon aria-hidden />
+                      <span>{item.label}</span>
+                      <span
+                        aria-hidden
+                        className="bulb-glow ml-auto hidden size-1.5 shrink-0 rounded-full bg-sidebar-primary group-data-active/nav:block"
+                      />
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter className="border-t border-sidebar-border px-3 py-3">
+          <p className="truncate px-3 text-xs text-sidebar-foreground/55" title={userName}>
+            {userName}
+          </p>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <ThemeToggle />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={signOut} className="text-sidebar-foreground/80">
+                <LogOut aria-hidden />
+                <span>Выйти</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </div>
     </Sidebar>
   );
 }
