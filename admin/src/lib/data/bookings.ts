@@ -35,7 +35,6 @@ const bookingColumns = {
   serviceDuration: services.durationMin,
   masterName: masters.nameRu,
   categoryName: categories.nameRu,
-  categorySort: categories.sort,
 };
 
 function bookingsQuery() {

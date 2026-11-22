@@ -10,7 +10,6 @@ import { PageHeader } from "@/components/layout/page-header";
 import { RoseRating } from "@/components/rose-rating";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
-import { categoryTone } from "@/lib/category-tone";
 import { getDashboard } from "@/lib/data/dashboard";
 import { getSalonSettings } from "@/lib/data/settings";
 import { formatPrice, formatTime } from "@/lib/format";
@@ -137,13 +136,12 @@ export default async function DashboardPage() {
           ) : (
             <ol className="divide-y">
               {data.todayList.map((booking) => (
-                <li key={booking.id} style={categoryTone(booking.categorySort)}>
+                <li key={booking.id}>
                   <Link
                     href={`/bookings/${booking.id}`}
                     className="grid grid-cols-[4.25rem_minmax(0,1fr)] gap-x-3 px-5 py-3.5 transition-colors hover:bg-accent/50 sm:grid-cols-[4.25rem_minmax(0,1fr)_auto]"
                   >
                     <span className="flex items-center gap-2">
-                      <span className="tone-dot size-2 shrink-0 rounded-full" aria-hidden />
                       <span className="font-display text-xl leading-none font-semibold tabular-nums">
                         {formatTime(booking.startsAt, tz)}
                       </span>

@@ -3,7 +3,7 @@ import "server-only";
 import { and, asc, eq, gte, lt, ne, sql } from "drizzle-orm";
 
 import { db } from "@/db";
-import { bookings, categories, clients, masters, reviews, services } from "@/db/schema";
+import { bookings, clients, masters, reviews, services } from "@/db/schema";
 import { dayBounds } from "@/lib/availability";
 import type { SalonSettings } from "@/lib/data/settings";
 import { localDate, shiftDay, weekStart } from "@/lib/slots";
@@ -34,12 +34,10 @@ export async function getDashboard(settings: SalonSettings, now = new Date()) {
         clientPhone: clients.phone,
         serviceName: services.nameRu,
         masterName: masters.nameRu,
-        categorySort: categories.sort,
       })
       .from(bookings)
       .innerJoin(clients, eq(clients.id, bookings.clientId))
       .innerJoin(services, eq(services.id, bookings.serviceId))
-      .innerJoin(categories, eq(categories.id, services.categoryId))
       .innerJoin(masters, eq(masters.id, bookings.masterId))
       .where(
         and(

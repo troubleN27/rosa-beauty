@@ -1,7 +1,5 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
-
-import { STATUS_STYLES, statusKey } from "@/components/status-badge";
+import { statusKey } from "@/components/status-badge";
 import { STATUS_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -19,8 +17,6 @@ export type GridBooking = {
   subtitle: string;
   time: string;
   href: string;
-  /** Category colour: a style that sets --tone (see lib/category-tone.ts) */
-  tone: CSSProperties;
   categoryName: string;
 };
 
@@ -262,8 +258,8 @@ export function ScheduleGrid({
                       narrow ? "py-1.5 pr-1 pl-3" : compact ? "flex items-center gap-1.5 py-0" : "py-1.5",
                       status === "no_show" && "opacity-70",
                     )}
+                    data-status={status}
                     style={{
-                      ...booking.tone,
                       top: top + 1.5,
                       height: blockHeight,
                       left: `calc(${(booking.lane / booking.lanes) * 100}% + 8px)`,
@@ -280,10 +276,6 @@ export function ScheduleGrid({
                           {booking.time.split("–")[0]}
                         </span>
                         <span className="min-w-0 truncate font-medium">{booking.title}</span>
-                        <span
-                          className={cn("ml-auto size-1.5 shrink-0 rounded-full bg-(--status)", STATUS_STYLES[status].badge)}
-                          aria-hidden
-                        />
                       </>
                     ) : (
                       <>
@@ -291,16 +283,17 @@ export function ScheduleGrid({
                           <span className="font-display text-[15px] leading-none font-semibold whitespace-nowrap tabular-nums">
                             {booking.time}
                           </span>
-                          <span
-                            className={cn("ml-auto size-1.5 shrink-0 rounded-full bg-(--status)", STATUS_STYLES[status].badge)}
-                            aria-hidden
-                          />
+                          {status !== "confirmed" && (
+                            <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">
+                              {STATUS_LABELS[status].toLowerCase()}
+                            </span>
+                          )}
                         </span>
                         <span className="mt-1 block truncate font-medium">{booking.title}</span>
                         <span className="block truncate text-muted-foreground">{booking.subtitle}</span>
                       </>
                     )}
-                    <span className="sr-only">{STATUS_LABELS[status]}</span>
+                    {status === "confirmed" && <span className="sr-only">{STATUS_LABELS[status]}</span>}
                   </Link>
                 );
               })}

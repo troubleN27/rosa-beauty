@@ -7,7 +7,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { StatusBadge } from "@/components/status-badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { categoryTone } from "@/lib/category-tone";
 
 export type BookingTableRow = {
   id: string;
@@ -16,7 +15,6 @@ export type BookingTableRow = {
   client: string;
   phone: string | null;
   service: string;
-  categorySort: number;
   master: string;
   price: string;
   status: string;
@@ -71,10 +69,7 @@ const columns: ColumnDef<typeof features, BookingTableRow>[] = [
     ),
   },
   { id: "service", header: "Услуга", cell: ({ row }) => (
-      <span className="flex min-w-36 items-center gap-2 whitespace-normal" style={categoryTone(row.original.categorySort)}>
-        <span className="tone-dot size-2 shrink-0 rounded-full" aria-hidden />
-        {row.original.service}
-      </span>
+      <span className="block min-w-36 whitespace-normal">{row.original.service}</span>
     ),
   },
   { id: "master", header: "Мастер", cell: ({ row }) => <span className="whitespace-nowrap">{row.original.master}</span> },

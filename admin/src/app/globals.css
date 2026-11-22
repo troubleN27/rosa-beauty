@@ -73,13 +73,6 @@
   --ring: #a9566a;
   --gold: #b08a4f;
   --gold-soft: #d9c09a;
-  /* Category tones for the schedule: rose, plum, coral, ochre, mauve, sage */
-  --cat-1: #b4566b;
-  --cat-2: #7a3f63;
-  --cat-3: #c46f52;
-  --cat-4: #a07a35;
-  --cat-5: #8e6496;
-  --cat-6: #557f68;
   --chart-1: #a9566a;
   --chart-2: #b08a4f;
   --chart-3: #d79aa6;
@@ -119,12 +112,6 @@
   --ring: #d8aa62;
   --gold: #d8aa62;
   --gold-soft: #8a6a3e;
-  --cat-1: #e597a8;
-  --cat-2: #c78ab3;
-  --cat-3: #eba489;
-  --cat-4: #dcb469;
-  --cat-5: #c4a2cf;
-  --cat-6: #92bea4;
   --chart-1: #d8aa62;
   --chart-2: #e0a1ac;
   --chart-3: #9b5a73;
@@ -183,30 +170,30 @@
       0 0 18px -4px color-mix(in oklab, var(--sidebar-primary) 70%, transparent);
   }
 
-  /* Booking statuses (SPEC 6.2 hues), set as --status for badges and dots */
+  /* Booking statuses: SPEC 6.2 hues (blue, green, grey, red), muted to sit quietly in the palette */
   .status-confirmed {
-    --status: #3d64a8;
+    --status: #5b6f94;
   }
   .status-completed {
-    --status: #3c7a55;
+    --status: #5f7d68;
   }
   .status-cancelled {
-    --status: #857a7e;
+    --status: #8a7f83;
   }
   .status-no-show {
-    --status: #b3412f;
+    --status: #a35a4c;
   }
   .dark .status-confirmed {
-    --status: #94b3ea;
+    --status: #a9b9d6;
   }
   .dark .status-completed {
-    --status: #8fcaa4;
+    --status: #a7c2ae;
   }
   .dark .status-cancelled {
     --status: #ab9fa5;
   }
   .dark .status-no-show {
-    --status: #ef8a73;
+    --status: #d99a8c;
   }
 
   /* Empty lists: a faded rose above the hint */
@@ -224,15 +211,6 @@
   /* Evening salon: a faint warm glow over the work area, like bulbs behind the mirror */
   .dark [data-slot="sidebar-inset"] {
     background-image: radial-gradient(70% 40% at 60% 0%, rgb(216 170 98 / 0.07), transparent 70%);
-  }
-
-  /* Category tone: set --tone on an element (see lib/category-tone.ts) */
-  .tone-dot {
-    background-color: var(--tone);
-  }
-  .tone-block {
-    border-left: 3px solid var(--tone);
-    background-color: color-mix(in oklab, var(--tone) 20%, var(--card));
   }
 
   .arch {
@@ -672,7 +650,9 @@
   }
 }
 
+/* Cards take the salon's own tones: rose for upcoming, gold once done, grey for a no-show */
 .sched-card {
+  --tone: var(--primary);
   border-radius: 0.85rem;
   color: var(--foreground);
   background: color-mix(in oklab, var(--tone) 20%, var(--card));
@@ -682,6 +662,13 @@
   transition:
     translate 350ms var(--ease-bloom),
     box-shadow 350ms var(--ease-silk);
+}
+.sched-card[data-status="completed"] {
+  --tone: var(--gold);
+}
+.sched-card[data-status="no_show"],
+.sched-card[data-status="cancelled"] {
+  --tone: var(--muted-foreground);
 }
 .sched-card::before {
   content: "";

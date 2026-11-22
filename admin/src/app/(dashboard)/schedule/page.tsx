@@ -9,7 +9,6 @@ import { PageHeader } from "@/components/layout/page-header";
 import { BookingSheet } from "@/components/schedule/booking-sheet";
 import { ScheduleGrid, type GridBooking, type GridColumn } from "@/components/schedule/schedule-grid";
 import { ScheduleToolbar } from "@/components/schedule/schedule-toolbar";
-import { categoryTone } from "@/lib/category-tone";
 import { getBookingDetails, getScheduleData, listMastersForFilter } from "@/lib/data/bookings";
 import { getSalonSettings } from "@/lib/data/settings";
 import { requireSession } from "@/lib/session";
@@ -97,7 +96,6 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
       subtitle: withMaster ? `${b.clientName}, ${b.masterName}` : b.clientName,
       time: `${start}–${end}`,
       href: linkParams(b.id),
-      tone: categoryTone(b.categorySort),
       categoryName: b.categoryName,
     };
   };
@@ -182,10 +180,6 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
   const startMin = Math.floor((starts.length ? Math.min(...starts) : 10 * 60) / 60) * 60;
   const endMin = Math.ceil((ends.length ? Math.max(...ends) : 20 * 60) / 60) * 60;
 
-  const legend = [...new Map(data.bookings.map((b) => [b.categorySort, b.categoryName])).entries()]
-    .sort(([a], [b]) => a - b)
-    .map(([sort, name]) => ({ sort, name }));
-
   const details = params.booking ? await getBookingDetails(params.booking) : null;
 
   const title =
@@ -216,16 +210,6 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
           endMin={endMin}
           nowMin={toMinutes(formatInTimeZone(new Date(), tz, "HH:mm"))}
         />
-      )}
-      {legend.length > 0 && (
-        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground" aria-label="Категории услуг">
-          {legend.map((category) => (
-            <li key={category.sort} className="inline-flex items-center gap-1.5" style={categoryTone(category.sort)}>
-              <span className="tone-dot size-2.5 rounded-full" aria-hidden />
-              {category.name}
-            </li>
-          ))}
-        </ul>
       )}
       {details && (
         <BookingSheet>

@@ -45,7 +45,6 @@ export default async function BookingsPage({ searchParams }: PageProps<"/booking
     client: row.clientName,
     phone: row.clientPhone,
     service: row.serviceName,
-    categorySort: row.categorySort,
     master: row.masterName,
     price: formatPrice(row.price, settings.currency),
     status: row.status,
