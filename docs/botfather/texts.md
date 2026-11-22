@@ -6,11 +6,15 @@
 
 🌹 Rosa Beauty — салон красоты, где каждый визит — время, посвящённое только вам.
 
-📝 Запись к мастеру за пару минут — без звонков
-💅 Стрижки, окрашивание, маникюр, брови и ресницы, макияж, уход за лицом
+📝 Запись за пару минут, без звонков
+
+💅 Волосы, маникюр, брови, макияж
+
 👩‍🎨 Мастера, которые слышат вас
-🗓️ Перенос и отмена визита в пару касаний
-⏰ Напомним о визите за день и за два часа
+
+🗓️ Перенос и отмена в пару касаний
+
+⏰ Напомним о визите заранее
 
 Нажмите «Старт» — и выберите удобное время 🌹
 
@@ -18,11 +22,15 @@
 
 🌹 Rosa Beauty is a beauty salon where every visit is time devoted to you.
 
-📝 Book a master in a couple of minutes — no calls needed
-💅 Haircuts, coloring, manicure, brows & lashes, makeup, facials
+📝 Book in a couple of minutes, no calls
+
+💅 Hair, nails, brows, makeup
+
 👩‍🎨 Masters who truly listen
-🗓️ Reschedule or cancel in a couple of taps
-⏰ We'll remind you a day and two hours before
+
+🗓️ Reschedule or cancel in a tap
+
+⏰ We'll remind you before your visit
 
 Tap «Start» and pick a time that suits you 🌹
 
