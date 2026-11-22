@@ -1,3 +1,4 @@
+import { Coffee } from "lucide-react";
 import Link from "next/link";
 import { STATUS_STYLES, statusKey } from "@/components/status-badge";
 import { STATUS_LABELS } from "@/lib/constants";
@@ -219,14 +220,19 @@ export function ScheduleGrid({
 
               {column.work?.breakStart != null && column.work.breakEnd != null && (
                 <div
-                  className="sched-ribbon absolute inset-x-0 flex items-center justify-center"
+                  className={cn(
+                    "sched-break absolute inset-x-3 flex items-center justify-center gap-1.5 px-2 text-center",
+                    y(column.work.breakEnd) - y(column.work.breakStart) >= 56 && "flex-col gap-0.5",
+                  )}
                   style={{
-                    top: y(column.work.breakStart),
-                    height: y(column.work.breakEnd) - y(column.work.breakStart),
+                    top: y(column.work.breakStart) + 3,
+                    height: Math.max(y(column.work.breakEnd) - y(column.work.breakStart) - 6, 22),
                   }}
                 >
-                  <span className="rounded-full bg-card px-2.5 py-0.5 text-[11px] text-muted-foreground shadow-sm">
-                    Перерыв {clock(column.work.breakStart)}–{clock(column.work.breakEnd)}
+                  <Coffee className="size-3.5 shrink-0 text-gold" aria-hidden />
+                  <span className="text-xs font-medium text-foreground/80">Перерыв</span>
+                  <span className="font-display text-sm leading-none tabular-nums">
+                    {clock(column.work.breakStart)}–{clock(column.work.breakEnd)}
                   </span>
                 </div>
               )}

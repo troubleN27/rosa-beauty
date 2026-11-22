@@ -170,30 +170,31 @@
       0 0 18px -4px color-mix(in oklab, var(--sidebar-primary) 70%, transparent);
   }
 
-  /* Booking statuses: SPEC 6.2 hues (blue, green, grey, red), muted to sit quietly in the palette */
+  /* Booking statuses in the salon palette, one clearly different hue each:
+     confirmed — plum (upcoming visit), completed — sage (done), cancelled — taupe, no-show — terracotta */
   .status-confirmed {
-    --status: #5b6f94;
+    --status: #74468a;
   }
   .status-completed {
-    --status: #5f7d68;
+    --status: #4f7448;
   }
   .status-cancelled {
-    --status: #8a7f83;
+    --status: #84776f;
   }
   .status-no-show {
-    --status: #a35a4c;
+    --status: #b04a2c;
   }
   .dark .status-confirmed {
-    --status: #a9b9d6;
+    --status: #c9a3dc;
   }
   .dark .status-completed {
-    --status: #a7c2ae;
+    --status: #a6cb98;
   }
   .dark .status-cancelled {
-    --status: #ab9fa5;
+    --status: #b8aca4;
   }
   .dark .status-no-show {
-    --status: #d99a8c;
+    --status: #f0977c;
   }
 
   /* Empty lists: a faded rose above the hint */
@@ -617,14 +618,13 @@
 .dark .sched-glass {
   background: linear-gradient(to bottom, color-mix(in oklab, var(--card) 88%, var(--gold)), var(--card));
 }
-.sched-ribbon {
+/* Break: a quiet pause card inside the shift, dashed gold edges, no stripes */
+.sched-break {
   z-index: 1;
-  background: repeating-linear-gradient(
-    135deg,
-    color-mix(in oklab, var(--gold) 16%, transparent) 0 7px,
-    color-mix(in oklab, var(--gold) 6%, transparent) 7px 14px
-  );
-  border-block: 1px solid color-mix(in oklab, var(--gold) 50%, transparent);
+  border-radius: 0.8rem;
+  background: color-mix(in oklab, var(--muted) 75%, var(--card));
+  border: 1px dashed color-mix(in oklab, var(--gold) 55%, transparent);
+  color: var(--muted-foreground);
 }
 
 .sched-now {
