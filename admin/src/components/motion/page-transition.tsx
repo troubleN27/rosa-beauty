@@ -7,22 +7,22 @@ import { useRef } from "react";
 gsap.registerPlugin(useGSAP);
 
 /**
- * Section entrance: the page's blocks rise and fade in one after another.
+ * Section entrance: the page rises and fades in from a soft blur.
  * Rendered from the dashboard template, so it replays on every navigation.
+ * Only this wrapper is animated: the page's own blocks may still be hydrating,
+ * and styling them early would make React report a hydration mismatch.
  */
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const root = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
-      const blocks = root.current ? Array.from(root.current.children) : [];
-      gsap.from(blocks, {
+      gsap.from(root.current, {
         autoAlpha: 0,
-        y: 18,
+        y: 14,
         filter: "blur(4px)",
-        duration: 0.6,
+        duration: 0.55,
         ease: "power3.out",
-        stagger: 0.07,
         clearProps: "opacity,visibility,transform,filter",
       });
     },

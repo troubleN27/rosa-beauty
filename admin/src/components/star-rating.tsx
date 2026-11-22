@@ -2,11 +2,11 @@ import { useId } from "react";
 
 import { cn } from "@/lib/utils";
 
-// Four-pointed glint, like light catching a mirror
-const GLINT = "M12 0C12.9 7.2 16.8 11.1 24 12C16.8 12.9 12.9 16.8 12 24C11.1 16.8 7.2 12.9 0 12C7.2 11.1 11.1 7.2 12 0Z";
+// Slender five-pointed star with softened corners
+const STAR = "M12.00 1.00 L14.88 8.64 L23.03 9.02 L16.66 14.11 L18.82 21.98 L12.00 17.50 L5.18 21.98 L7.34 14.11 L0.97 9.02 L9.12 8.64Z";
 
 /**
- * Rating from 1 to 5 as gold-to-rose glints. A fractional average fills the last glint partly;
+ * Rating from 1 to 5 as slender gold-to-rose stars. A fractional average fills the last star partly;
  * empty ones are a fine gold outline.
  */
 export function StarRating({ rating, size = 18, className }: { rating: number; size?: number; className?: string }) {
@@ -26,11 +26,14 @@ export function StarRating({ rating, size = 18, className }: { rating: number; s
                 <rect x="0" y="0" width={24 * fill} height="24" />
               </clipPath>
             </defs>
-            <path d={GLINT} fill="none" stroke="var(--gold)" strokeOpacity={0.55} strokeWidth={1} />
+            <path d={STAR} fill="none" stroke="var(--gold)" strokeOpacity={0.55} strokeWidth={1} strokeLinejoin="round" />
             {fill > 0 && (
               <path
-                d={GLINT}
+                d={STAR}
                 fill={`url(#${id}-g)`}
+                stroke={`url(#${id}-g)`}
+                strokeWidth={1.2}
+                strokeLinejoin="round"
                 clipPath={`url(#${id}-c${i})`}
                 style={{ filter: "drop-shadow(0 0 3px color-mix(in oklab, var(--gold) 60%, transparent))" }}
               />
