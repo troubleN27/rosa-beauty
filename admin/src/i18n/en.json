@@ -41,8 +41,7 @@
     "password": "Password",
     "submit": "Sign in",
     "tooManyAttempts": "Too many attempts. Wait a minute and try again.",
-    "invalid": "Wrong email or password.",
-    "theme": "Change theme"
+    "invalid": "Wrong email or password."
   },
   "notFound": {
     "title": "Page not found",

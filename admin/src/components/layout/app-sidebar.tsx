@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/sidebar";
 import { BrandMark } from "@/components/brand";
 import { LanguageSwitch } from "@/components/language-switch";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { ThemeSwitch } from "@/components/theme-switch";
 import { useI18n } from "@/i18n/client";
 import { authClient } from "@/lib/auth-client";
 
@@ -140,19 +140,15 @@ export function AppSidebar({ userName }: { userName: string }) {
           <p className="truncate px-3 text-xs text-sidebar-foreground/55" title={userName}>
             {userName}
           </p>
+          {/* sign out on the left, the panel preferences on the right — the same pair as on the sign-in page */}
           <SidebarMenu>
-            {/* theme and language share one row: the theme item on the left, RU / EN on the right */}
             <SidebarMenuItem className="flex items-center gap-2">
-              <div className="min-w-0 flex-1">
-                <ThemeToggle />
-              </div>
-              <LanguageSwitch variant="sidebar" className="shrink-0" />
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={signOut} className="text-sidebar-foreground/80">
+              <SidebarMenuButton onClick={signOut} className="min-w-0 flex-1 text-sidebar-foreground/80">
                 <LogOut aria-hidden />
                 <span>{t("nav.signOut")}</span>
               </SidebarMenuButton>
+              <LanguageSwitch variant="sidebar" className="shrink-0" />
+              <ThemeSwitch variant="sidebar" />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
