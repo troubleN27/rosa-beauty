@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/i18n/client";
 
 /** Search input synced to ?q= with a short debounce. */
 export function SearchBox({ placeholder, label }: { placeholder: string; label: string }) {
@@ -12,6 +13,7 @@ export function SearchBox({ placeholder, label }: { placeholder: string; label: 
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const current = searchParams.get("q") ?? "";
+  const { t } = useI18n();
   const [value, setValue] = useState(current);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export function SearchBox({ placeholder, label }: { placeholder: string; label: 
         <button
           type="button"
           onClick={() => setValue("")}
-          aria-label="Очистить поиск"
+          aria-label={t("pickers.clearSearch")}
           className="absolute top-1/2 right-1.5 grid size-5 -translate-y-1/2 place-items-center rounded-full text-gold transition-colors duration-200 hover:bg-primary/15 hover:text-primary"
         >
           <X className="size-3.5" aria-hidden />

@@ -33,7 +33,9 @@ export async function getDashboard(settings: SalonSettings, now = new Date()) {
         clientName: clients.name,
         clientPhone: clients.phone,
         serviceName: services.nameRu,
+        serviceNameEn: services.nameEn,
         masterName: masters.nameRu,
+        masterNameEn: masters.nameEn,
       })
       .from(bookings)
       .innerJoin(clients, eq(clients.id, bookings.clientId))

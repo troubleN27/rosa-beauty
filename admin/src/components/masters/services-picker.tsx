@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { setMasterServicesAction } from "@/app/(dashboard)/masters/actions";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useI18n } from "@/i18n/client";
 
 type Group = { id: string; name: string; services: { id: string; name: string; hint: string; isActive: boolean }[] };
 
@@ -21,6 +22,7 @@ export function ServicesPicker({
   selected: string[];
 }) {
   const router = useRouter();
+  const { t, tm } = useI18n();
   const [selected, setSelected] = useState(() => new Set(initial));
   const [pending, startTransition] = useTransition();
   const dirty = selected.size !== initial.length || initial.some((id) => !selected.has(id));
@@ -37,14 +39,14 @@ export function ServicesPicker({
   function save() {
     startTransition(async () => {
       const result = await setMasterServicesAction(masterId, [...selected]);
-      if (!result.ok) return void toast.error(result.error);
-      toast.success("Услуги мастера сохранены");
+      if (!result.ok) return void toast.error(tm(result.error));
+      toast.success(t("masters.services.saved"));
       router.refresh();
     });
   }
 
   if (groups.length === 0) {
-    return <p className="text-sm text-muted-foreground">Услуг пока нет. Добавьте их в разделе «Услуги».</p>;
+    return <p className="text-sm text-muted-foreground">{t("masters.services.none")}</p>;
   }
 
   return (
@@ -77,7 +79,7 @@ export function ServicesPicker({
                         {service.name}
                         <span className="block text-xs text-muted-foreground">
                           {service.hint}
-                          {!service.isActive && " · скрыта"}
+                          {!service.isActive && ` · ${t("masters.services.hidden")}`}
                         </span>
                       </span>
                     </label>
@@ -89,10 +91,10 @@ export function ServicesPicker({
         })}
       </div>
       <div className="flex items-center justify-end gap-3">
-        <span className="text-sm text-muted-foreground">Выбрано: {selected.size}</span>
+        <span className="text-sm text-muted-foreground">{t("masters.services.selected", { count: selected.size })}</span>
         <Button onClick={save} disabled={!dirty || pending}>
           {pending && <Loader2 className="animate-spin" aria-hidden />}
-          Сохранить услуги
+          {t("masters.services.save")}
         </Button>
       </div>
     </div>

@@ -1,5 +1,8 @@
+"use client";
+
 import { useId } from "react";
 
+import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 
 // Slender five-pointed star with softened corners
@@ -10,9 +13,10 @@ const STAR = "M12.00 1.00 L14.88 8.64 L23.03 9.02 L16.66 14.11 L18.82 21.98 L12.
  * empty ones are a fine gold outline.
  */
 export function StarRating({ rating, size = 18, className }: { rating: number; size?: number; className?: string }) {
+  const { t } = useI18n();
   const id = useId().replace(/:/g, "");
   return (
-    <span className={cn("inline-flex items-center gap-1", className)} role="img" aria-label={`Оценка ${rating} из 5`}>
+    <span className={cn("inline-flex items-center gap-1", className)} role="img" aria-label={t("rating.aria", { rating })}>
       {Array.from({ length: 5 }, (_, i) => {
         const fill = Math.min(1, Math.max(0, rating - i));
         return (

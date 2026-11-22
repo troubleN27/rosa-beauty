@@ -1,7 +1,8 @@
 import { Coffee } from "lucide-react";
 import Link from "next/link";
-import { STATUS_STYLES, statusKey } from "@/components/status-badge";
-import { STATUS_LABELS } from "@/lib/constants";
+import { STATUS_STYLES, statusKey } from "@/lib/status";
+import { type I18n } from "@/i18n";
+import { getI18n } from "@/i18n/server";
 import { cn } from "@/lib/utils";
 
 const SLOT_MINUTES = 30;
@@ -43,13 +44,6 @@ function clock(minutes: number) {
   return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
 }
 
-function bookingsLabel(count: number) {
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  if (mod10 === 1 && mod100 !== 11) return `${count} запись`;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${count} записи`;
-  return `${count} записей`;
-}
 
 /** Lays out overlapping blocks side by side (e.g. several masters in the week view). */
 function layout(bookings: GridBooking[]) {
@@ -76,10 +70,10 @@ function layout(bookings: GridBooking[]) {
 }
 
 /** Half-ring gauge of how full the shift is. */
-function LoadGauge({ load }: { load: number }) {
+function LoadGauge({ load, t }: { load: number; t: I18n["t"] }) {
   const percent = Math.round(load * 100);
   return (
-    <span className="flex items-end gap-1.5" title={`Загрузка смены ${percent}%`}>
+    <span className="flex items-end gap-1.5" title={t("schedule.load", { percent })}>
       <svg viewBox="0 0 40 22" className="h-[18px] w-8" aria-hidden>
         <path d="M4 20 A16 16 0 0 1 36 20" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-gold/25" />
         <path
@@ -103,7 +97,7 @@ function LoadGauge({ load }: { load: number }) {
  * bookings as cards hung at their time. Nothing is drawn across text: hour rules stay faint
  * and behind the cards, the "now" time sits in its own chip on the thread.
  */
-export function ScheduleGrid({
+export async function ScheduleGrid({
   columns,
   startMin,
   endMin,
@@ -115,6 +109,7 @@ export function ScheduleGrid({
   /** Current salon-local time in minutes, for the "now" line */
   nowMin?: number;
 }) {
+  const { t } = await getI18n();
   const height = (endMin - startMin) * PX_PER_MINUTE + PAD * 2;
   const marks = Array.from({ length: (endMin - startMin) / SLOT_MINUTES + 1 }, (_, i) => startMin + i * SLOT_MINUTES);
   const y = (minutes: number) => PAD + (Math.min(Math.max(minutes, startMin), endMin) - startMin) * PX_PER_MINUTE;
@@ -157,8 +152,8 @@ export function ScheduleGrid({
                 </span>
                 {column.subtitle && <span className="w-full truncate text-xs text-muted-foreground">{column.subtitle}</span>}
                 <span className="mt-2 flex min-h-[18px] items-center gap-2 text-xs text-muted-foreground">
-                  {column.load != null && <LoadGauge load={column.load} />}
-                  <span>{column.work ? bookingsLabel(column.bookings.length) : (column.offLabel ?? "Выходной")}</span>
+                  {column.load != null && <LoadGauge load={column.load} t={t} />}
+                  <span>{column.work ? t("count.bookings", { count: column.bookings.length }) : (column.offLabel ?? t("schedule.dayOff"))}</span>
                 </span>
               </div>
             </div>
@@ -230,7 +225,7 @@ export function ScheduleGrid({
                   }}
                 >
                   <Coffee className="size-3.5 shrink-0 text-gold" aria-hidden />
-                  <span className="text-xs font-medium text-foreground/80">Перерыв</span>
+                  <span className="text-xs font-medium text-foreground/80">{t("schedule.break")}</span>
                   <span className="font-display text-sm leading-none tabular-nums">
                     {clock(column.work.breakStart)}–{clock(column.work.breakEnd)}
                   </span>
@@ -267,7 +262,7 @@ export function ScheduleGrid({
                     key={booking.id}
                     href={booking.href}
                     scroll={false}
-                    title={`${booking.time} ${booking.title}, ${booking.subtitle} (${booking.categoryName}: ${STATUS_LABELS[status].toLowerCase()})`}
+                    title={`${booking.time} ${booking.title}, ${booking.subtitle} (${booking.categoryName}: ${t(`status.${status}`).toLowerCase()})`}
                     className={cn(
                       "sched-card absolute z-10 overflow-hidden px-2.5 text-xs leading-tight focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
                       narrow ? "px-1.5 py-1.5" : compact ? "flex items-center gap-1.5 py-0" : "py-1.5",
@@ -301,7 +296,7 @@ export function ScheduleGrid({
                           </span>
                           {status !== "confirmed" && (
                             <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">
-                              {STATUS_LABELS[status].toLowerCase()}
+                              {t(`status.${status}`).toLowerCase()}
                             </span>
                           )}
                         </span>
@@ -309,7 +304,7 @@ export function ScheduleGrid({
                         <span className="block truncate text-muted-foreground">{booking.subtitle}</span>
                       </>
                     )}
-                    {status === "confirmed" && <span className="sr-only">{STATUS_LABELS[status]}</span>}
+                    {status === "confirmed" && <span className="sr-only">{t(`status.${status}`)}</span>}
                   </Link>
                 );
               })}

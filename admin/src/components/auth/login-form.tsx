@@ -9,11 +9,13 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/i18n/client";
 import { authClient } from "@/lib/auth-client";
 import { loginSchema, type LoginValues } from "@/lib/validations/auth";
 
 export function LoginForm() {
   const router = useRouter();
+  const { t } = useI18n();
   const [formError, setFormError] = useState<string | null>(null);
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -30,8 +32,8 @@ export function LoginForm() {
     if (error) {
       setFormError(
         error.status === 429
-          ? "Слишком много попыток. Подождите минуту и попробуйте снова."
-          : "Неверный email или пароль.",
+          ? t("login.tooManyAttempts")
+          : t("login.invalid"),
       );
       return;
     }
@@ -43,7 +45,7 @@ export function LoginForm() {
     <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
       <FieldGroup>
         <Field data-invalid={!!errors.email}>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
+          <FieldLabel htmlFor="email">{t("login.email")}</FieldLabel>
           <Input
             id="email"
             type="email"
@@ -54,7 +56,7 @@ export function LoginForm() {
           <FieldError errors={[errors.email]} />
         </Field>
         <Field data-invalid={!!errors.password}>
-          <FieldLabel htmlFor="password">Пароль</FieldLabel>
+          <FieldLabel htmlFor="password">{t("login.password")}</FieldLabel>
           <Input
             id="password"
             type="password"
@@ -71,7 +73,7 @@ export function LoginForm() {
         )}
         <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
           {isSubmitting && <Loader2 className="animate-spin" aria-hidden />}
-          Войти
+          {t("login.submit")}
         </Button>
       </FieldGroup>
     </form>

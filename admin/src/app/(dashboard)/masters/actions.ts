@@ -12,12 +12,13 @@ import { masterHasHistory } from "@/lib/data/masters";
 import { getSalonSettings } from "@/lib/data/settings";
 import { formatDateTime } from "@/lib/format";
 import { masterSchema, scheduleSchema, timeOffSchema } from "@/lib/validations/master";
+import { getLang } from "@/i18n/server";
 
 const idSchema = z.uuid();
 
 async function ensureMaster(id: string) {
   const [master] = await db.select().from(masters).where(eq(masters.id, id));
-  if (!master) throw new ActionError("Мастер не найден. Обновите страницу.");
+  if (!master) throw new ActionError("errors.masterNotFound");
   return master;
 }
 
@@ -48,7 +49,7 @@ export async function deleteMasterAction(id: unknown): Promise<ActionResult> {
     const masterId = idSchema.parse(id);
     const master = await ensureMaster(masterId);
     if (await masterHasHistory(masterId)) {
-      throw new ActionError("У мастера есть записи или отзывы — его можно только скрыть.");
+      throw new ActionError("errors.masterHasBookings");
     }
     // services, schedule and days off are removed by ON DELETE CASCADE
     await db.delete(masters).where(eq(masters.id, masterId));
@@ -64,11 +65,11 @@ export async function savePhotoAction(id: unknown, url: unknown): Promise<Action
   return run(async () => {
     const masterId = idSchema.parse(id);
     const photoUrl = z.string().max(1000).parse(url);
-    if (!isBlobConfigured()) throw new ActionError("Хранилище фото не подключено (BLOB_READ_WRITE_TOKEN).");
-    if (!isOwnBlobUrl(photoUrl)) throw new ActionError("Файл загружен не в хранилище салона.");
+    if (!isBlobConfigured()) throw new ActionError("errors.blobNotConfigured");
+    if (!isOwnBlobUrl(photoUrl)) throw new ActionError("errors.blobForeign");
     if (!(await hasImageSignature(photoUrl))) {
       await deleteBlobQuietly(photoUrl);
-      throw new ActionError("Файл не похож на изображение JPG, PNG или WebP.");
+      throw new ActionError("errors.notAnImage");
     }
     const master = await ensureMaster(masterId);
     await db.update(masters).set({ photoUrl }).where(eq(masters.id, masterId));
@@ -98,7 +99,7 @@ export async function setMasterServicesAction(id: unknown, serviceIds: unknown):
     await ensureMaster(masterId);
     if (ids.length) {
       const existing = await db.select({ id: services.id }).from(services).where(inArray(services.id, ids));
-      if (existing.length !== ids.length) throw new ActionError("Часть услуг не найдена. Обновите страницу.");
+      if (existing.length !== ids.length) throw new ActionError("errors.servicesMissing");
     }
     await db.transaction(async (tx) => {
       await tx.delete(masterServices).where(eq(masterServices.masterId, masterId));
@@ -145,6 +146,7 @@ export async function addTimeOffAction(
     const values = timeOffSchema.parse(input);
     await ensureMaster(values.masterId);
     const settings = await getSalonSettings();
+    const lang = await getLang();
     await db.insert(timeOff).values(values);
 
     // Existing bookings are not cancelled automatically: show them to the admin
@@ -165,7 +167,7 @@ export async function addTimeOffAction(
       .orderBy(asc(bookings.startsAt));
     refreshAll();
     return {
-      conflicts: conflicts.map((c) => `${formatDateTime(c.startsAt, settings.timezone)} — ${c.client}`),
+      conflicts: conflicts.map((c) => `${formatDateTime(c.startsAt, settings.timezone, lang)} — ${c.client}`),
     };
   });
 }

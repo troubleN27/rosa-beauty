@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { removePhotoAction, savePhotoAction } from "@/app/(dashboard)/masters/actions";
 import { MasterAvatar } from "@/components/masters/master-avatar";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/client";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -26,6 +27,7 @@ export function PhotoUploader({
   configured: boolean;
 }) {
   const router = useRouter();
+  const { t, tm } = useI18n();
   const input = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState<number | null>(null);
   const [pending, startTransition] = useTransition();
@@ -33,8 +35,8 @@ export function PhotoUploader({
 
   async function onFile(file: File | undefined) {
     if (!file) return;
-    if (!TYPES.includes(file.type)) return void toast.error("Подойдёт фото в формате JPG, PNG или WebP.");
-    if (file.size > MAX_BYTES) return void toast.error("Фото больше 5 МБ. Уменьшите его и попробуйте снова.");
+    if (!TYPES.includes(file.type)) return void toast.error(t("masters.photo.badType"));
+    if (file.size > MAX_BYTES) return void toast.error(t("masters.photo.tooBig"));
     setProgress(0);
     try {
       const blob = await upload(`masters/${masterId}.${EXTENSIONS[file.type]}`, file, {
@@ -45,13 +47,13 @@ export function PhotoUploader({
       });
       startTransition(async () => {
         const result = await savePhotoAction(masterId, blob.url);
-        if (!result.ok) return void toast.error(result.error);
-        toast.success("Фото обновлено");
+        if (!result.ok) return void toast.error(tm(result.error));
+        toast.success(t("masters.photo.updated"));
         router.refresh();
       });
     } catch (error) {
       console.error(error);
-      toast.error("Не удалось загрузить фото. Проверьте интернет и попробуйте ещё раз.");
+      toast.error(t("masters.photo.failed"));
     } finally {
       setProgress(null);
       if (input.current) input.current.value = "";
@@ -61,8 +63,8 @@ export function PhotoUploader({
   function remove() {
     startTransition(async () => {
       const result = await removePhotoAction(masterId);
-      if (!result.ok) return void toast.error(result.error);
-      toast.success("Фото удалено");
+      if (!result.ok) return void toast.error(tm(result.error));
+      toast.success(t("masters.photo.deleted"));
       router.refresh();
     });
   }
@@ -72,10 +74,10 @@ export function PhotoUploader({
       <MasterAvatar name={name} photoUrl={photoUrl} size={128} className="rounded-2xl" />
       <div className="space-y-3">
         <p className="text-sm text-muted-foreground">
-          Фото видно клиентам в разделе «Мастера» в боте. JPG, PNG или WebP, до 5 МБ. Лучше всего — портрет с лицом по центру.
+          {t("masters.photo.hint")}
         </p>
         {!configured && (
-          <p className="text-sm text-destructive">Хранилище фото не подключено — загрузка недоступна.</p>
+          <p className="text-sm text-destructive">{t("masters.photo.notConfigured")}</p>
         )}
         <div className="flex flex-wrap gap-2">
           <input
@@ -89,12 +91,12 @@ export function PhotoUploader({
           />
           <Button onClick={() => input.current?.click()} disabled={busy || !configured}>
             {busy ? <Loader2 className="animate-spin" aria-hidden /> : <ImageUp aria-hidden />}
-            {progress !== null ? `Загрузка ${progress}%` : photoUrl ? "Заменить фото" : "Загрузить фото"}
+            {progress !== null ? t("masters.photo.uploading", { percent: progress }) : photoUrl ? t("masters.photo.replace") : t("masters.photo.upload")}
           </Button>
           {photoUrl && (
             <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={remove} disabled={busy}>
               <Trash2 aria-hidden />
-              Удалить
+              {t("common.delete")}
             </Button>
           )}
         </div>

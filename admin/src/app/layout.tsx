@@ -4,6 +4,8 @@ import { ThemeProvider } from "next-themes";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { I18nProvider } from "@/i18n/client";
+import { getI18n } from "@/i18n/server";
 
 import "./globals.css";
 
@@ -19,18 +21,24 @@ const cormorant = Cormorant_Garamond({
   style: ["normal", "italic"],
 });
 
-export const metadata: Metadata = {
-  title: { default: "Rosa Beauty", template: "%s · Rosa Beauty" },
-  description: "Панель администратора салона Rosa Beauty",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return {
+    title: { default: "Rosa Beauty", template: "%s · Rosa Beauty" },
+    description: t("meta.description"),
+  };
+}
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const { lang } = await getI18n();
   return (
-    <html lang="ru" className={`${golos.variable} ${cormorant.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang={lang} className={`${golos.variable} ${cormorant.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
-          <TooltipProvider>{children}</TooltipProvider>
-          <Toaster position="top-right" richColors={false} />
+          <I18nProvider lang={lang}>
+            <TooltipProvider>{children}</TooltipProvider>
+            <Toaster position="top-right" richColors={false} />
+          </I18nProvider>
         </ThemeProvider>
       </body>
     </html>

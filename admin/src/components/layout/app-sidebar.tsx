@@ -31,18 +31,20 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { BrandMark } from "@/components/brand";
+import { LanguageToggle } from "@/components/layout/language-toggle";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { useI18n } from "@/i18n/client";
 import { authClient } from "@/lib/auth-client";
 
 const NAV = [
-  { href: "/", label: "Главная", icon: LayoutDashboard },
-  { href: "/schedule", label: "Расписание", icon: CalendarDays },
-  { href: "/bookings", label: "Записи", icon: ClipboardList },
-  { href: "/services", label: "Услуги", icon: Scissors },
-  { href: "/masters", label: "Мастера", icon: UserRound },
-  { href: "/clients", label: "Клиенты", icon: Users },
-  { href: "/reviews", label: "Отзывы", icon: MessageSquareHeart },
-  { href: "/settings", label: "Настройки", icon: Settings },
+  { href: "/", label: "nav.home" as const, icon: LayoutDashboard },
+  { href: "/schedule", label: "nav.schedule" as const, icon: CalendarDays },
+  { href: "/bookings", label: "nav.bookings" as const, icon: ClipboardList },
+  { href: "/services", label: "nav.services" as const, icon: Scissors },
+  { href: "/masters", label: "nav.masters" as const, icon: UserRound },
+  { href: "/clients", label: "nav.clients" as const, icon: Users },
+  { href: "/reviews", label: "nav.reviews" as const, icon: MessageSquareHeart },
+  { href: "/settings", label: "nav.settings" as const, icon: Settings },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -53,6 +55,7 @@ export function AppSidebar({ userName }: { userName: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const { setOpenMobile } = useSidebar();
+  const { t } = useI18n();
   const menuRef = useRef<HTMLUListElement>(null);
   const activeIndex = NAV.findIndex((item) => isActive(pathname, item.href));
 
@@ -125,7 +128,7 @@ export function AppSidebar({ userName }: { userName: string }) {
                       className="h-9 gap-3 px-3 text-sidebar-foreground/80 transition-colors duration-300 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground data-active:bg-transparent data-active:text-sidebar-primary data-active:hover:bg-transparent"
                     >
                       <item.icon aria-hidden />
-                      <span>{item.label}</span>
+                      <span>{t(item.label)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -142,9 +145,12 @@ export function AppSidebar({ userName }: { userName: string }) {
               <ThemeToggle />
             </SidebarMenuItem>
             <SidebarMenuItem>
+              <LanguageToggle />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
               <SidebarMenuButton onClick={signOut} className="text-sidebar-foreground/80">
                 <LogOut aria-hidden />
-                <span>Выйти</span>
+                <span>{t("nav.signOut")}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

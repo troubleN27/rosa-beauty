@@ -6,6 +6,7 @@ import { useEffect, useState, useTransition } from "react";
 import { freeSlotsAction } from "@/app/(dashboard)/bookings/actions";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { DatePicker } from "@/components/date-picker";
+import { useI18n } from "@/i18n/client";
 
 type Slot = { value: string; label: string };
 
@@ -29,6 +30,7 @@ export function SlotPicker({
   onChange: (value: string | null) => void;
   minDay: string;
 }) {
+  const { t, tm } = useI18n();
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -56,7 +58,7 @@ export function SlotPicker({
   return (
     <div className="space-y-3">
       <Field>
-        <FieldLabel htmlFor="slot-day">Дата</FieldLabel>
+        <FieldLabel htmlFor="slot-day">{t("bookings.slots.date")}</FieldLabel>
         <DatePicker
           id="slot-day"
           min={minDay}
@@ -69,21 +71,21 @@ export function SlotPicker({
         />
       </Field>
       <div>
-        <p className="mb-2 text-sm font-medium">Свободное время</p>
+        <p className="mb-2 text-sm font-medium">{t("bookings.slots.free")}</p>
         {!ready ? (
-          <p className="text-sm text-muted-foreground">Сначала выберите услугу, мастера и дату.</p>
+          <p className="text-sm text-muted-foreground">{t("bookings.slots.pickFirst")}</p>
         ) : pending ? (
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" aria-hidden /> Считаем свободное время…
+            <Loader2 className="size-4 animate-spin" aria-hidden /> {t("bookings.slots.counting")}
           </p>
         ) : error ? (
-          <p className="text-sm text-destructive">{error}</p>
+          <p className="text-sm text-destructive">{tm(error)}</p>
         ) : !slots || slots.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            В этот день у мастера нет свободного времени — выберите другую дату.
+            {t("bookings.slots.none")}
           </p>
         ) : (
-          <div role="radiogroup" aria-label="Свободное время" className="grid grid-cols-4 gap-1.5 sm:grid-cols-6">
+          <div role="radiogroup" aria-label={t("bookings.slots.free")} className="grid grid-cols-4 gap-1.5 sm:grid-cols-6">
             {slots.map((slot) => {
               const selected = slot.value === value;
               return (

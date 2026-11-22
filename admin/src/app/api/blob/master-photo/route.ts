@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as HandleUploadBody;
   } catch {
-    return NextResponse.json({ error: "Некорректный запрос" }, { status: 400 });
+    return NextResponse.json({ error: "Bad request" }, { status: 400 });
   }
   try {
     const result = await handleUpload({
@@ -23,8 +23,8 @@ export async function POST(request: Request) {
       request,
       onBeforeGenerateToken: async (pathname) => {
         const session = await auth.api.getSession({ headers: await headers() });
-        if (!session) throw new Error("Требуется вход");
-        if (!pathname.startsWith("masters/")) throw new Error("Недопустимый путь");
+        if (!session) throw new Error("Unauthorized");
+        if (!pathname.startsWith("masters/")) throw new Error("Invalid path");
         return {
           allowedContentTypes: PHOTO_TYPES,
           maximumSizeInBytes: PHOTO_MAX_BYTES,
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     });
     return NextResponse.json(result);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Ошибка загрузки";
+    const message = error instanceof Error ? error.message : "Upload failed";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

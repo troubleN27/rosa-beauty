@@ -1,23 +1,12 @@
+"use client";
+
 import { cn } from "cn";
 
-import { STATUS_LABELS, type BookingStatus } from "@/lib/constants";
-
-/**
- * SPEC 6.2: confirmed — blue, completed — green, cancelled — grey, no-show — red.
- * The hues are toned to the salon palette and redefined for the dark theme in globals.css.
- */
-export const STATUS_STYLES: Record<BookingStatus, { badge: string }> = {
-  confirmed: { badge: "status-confirmed" },
-  completed: { badge: "status-completed" },
-  cancelled: { badge: "status-cancelled" },
-  no_show: { badge: "status-no-show" },
-};
-
-export function statusKey(status: string): BookingStatus {
-  return (status in STATUS_LABELS ? status : "confirmed") as BookingStatus;
-}
+import { useI18n } from "@/i18n/client";
+import { STATUS_STYLES, statusKey } from "@/lib/status";
 
 export function StatusBadge({ status, className }: { status: string; className?: string }) {
+  const { t } = useI18n();
   const key = statusKey(status);
   return (
     <span
@@ -27,7 +16,7 @@ export function StatusBadge({ status, className }: { status: string; className?:
         className,
       )}
     >
-      {STATUS_LABELS[key]}
+      {t(`status.${key}`)}
     </span>
   );
 }

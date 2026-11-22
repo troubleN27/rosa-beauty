@@ -10,8 +10,12 @@ import { listReviews, REVIEWS_PAGE_SIZE } from "@/lib/data/clients";
 import { getSalonSettings } from "@/lib/data/settings";
 import { formatDay } from "@/lib/format";
 import { requireSession } from "@/lib/session";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = { title: "Отзывы" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t("reviews.title") };
+}
 
 const paramsSchema = z.object({
   rating: z.enum(["1", "2", "3", "4", "5", "low"]).optional().catch(undefined),
@@ -20,6 +24,7 @@ const paramsSchema = z.object({
 
 export default async function ReviewsPage({ searchParams }: PageProps<"/reviews">) {
   await requireSession();
+  const { t, lang, pick } = await getI18n();
   const { rating, page } = paramsSchema.parse(await searchParams);
   const [settings, { rows, total }] = await Promise.all([getSalonSettings(), listReviews(rating, page)]);
   const pages = Math.max(1, Math.ceil(total / REVIEWS_PAGE_SIZE));
@@ -27,13 +32,13 @@ export default async function ReviewsPage({ searchParams }: PageProps<"/reviews"
   return (
     <>
       <PageHeader
-        title="Отзывы"
-        description="Бот просит оценить визит через 2 часа после того, как запись отмечена выполненной."
+        title={t("reviews.title")}
+        description={t("reviews.description")}
       />
       <RatingFilter value={rating ?? "all"} />
       {rows.length === 0 ? (
         <p className="rounded-xl border bg-card empty-state px-4 py-12 text-center text-sm text-muted-foreground">
-          {rating ? "Отзывов с такой оценкой нет." : "Отзывов пока нет."}
+          {rating ? t("reviews.emptyFiltered") : t("reviews.empty")}
         </p>
       ) : (
         <ul className="space-y-3">
@@ -44,20 +49,20 @@ export default async function ReviewsPage({ searchParams }: PageProps<"/reviews"
                   <StarRating rating={review.rating} size={20} />
                   <span className="font-display text-2xl leading-none font-semibold">{review.rating}</span>
                 </span>
-                <span className="text-xs text-muted-foreground">{formatDay(review.createdAt, settings.timezone)}</span>
+                <span className="text-xs text-muted-foreground">{formatDay(review.createdAt, settings.timezone, lang)}</span>
               </div>
               {review.comment ? (
                 <p className="mt-2 text-sm whitespace-pre-line">{review.comment}</p>
               ) : (
-                <p className="mt-2 text-sm text-muted-foreground">Без комментария</p>
+                <p className="mt-2 text-sm text-muted-foreground">{t("reviews.noComment")}</p>
               )}
               <p className="mt-3 text-xs text-muted-foreground">
                 <Link href={`/clients/${review.clientId}`} className="font-medium text-foreground hover:text-primary">
                   {review.clientName}
                 </Link>{" "}
-                · {review.serviceName} · {review.masterName} ·{" "}
+                · {pick(review.serviceName, review.serviceNameEn)} · {pick(review.masterName, review.masterNameEn)} ·{" "}
                 <Link href={`/bookings/${review.bookingId}`} className="hover:text-primary">
-                  запись
+                  {t("reviews.booking")}
                 </Link>
               </p>
             </li>

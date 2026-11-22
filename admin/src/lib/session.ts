@@ -20,7 +20,7 @@ export async function requireSession() {
 
 export class UnauthorizedError extends Error {
   constructor() {
-    super("Требуется вход");
+    super("Unauthorized");
   }
 }
 

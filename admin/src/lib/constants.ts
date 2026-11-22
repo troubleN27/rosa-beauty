@@ -1,32 +1,20 @@
 export const BOOKING_STATUSES = ["confirmed", "completed", "cancelled", "no_show"] as const;
 export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 
-export const STATUS_LABELS: Record<BookingStatus, string> = {
-  confirmed: "Подтверждена",
-  completed: "Выполнена",
-  cancelled: "Отменена",
-  no_show: "Неявка",
-};
-
 export const BOOKING_SOURCES = ["bot", "admin"] as const;
 export type BookingSource = (typeof BOOKING_SOURCES)[number];
 
-export const SOURCE_LABELS: Record<BookingSource, string> = {
-  bot: "Бот",
-  admin: "Админка",
-};
+/** Who changed a booking status (booking_status_history.changed_by). */
+export const CHANGED_BY = ["client", "admin"] as const;
 
-export const CHANGED_BY_LABELS: Record<string, string> = {
-  client: "Клиент",
-  admin: "Администратор",
-};
+/** Tabs of the master page; labels are in the dictionaries (masters.tabs.*). */
+export const MASTER_TABS = ["profile", "photo", "services", "schedule", "timeoff"] as const;
+export type MasterTab = (typeof MASTER_TABS)[number];
 
-export const MASTER_TABS = [
-  { value: "profile", label: "Данные" },
-  { value: "photo", label: "Фото" },
-  { value: "services", label: "Услуги" },
-  { value: "schedule", label: "График" },
-  { value: "timeoff", label: "Выходные" },
-] as const;
+export function isBookingStatus(value: string): value is BookingStatus {
+  return (BOOKING_STATUSES as readonly string[]).includes(value);
+}
 
-export type MasterTab = (typeof MASTER_TABS)[number]["value"];
+export function isBookingSource(value: string): value is BookingSource {
+  return (BOOKING_SOURCES as readonly string[]).includes(value);
+}

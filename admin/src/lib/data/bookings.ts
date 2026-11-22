@@ -32,9 +32,12 @@ const bookingColumns = {
   clientPhone: clients.phone,
   clientTelegramId: clients.telegramId,
   serviceName: services.nameRu,
+  serviceNameEn: services.nameEn,
   serviceDuration: services.durationMin,
   masterName: masters.nameRu,
+  masterNameEn: masters.nameEn,
   categoryName: categories.nameRu,
+  categoryNameEn: categories.nameEn,
 };
 
 function bookingsQuery() {
@@ -105,7 +108,7 @@ export async function listBookings(filters: BookingFilters, timezone: string) {
 
 export async function listMastersForFilter() {
   return db
-    .select({ id: masters.id, name: masters.nameRu, isActive: masters.isActive })
+    .select({ id: masters.id, name: masters.nameRu, nameEn: masters.nameEn, isActive: masters.isActive })
     .from(masters)
     .orderBy(asc(masters.sort), asc(masters.nameRu));
 }

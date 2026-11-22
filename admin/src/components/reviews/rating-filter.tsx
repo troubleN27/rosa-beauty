@@ -3,10 +3,9 @@
 import { usePathname, useRouter } from "next/navigation";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useI18n } from "@/i18n/client";
 
-const ITEMS = [
-  { value: "all", label: "Все оценки" },
-  { value: "low", label: "3 и ниже" },
+const RATINGS = [
   { value: "5", label: "5 ★" },
   { value: "4", label: "4 ★" },
   { value: "3", label: "3 ★" },
@@ -17,13 +16,19 @@ const ITEMS = [
 export function RatingFilter({ value }: { value: string }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useI18n();
+  const ITEMS = [
+    { value: "all", label: t("reviews.allRatings") },
+    { value: "low", label: t("reviews.lowRatings") },
+    ...RATINGS,
+  ];
   return (
     <Select
       items={ITEMS}
       value={value}
       onValueChange={(next) => router.push(next === "all" || !next ? pathname : `${pathname}?rating=${next}`)}
     >
-      <SelectTrigger aria-label="Оценка" className="mb-4 min-w-40">
+      <SelectTrigger aria-label={t("reviews.filter")} className="mb-4 min-w-40">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

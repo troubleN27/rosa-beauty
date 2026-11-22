@@ -6,13 +6,17 @@ import { z } from "zod";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { StatusBadge } from "@/components/status-badge";
-import { SOURCE_LABELS, type BookingSource } from "@/lib/constants";
+import { getI18n } from "@/i18n/server";
+import { isBookingSource } from "@/lib/constants";
 import { getClientDetail } from "@/lib/data/clients";
 import { getSalonSettings } from "@/lib/data/settings";
 import { formatDateTime, formatDay, formatPrice } from "@/lib/format";
 import { requireSession } from "@/lib/session";
 
-export const metadata: Metadata = { title: "Клиент" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t("clients.item") };
+}
 
 export default async function ClientPage({ params }: PageProps<"/clients/[id]">) {
   await requireSession();
@@ -20,23 +24,24 @@ export default async function ClientPage({ params }: PageProps<"/clients/[id]">)
   if (!z.uuid().safeParse(id).success) notFound();
   const [settings, detail] = await Promise.all([getSalonSettings(), getClientDetail(id)]);
   if (!detail) notFound();
+  const { t, lang, pick } = await getI18n();
   const { client, history } = detail;
   const tz = settings.timezone;
   const count = (status: string) => history.filter((b) => b.status === status).length;
 
   const facts: [string, React.ReactNode][] = [
-    ["Визиты", count("completed")],
-    ["Отмены", count("cancelled")],
-    ["Неявки", count("no_show")],
-    ["Язык бота", client.language === "en" ? "English" : "Русский"],
-    ["Клиент с", formatDay(client.createdAt, tz)],
+    [t("clients.columns.visits"), count("completed")],
+    [t("clients.columns.cancels"), count("cancelled")],
+    [t("clients.columns.noShows"), count("no_show")],
+    [t("clients.botLanguage"), client.language === "en" ? "English" : "Русский"],
+    [t("clients.since"), formatDay(client.createdAt, tz, lang)],
   ];
 
   return (
     <>
       <Link href="/clients" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ChevronLeft className="size-4" aria-hidden />
-        Все клиенты
+        {t("clients.all")}
       </Link>
       <PageHeader
         title={client.name}
@@ -50,7 +55,7 @@ export default async function ClientPage({ params }: PageProps<"/clients/[id]">)
             )}
             <span className="inline-flex items-center gap-1.5">
               <Send className="size-3.5" aria-hidden />
-              {client.telegramId !== null ? "Пишет через Telegram-бота" : "Без Telegram"}
+              {client.telegramId !== null ? t("clients.viaTelegram") : t("clients.noTelegram")}
             </span>
           </span>
         }
@@ -65,9 +70,9 @@ export default async function ClientPage({ params }: PageProps<"/clients/[id]">)
       </dl>
 
       <section className="rounded-xl border bg-card">
-        <h2 className="border-b px-4 py-3 font-display text-xl font-semibold">История записей</h2>
+        <h2 className="border-b px-4 py-3 font-display text-xl font-semibold">{t("clients.history")}</h2>
         {history.length === 0 ? (
-          <p className="empty-state px-4 py-10 text-center text-sm text-muted-foreground">Записей пока нет.</p>
+          <p className="empty-state px-4 py-10 text-center text-sm text-muted-foreground">{t("clients.noBookings")}</p>
         ) : (
           <ol className="divide-y">
             {history.map((booking) => (
@@ -76,17 +81,17 @@ export default async function ClientPage({ params }: PageProps<"/clients/[id]">)
                   href={`/bookings/${booking.id}`}
                   className="grid gap-1 px-4 py-3 transition-colors hover:bg-accent/50 sm:grid-cols-[13rem_minmax(0,1fr)_auto] sm:items-center sm:gap-3"
                 >
-                  <span className="text-sm font-medium">{formatDateTime(booking.startsAt, tz)}</span>
+                  <span className="text-sm font-medium">{formatDateTime(booking.startsAt, tz, lang)}</span>
                   <span className="min-w-0 text-sm">
-                    <span className="block truncate">{booking.serviceName}</span>
+                    <span className="block truncate">{pick(booking.serviceName, booking.serviceNameEn)}</span>
                     <span className="block truncate text-xs text-muted-foreground">
-                      {booking.masterName} · {formatPrice(booking.price, settings.currency)} ·{" "}
-                      {SOURCE_LABELS[booking.source as BookingSource] ?? booking.source}
+                      {pick(booking.masterName, booking.masterNameEn)} · {formatPrice(booking.price, settings.currency)} ·{" "}
+                      {isBookingSource(booking.source) ? t(`source.${booking.source}`) : booking.source}
                     </span>
                   </span>
                   <span className="flex items-center gap-2">
                     {booking.rating !== null && (
-                      <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground" aria-label={`Оценка ${booking.rating} из 5`}>
+                      <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground" aria-label={t("rating.aria", { rating: booking.rating })}>
                         <Star className="size-3 fill-current text-primary" aria-hidden />
                         {booking.rating}
                       </span>

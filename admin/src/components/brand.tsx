@@ -1,15 +1,19 @@
+"use client";
+
 import Image from "next/image";
 
+import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 
 /** Rose mark with the salon wordmark set in the display serif. */
 export function BrandMark({ className, compact = false }: { className?: string; compact?: boolean }) {
+  const { t } = useI18n();
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
       <Image src="/brand/rose.png" alt="" width={22} height={32} className="h-8 w-auto shrink-0" priority />
       <span className="flex flex-col leading-none">
         <span className="font-display text-[22px] font-semibold tracking-wide">Rosa Beauty</span>
-        {!compact && <span className="mt-1 text-[11px] tracking-wide opacity-60">панель салона</span>}
+        {!compact && <span className="mt-1 text-[11px] tracking-wide opacity-60">{t("nav.panel")}</span>}
       </span>
     </span>
   );

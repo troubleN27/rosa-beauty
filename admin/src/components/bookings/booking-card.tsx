@@ -2,7 +2,8 @@ import { Phone, Send } from "lucide-react";
 
 import { BookingActions } from "@/components/bookings/booking-actions";
 import { StatusBadge } from "@/components/status-badge";
-import { CHANGED_BY_LABELS, SOURCE_LABELS, STATUS_LABELS, type BookingSource, type BookingStatus } from "@/lib/constants";
+import { getI18n } from "@/i18n/server";
+import { isBookingSource, isBookingStatus, type BookingStatus } from "@/lib/constants";
 import type { getBookingDetails } from "@/lib/data/bookings";
 import { getSalonSettings } from "@/lib/data/settings";
 import { formatDateTime, formatDuration, formatPrice, formatTime } from "@/lib/format";
@@ -18,18 +19,20 @@ type Details = NonNullable<Awaited<ReturnType<typeof getBookingDetails>>>;
 
 export async function BookingCard({ details, variant = "page" }: { details: Details; variant?: "page" | "sheet" }) {
   const settings = await getSalonSettings();
+  const { t, lang, pick } = await getI18n();
   const { booking, history } = details;
+  const statusName = (status: string) => (isBookingStatus(status) ? t(`status.${status}`) : status);
   const tz = settings.timezone;
   const timing = bookingTiming(booking.startsAt, tz);
   const durationMin = Math.round((booking.endsAt.getTime() - booking.startsAt.getTime()) / 60_000);
 
   const rows: [string, React.ReactNode][] = [
-    ["Услуга", `${booking.serviceName} · ${formatDuration(durationMin)}`],
-    ["Мастер", booking.masterName],
-    ["Время", `${formatDateTime(booking.startsAt, tz)} – ${formatTime(booking.endsAt, tz)}`],
-    ["Цена", formatPrice(booking.price, settings.currency)],
-    ["Источник", SOURCE_LABELS[booking.source as BookingSource] ?? booking.source],
-    ["Комментарий", booking.comment || <span className="text-muted-foreground">—</span>],
+    [t("bookings.card.service"), `${pick(booking.serviceName, booking.serviceNameEn)} · ${formatDuration(durationMin, lang)}`],
+    [t("bookings.card.master"), pick(booking.masterName, booking.masterNameEn)],
+    [t("bookings.card.time"), `${formatDateTime(booking.startsAt, tz, lang)} – ${formatTime(booking.endsAt, tz)}`],
+    [t("bookings.card.price"), formatPrice(booking.price, settings.currency)],
+    [t("bookings.card.source"), isBookingSource(booking.source) ? t(`source.${booking.source}`) : booking.source],
+    [t("bookings.card.comment"), booking.comment || <span className="text-muted-foreground">—</span>],
   ];
 
   return (
@@ -67,20 +70,21 @@ export async function BookingCard({ details, variant = "page" }: { details: Deta
         </section>
 
         <section>
-          <h2 className="mb-2 font-display text-xl font-semibold">История статусов</h2>
+          <h2 className="mb-2 font-display text-xl font-semibold">{t("bookings.card.history")}</h2>
           {history.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Изменений пока не было.</p>
+            <p className="text-sm text-muted-foreground">{t("bookings.card.noHistory")}</p>
           ) : (
             <ol className="space-y-2 border-l pl-4">
               {history.map((entry) => (
                 <li key={entry.id} className="text-sm">
                   <span className="font-medium">
                     {entry.oldStatus
-                      ? `${STATUS_LABELS[entry.oldStatus as BookingStatus] ?? entry.oldStatus} → ${STATUS_LABELS[entry.newStatus as BookingStatus] ?? entry.newStatus}`
-                      : `Создана: ${STATUS_LABELS[entry.newStatus as BookingStatus] ?? entry.newStatus}`}
+                      ? `${statusName(entry.oldStatus)} → ${statusName(entry.newStatus)}`
+                      : t("bookings.card.created", { status: statusName(entry.newStatus) })}
                   </span>
                   <span className="block text-xs text-muted-foreground">
-                    {formatDateTime(entry.changedAt, tz)} · {CHANGED_BY_LABELS[entry.changedBy] ?? entry.changedBy}
+                    {formatDateTime(entry.changedAt, tz, lang)} ·{" "}
+                    {entry.changedBy === "client" || entry.changedBy === "admin" ? t(`changedBy.${entry.changedBy}`) : entry.changedBy}
                   </span>
                 </li>
               ))}

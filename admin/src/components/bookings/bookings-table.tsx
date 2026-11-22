@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { StatusBadge } from "@/components/status-badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { T } from "@/i18n/client";
 
 export type BookingTableRow = {
   id: string;
@@ -23,7 +24,7 @@ export type BookingTableRow = {
 
 const features = tableFeatures({});
 
-function SortHeader({ label, field }: { label: string; field: "starts" }) {
+function SortHeader({ label, field }: { label: React.ReactNode; field: "starts" }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -50,7 +51,7 @@ function SortHeader({ label, field }: { label: string; field: "starts" }) {
 const columns: ColumnDef<typeof features, BookingTableRow>[] = [
   {
     id: "when",
-    header: () => <SortHeader label="Дата и время" field="starts" />,
+    header: () => <SortHeader label={<T k="bookings.table.when" />} field="starts" />,
     cell: ({ row }) => (
       <Link href={`/bookings/${row.original.id}`} className="block whitespace-nowrap hover:text-primary">
         <span className="block font-display text-xl leading-none font-semibold tabular-nums">{row.original.time}</span>
@@ -60,7 +61,7 @@ const columns: ColumnDef<typeof features, BookingTableRow>[] = [
   },
   {
     id: "client",
-    header: "Клиент",
+    header: () => <T k="bookings.table.client" />,
     cell: ({ row }) => (
       <div className="min-w-32">
         <p className="truncate">{row.original.client}</p>
@@ -68,14 +69,14 @@ const columns: ColumnDef<typeof features, BookingTableRow>[] = [
       </div>
     ),
   },
-  { id: "service", header: "Услуга", cell: ({ row }) => (
+  { id: "service", header: () => <T k="bookings.table.service" />, cell: ({ row }) => (
       <span className="block min-w-36 whitespace-normal">{row.original.service}</span>
     ),
   },
-  { id: "master", header: "Мастер", cell: ({ row }) => <span className="whitespace-nowrap">{row.original.master}</span> },
-  { id: "price", header: "Цена", cell: ({ row }) => <span className="font-display text-lg tabular-nums">{row.original.price}</span> },
-  { id: "status", header: "Статус", cell: ({ row }) => <StatusBadge status={row.original.status} /> },
-  { id: "source", header: "Источник", cell: ({ row }) => <span className="text-xs text-muted-foreground">{row.original.source}</span> },
+  { id: "master", header: () => <T k="bookings.table.master" />, cell: ({ row }) => <span className="whitespace-nowrap">{row.original.master}</span> },
+  { id: "price", header: () => <T k="bookings.table.price" />, cell: ({ row }) => <span className="font-display text-lg tabular-nums">{row.original.price}</span> },
+  { id: "status", header: () => <T k="bookings.table.status" />, cell: ({ row }) => <StatusBadge status={row.original.status} /> },
+  { id: "source", header: () => <T k="bookings.table.source" />, cell: ({ row }) => <span className="text-xs text-muted-foreground">{row.original.source}</span> },
 ];
 
 export function BookingsTable({ data }: { data: BookingTableRow[] }) {

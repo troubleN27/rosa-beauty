@@ -3,6 +3,9 @@
 import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
+import { pick } from "@/i18n";
+import { getLang } from "@/i18n/server";
+
 import { db } from "@/db";
 import { clients, masterServices, masters, services } from "@/db/schema";
 import { freeSlots } from "@/lib/availability";
@@ -46,7 +49,7 @@ export async function freeSlotsAction(
   return run(async () => {
     const { serviceId, masterId, day, excludeBookingId } = freeSlotsSchema.parse(input);
     const [service] = await db.select().from(services).where(eq(services.id, serviceId));
-    if (!service) throw new BookingError("Услуга не найдена.");
+    if (!service) throw new BookingError("errors.serviceNotFound");
     const settings = await getSalonSettings();
     const free = await freeSlots(db, settings, [masterId], service.durationMin, day, excludeBookingId);
     return {
@@ -118,11 +121,12 @@ export async function serviceMastersAction(
   return run(async () => {
     const id = z.uuid().parse(serviceId);
     const rows = await db
-      .select({ id: masters.id, name: masters.nameRu })
+      .select({ id: masters.id, name: masters.nameRu, nameEn: masters.nameEn })
       .from(masterServices)
       .innerJoin(masters, eq(masters.id, masterServices.masterId))
       .where(and(eq(masterServices.serviceId, id), eq(masters.isActive, true)))
       .orderBy(asc(masters.sort));
-    return { masters: rows };
+    const lang = await getLang();
+    return { masters: rows.map((row) => ({ id: row.id, name: pick(lang, row.name, row.nameEn) })) };
   });
 }

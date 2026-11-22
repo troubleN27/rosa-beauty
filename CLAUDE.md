@@ -48,6 +48,13 @@ to Vercel Blob (`/api/blob/master-photo` issues the token; Vercel functions acce
 `savePhotoAction` re-checks the URL and file signature. Server Actions use `run()` from `src/lib/actions.ts`. `src/lib/slots.ts` must stay identical in behaviour
 to `bot/app/services/slots.py`.
 
+Admin languages: the panel is RU/EN (switch in the menu and on the sign-in page, stored in the `lang` cookie).
+All panel texts live in `admin/src/i18n/ru.json` and `en.json` (same keys); Server Components use `getI18n()`
+from `@/i18n/server`, client components `useI18n()` from `@/i18n/client`. Validation and Server Action error
+messages are dictionary keys (e.g. `validation.maxLength|max=80`, `errors.slotTaken`) translated where they are
+shown (`FieldError`, `tm()` in toasts). Bilingual data (services, categories, masters) is shown with `pick()`.
+Telegram messages to clients stay in the client's own language (`lib/client-messages.ts`).
+
 Bot (`cd bot`):
 - `uv sync` — install dependencies
 - `uv run python -m app.main` — run the bot

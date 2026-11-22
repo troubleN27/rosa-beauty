@@ -4,7 +4,7 @@ import "@/lib/validations/common";
 
 import { BOOKING_SOURCES, BOOKING_STATUSES } from "@/lib/constants";
 
-const isoDay = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Выберите дату");
+const isoDay = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "validation.pickDate");
 
 export const statusSchema = z.object({
   bookingId: z.uuid(),
@@ -26,31 +26,31 @@ export const rescheduleSchema = z.object({
 export const phoneSchema = z
   .string()
   .trim()
-  .min(1, "Введите телефон")
-  .refine((value) => /^\+?[\d\s()-]{7,20}$/.test(value), "Телефон в формате +7 900 123-45-67")
-  .refine((value) => value.replace(/\D/g, "").length >= 7, "Слишком короткий номер");
+  .min(1, "validation.phoneRequired")
+  .refine((value) => /^\+?[\d\s()-]{7,20}$/.test(value), "validation.phoneFormat")
+  .refine((value) => value.replace(/\D/g, "").length >= 7, "validation.phoneShort");
 
 export const newBookingSchema = z
   .object({
     clientMode: z.enum(["existing", "new"]),
     clientId: z.string().optional(),
-    clientName: z.string().trim().max(64, "Не длиннее 64 символов").optional(),
+    clientName: z.string().trim().max(64, "validation.maxLength|max=64").optional(),
     clientPhone: z.string().optional(),
-    serviceId: z.uuid("Выберите услугу"),
-    masterId: z.uuid("Выберите мастера"),
+    serviceId: z.uuid("validation.pickService"),
+    masterId: z.uuid("validation.pickMaster"),
     day: isoDay,
-    startsAt: z.iso.datetime({ offset: true, message: "Выберите время" }),
-    comment: z.string().trim().max(500, "Не длиннее 500 символов").optional(),
+    startsAt: z.iso.datetime({ offset: true, message: "validation.pickTime" }),
+    comment: z.string().trim().max(500, "validation.maxLength|max=500").optional(),
   })
   .superRefine((value, ctx) => {
     if (value.clientMode === "existing") {
       if (!value.clientId || !z.uuid().safeParse(value.clientId).success) {
-        ctx.addIssue({ code: "custom", path: ["clientId"], message: "Выберите клиента" });
+        ctx.addIssue({ code: "custom", path: ["clientId"], message: "validation.pickClient" });
       }
       return;
     }
     if (!value.clientName) {
-      ctx.addIssue({ code: "custom", path: ["clientName"], message: "Введите имя" });
+      ctx.addIssue({ code: "custom", path: ["clientName"], message: "validation.enterName" });
     }
     const phone = phoneSchema.safeParse(value.clientPhone ?? "");
     if (!phone.success) {

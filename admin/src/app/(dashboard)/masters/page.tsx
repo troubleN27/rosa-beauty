@@ -7,36 +7,34 @@ import { MasterAvatar } from "@/components/masters/master-avatar";
 import { Button } from "@/components/ui/button";
 import { listMasters } from "@/lib/data/masters";
 import { requireSession } from "@/lib/session";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = { title: "Мастера" };
-
-function years(n: number) {
-  const last = n % 10;
-  const lastTwo = n % 100;
-  if (last === 1 && lastTwo !== 11) return `${n} год`;
-  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return `${n} года`;
-  return `${n} лет`;
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t("masters.title") };
 }
+
 
 export default async function MastersPage() {
   await requireSession();
+  const { t, pick } = await getI18n();
   const masters = await listMasters();
 
   return (
     <>
       <PageHeader
-        title="Мастера"
-        description="Данные, фото, услуги, график и выходные. Изменения сразу видны в боте."
+        title={t("masters.title")}
+        description={t("masters.description")}
         actions={
           <Button nativeButton={false} render={<Link href="/masters/new" />}>
             <UserPlus aria-hidden />
-            Новый мастер
+            {t("masters.new")}
           </Button>
         }
       />
       {masters.length === 0 ? (
         <p className="rounded-xl border bg-card empty-state px-4 py-12 text-center text-sm text-muted-foreground">
-          Мастеров пока нет. Добавьте первого мастера, чтобы клиенты могли записываться.
+          {t("masters.empty")}
         </p>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -46,21 +44,21 @@ export default async function MastersPage() {
                 href={`/masters/${master.id}`}
                 className="flex h-full items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:border-primary/50 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
               >
-                <MasterAvatar name={master.nameRu} photoUrl={master.photoUrl} />
+                <MasterAvatar name={pick(master.nameRu, master.nameEn)} photoUrl={master.photoUrl} />
                 <span className="min-w-0">
                   <span className="flex items-center gap-2">
-                    <span className="truncate font-medium">{master.nameRu}</span>
+                    <span className="truncate font-medium">{pick(master.nameRu, master.nameEn)}</span>
                     {!master.isActive && (
-                      <EyeOff className="size-3.5 shrink-0 text-muted-foreground" aria-label="Скрыт" />
+                      <EyeOff className="size-3.5 shrink-0 text-muted-foreground" aria-label={t("common.hiddenMaster")} />
                     )}
                   </span>
                   <span className="block truncate text-sm text-muted-foreground">
-                    {master.specialtyRu ?? "Специализация не указана"}
+                    {master.specialtyRu ? pick(master.specialtyRu, master.specialtyEn) : t("masters.noSpecialty")}
                   </span>
                   <span className="mt-1 block text-xs text-muted-foreground">
                     {[
-                      master.experienceYears !== null ? `опыт ${years(master.experienceYears)}` : null,
-                      master.servicesCount ? `услуг: ${master.servicesCount}` : "нет услуг",
+                      master.experienceYears !== null ? t("masters.experience", { count: master.experienceYears }) : null,
+                      master.servicesCount ? t("masters.servicesCount", { count: master.servicesCount }) : t("masters.noServicesShort"),
                     ]
                       .filter(Boolean)
                       .join(" · ")}

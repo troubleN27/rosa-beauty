@@ -20,6 +20,7 @@ import {
   type SettingsOutput,
   type SettingsValues,
 } from "@/lib/validations/settings";
+import { useI18n } from "@/i18n/client";
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
@@ -33,6 +34,7 @@ function Section({ title, description, children }: { title: string; description?
 
 export function SettingsForm({ initial }: { initial: SettingsValues }) {
   const router = useRouter();
+  const { t, tm } = useI18n();
   const [pending, startTransition] = useTransition();
   const form = useForm<SettingsValues, unknown, SettingsOutput>({ resolver: zodResolver(settingsSchema), values: initial });
   const { errors, isDirty } = form.formState;
@@ -44,8 +46,8 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
   function onSubmit(values: SettingsOutput) {
     startTransition(async () => {
       const result = await saveSettingsAction(values);
-      if (!result.ok) return void toast.error(result.error);
-      toast.success("Настройки сохранены — бот уже работает с новыми значениями");
+      if (!result.ok) return void toast.error(tm(result.error));
+      toast.success(t("settings.saved"));
       router.refresh();
     });
   }
@@ -60,25 +62,25 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="grid max-w-3xl gap-4">
-      <Section title="Салон" description="Эти данные клиенты видят в разделе «Контакты» и в подтверждении записи.">
-        {text("name", "Название")}
+      <Section title={t("settings.salon")} description={t("settings.salonHint")}>
+        {text("name", t("settings.name"))}
         <div className="grid gap-4 sm:grid-cols-2">
-          {text("addressRu", "Адрес (RU)")}
-          {text("addressEn", "Адрес (EN)")}
-          {text("hoursRu", "Часы работы (RU)", { placeholder: "Ежедневно с 10:00 до 21:00" })}
-          {text("hoursEn", "Часы работы (EN)", { placeholder: "Daily 10:00–21:00" })}
-          {text("phone", "Телефон", { type: "tel" })}
+          {text("addressRu", t("settings.addressRu"))}
+          {text("addressEn", t("settings.addressEn"))}
+          {text("hoursRu", t("settings.hoursRu"), { placeholder: t("settings.hoursRuPlaceholder") })}
+          {text("hoursEn", t("settings.hoursEn"), { placeholder: "Daily 10:00–21:00" })}
+          {text("phone", t("settings.phone"), { type: "tel" })}
           {text("instagram", "Instagram", { type: "url", placeholder: "https://instagram.com/salon" })}
-          {text("latitude", "Широта", { inputMode: "decimal", placeholder: "55.7398" })}
-          {text("longitude", "Долгота", { inputMode: "decimal", placeholder: "37.6273" })}
+          {text("latitude", t("settings.latitude"), { inputMode: "decimal", placeholder: "55.7398" })}
+          {text("longitude", t("settings.longitude"), { inputMode: "decimal", placeholder: "37.6273" })}
         </div>
-        <FieldDescription>Координаты нужны для точки на карте в «Контактах». Их можно скопировать из Яндекс или Google Карт.</FieldDescription>
+        <FieldDescription>{t("settings.coordinatesHint")}</FieldDescription>
       </Section>
 
-      <Section title="Запись" description="Изменения сразу применяются к расчёту свободного времени в боте.">
+      <Section title={t("settings.booking")} description={t("settings.bookingHint")}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field data-invalid={!!errors.timezone}>
-            <FieldLabel htmlFor="settings-timezone">Часовой пояс салона</FieldLabel>
+            <FieldLabel htmlFor="settings-timezone">{t("settings.timezone")}</FieldLabel>
             <Controller
               control={form.control}
               name="timezone"
@@ -100,7 +102,7 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
             <FieldError errors={[errors.timezone]} />
           </Field>
           <Field data-invalid={!!errors.currency}>
-            <FieldLabel htmlFor="settings-currency">Валюта цен</FieldLabel>
+            <FieldLabel htmlFor="settings-currency">{t("settings.currency")}</FieldLabel>
             <Controller
               control={form.control}
               name="currency"
@@ -121,13 +123,13 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
             />
           </Field>
           <Field data-invalid={!!errors.slotStepMin}>
-            <FieldLabel htmlFor="settings-step">Шаг времени записи</FieldLabel>
+            <FieldLabel htmlFor="settings-step">{t("settings.step")}</FieldLabel>
             <Controller
               control={form.control}
               name="slotStepMin"
               render={({ field }) => (
                 <Select
-                  items={SLOT_STEPS.map((s) => ({ value: String(s), label: `${s} мин` }))}
+                  items={SLOT_STEPS.map((s) => ({ value: String(s), label: t("common.minutesShort", { count: s }) }))}
                   value={String(field.value)}
                   onValueChange={(v) => field.onChange(Number(v))}
                 >
@@ -137,26 +139,26 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
                   <SelectContent>
                     {SLOT_STEPS.map((step) => (
                       <SelectItem key={step} value={String(step)}>
-                        {step} мин
+                        {t("common.minutesShort", { count: step })}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
             />
-            <FieldDescription>Например, при 15 мин клиент выбирает 10:00, 10:15, 10:30…</FieldDescription>
+            <FieldDescription>{t("settings.stepHint")}</FieldDescription>
           </Field>
-          {text("minLeadTimeMin", "Записываться не позже чем за, мин", { type: "number", min: 0 })}
-          {text("cancelDeadlineHours", "Отмена и перенос клиентом не позже чем за, ч", { type: "number", min: 0 })}
-          {text("bookingHorizonDays", "Записываться вперёд на, дней", { type: "number", min: 1 })}
+          {text("minLeadTimeMin", t("settings.minLead"), { type: "number", min: 0 })}
+          {text("cancelDeadlineHours", t("settings.cancelDeadline"), { type: "number", min: 0 })}
+          {text("bookingHorizonDays", t("settings.horizon"), { type: "number", min: 1 })}
         </div>
       </Section>
 
-      <Section title="Сообщения клиентам">
+      <Section title={t("settings.messages")}>
         {(
           [
-            ["remindersEnabled", "Напоминания за 24 и 2 часа до визита"],
-            ["reviewsEnabled", "Просить оценить визит после выполненной записи"],
+            ["remindersEnabled", t("settings.reminders")],
+            ["reviewsEnabled", t("settings.reviewsRequest")],
           ] as const
         ).map(([name, label]) => (
           <Controller
@@ -176,7 +178,7 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
       <div className="sticky bottom-0 -mx-4 flex justify-end border-t bg-background/95 px-4 py-3 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:p-0">
         <Button type="submit" disabled={!isDirty || pending}>
           {pending && <Loader2 className="animate-spin" aria-hidden />}
-          Сохранить настройки
+          {t("settings.save")}
         </Button>
       </div>
     </form>

@@ -1,9 +1,13 @@
+"use client";
+
 import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from "@/i18n/client";
 
 /** Loading placeholder for list and detail pages. */
 export function ListSkeleton({ rows = 6 }: { rows?: number }) {
+  const { t } = useI18n();
   return (
-    <div aria-busy="true" aria-label="Загрузка">
+    <div aria-busy="true" aria-label={t("common.loading")}>
       <Skeleton className="mb-2 h-7 w-48" />
       <Skeleton className="mb-6 h-4 w-72 max-w-full" />
       <Skeleton className="mb-4 h-8 w-80 max-w-full" />

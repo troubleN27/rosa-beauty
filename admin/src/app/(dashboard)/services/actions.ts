@@ -14,7 +14,7 @@ export async function saveCategoryAction(input: unknown): Promise<ActionResult<{
     const { id, ...values } = categorySchema.parse(input);
     if (id) {
       const updated = await db.update(categories).set(values).where(eq(categories.id, id)).returning({ id: categories.id });
-      if (!updated.length) throw new ActionError("Категория не найдена. Обновите страницу.");
+      if (!updated.length) throw new ActionError("errors.categoryNotFound");
       refreshAll();
       return { id };
     }
@@ -29,7 +29,7 @@ export async function deleteCategoryAction(id: unknown): Promise<ActionResult> {
     const categoryId = z.uuid().parse(id);
     const [{ value }] = await db.select({ value: count() }).from(services).where(eq(services.categoryId, categoryId));
     if (value > 0) {
-      throw new ActionError("В категории есть услуги. Перенесите или удалите их, либо скройте категорию.");
+      throw new ActionError("errors.categoryHasServices");
     }
     await db.delete(categories).where(eq(categories.id, categoryId));
     refreshAll();
@@ -42,10 +42,10 @@ export async function saveServiceAction(input: unknown): Promise<ActionResult<{ 
     const { id, price, ...values } = serviceSchema.parse(input);
     const row = { ...values, price: price.toFixed(2) };
     const [category] = await db.select({ id: categories.id }).from(categories).where(eq(categories.id, values.categoryId));
-    if (!category) throw new ActionError("Категория не найдена. Обновите страницу.");
+    if (!category) throw new ActionError("errors.categoryNotFound");
     if (id) {
       const updated = await db.update(services).set(row).where(eq(services.id, id)).returning({ id: services.id });
-      if (!updated.length) throw new ActionError("Услуга не найдена. Обновите страницу.");
+      if (!updated.length) throw new ActionError("errors.serviceNotFoundRefresh");
       refreshAll();
       return { id };
     }
@@ -68,13 +68,13 @@ export async function deleteServiceAction(id: unknown): Promise<ActionResult> {
   return run(async () => {
     const serviceId = z.uuid().parse(id);
     if (await serviceHasBookings(serviceId)) {
-      throw new ActionError("По этой услуге уже были записи — её можно только скрыть.");
+      throw new ActionError("errors.serviceHasBookings");
     }
     try {
       // master_services rows are removed by ON DELETE CASCADE
       await db.delete(services).where(eq(services.id, serviceId));
     } catch (error) {
-      if (isForeignKeyViolation(error)) throw new ActionError("По этой услуге уже были записи — её можно только скрыть.");
+      if (isForeignKeyViolation(error)) throw new ActionError("errors.serviceHasBookings");
       throw error;
     }
     refreshAll();

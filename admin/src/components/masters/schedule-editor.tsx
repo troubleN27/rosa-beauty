@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { TimePicker } from "@/components/time-picker";
 import { scheduleDaySchema } from "@/lib/validations/master";
+import { useI18n } from "@/i18n/client";
+import type { MessageKey } from "@/i18n";
 
-const WEEKDAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
 
 export type ScheduleDay = {
   weekday: number;
@@ -30,6 +31,8 @@ function TimeInput({ label, value, onChange, invalid }: { label: string; value: 
 
 export function ScheduleEditor({ masterId, initial }: { masterId: string; initial: ScheduleDay[] }) {
   const router = useRouter();
+  const { t, tm } = useI18n();
+  const weekday = (index: number) => t(`masters.schedule.weekdays.${index + 1}` as MessageKey);
   const [days, setDays] = useState(initial);
   const [pending, startTransition] = useTransition();
   const errors = days.map((day) => {
@@ -46,8 +49,8 @@ export function ScheduleEditor({ masterId, initial }: { masterId: string; initia
   function save() {
     startTransition(async () => {
       const result = await saveScheduleAction({ masterId, days });
-      if (!result.ok) return void toast.error(result.error);
-      toast.success("График сохранён — свободное время в боте уже пересчитано");
+      if (!result.ok) return void toast.error(tm(result.error));
+      toast.success(t("masters.schedule.saved"));
       router.refresh();
     });
   }
@@ -66,24 +69,24 @@ export function ScheduleEditor({ masterId, initial }: { masterId: string; initia
                     update(index, works && !day.start ? { works, start: "10:00", end: "19:00" } : { works })
                   }
                 />
-                <span className={day.works ? "font-medium" : "text-muted-foreground"}>{WEEKDAYS[index]}</span>
+                <span className={day.works ? "font-medium" : "text-muted-foreground"}>{weekday(index)}</span>
               </label>
               {day.works ? (
                 <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                     <span className="inline-flex items-center gap-2">
-                      <TimeInput label={`${WEEKDAYS[index]}: начало`} value={day.start} onChange={(v) => update(index, { start: v })} invalid={error?.path[0] === "start"} />
+                      <TimeInput label={t("masters.schedule.start", { day: weekday(index) })} value={day.start} onChange={(v) => update(index, { start: v })} invalid={error?.path[0] === "start"} />
                       <span aria-hidden>—</span>
-                      <TimeInput label={`${WEEKDAYS[index]}: конец`} value={day.end} onChange={(v) => update(index, { end: v })} invalid={error?.path[0] === "end"} />
+                      <TimeInput label={t("masters.schedule.end", { day: weekday(index) })} value={day.end} onChange={(v) => update(index, { end: v })} invalid={error?.path[0] === "end"} />
                     </span>
                     <span className="inline-flex flex-wrap items-center gap-2">
-                      <span className="text-muted-foreground">перерыв</span>
-                      <TimeInput label={`${WEEKDAYS[index]}: начало перерыва`} value={day.breakStart} onChange={(v) => update(index, { breakStart: v })} invalid={error?.path[0] === "breakStart"} />
+                      <span className="text-muted-foreground">{t("masters.schedule.break")}</span>
+                      <TimeInput label={t("masters.schedule.breakStart", { day: weekday(index) })} value={day.breakStart} onChange={(v) => update(index, { breakStart: v })} invalid={error?.path[0] === "breakStart"} />
                       <span aria-hidden>—</span>
-                      <TimeInput label={`${WEEKDAYS[index]}: конец перерыва`} value={day.breakEnd} onChange={(v) => update(index, { breakEnd: v })} invalid={error?.path[0] === "breakEnd"} />
+                      <TimeInput label={t("masters.schedule.breakEnd", { day: weekday(index) })} value={day.breakEnd} onChange={(v) => update(index, { breakEnd: v })} invalid={error?.path[0] === "breakEnd"} />
                       {(day.breakStart || day.breakEnd) && (
                         <Button variant="ghost" size="sm" onClick={() => update(index, { breakStart: "", breakEnd: "" })}>
-                          Убрать
+                          {t("masters.schedule.removeBreak")}
                         </Button>
                       )}
                     </span>
@@ -91,17 +94,17 @@ export function ScheduleEditor({ masterId, initial }: { masterId: string; initia
                   {error && <p className="text-xs text-destructive">{error.message}</p>}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Выходной</p>
+                <p className="text-sm text-muted-foreground">{t("masters.schedule.dayOff")}</p>
               )}
             </div>
           );
         })}
       </div>
       <div className="flex items-center justify-end gap-3">
-        <p className="text-xs text-muted-foreground">Уже созданные записи не меняются.</p>
+        <p className="text-xs text-muted-foreground">{t("masters.schedule.existingKept")}</p>
         <Button onClick={save} disabled={!dirty || hasErrors || pending}>
           {pending && <Loader2 className="animate-spin" aria-hidden />}
-          Сохранить график
+          {t("masters.schedule.save")}
         </Button>
       </div>
     </div>

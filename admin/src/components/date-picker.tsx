@@ -1,13 +1,14 @@
 "use client";
 
 import { format, parse } from "date-fns";
-import { ru as ruDateFns } from "date-fns/locale";
 import { CalendarDays, X } from "lucide-react";
 import { useState } from "react";
-import { ru } from "react-day-picker/locale";
+import { enGB as dayPickerEn, ru as dayPickerRu } from "react-day-picker/locale";
 
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { dateLocale } from "@/i18n";
+import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 
 const ISO = "yyyy-MM-dd";
@@ -27,7 +28,7 @@ export function DatePicker({
   onChange,
   min,
   id,
-  placeholder = "Выберите дату",
+  placeholder,
   ariaLabel,
   clearable = false,
   className,
@@ -43,6 +44,7 @@ export function DatePicker({
   className?: string;
   invalid?: boolean;
 }) {
+  const { t, lang } = useI18n();
   const [open, setOpen] = useState(false);
   const selected = toDate(value);
   const minDate = toDate(min);
@@ -61,14 +63,14 @@ export function DatePicker({
         >
           <CalendarDays className="size-4 shrink-0 text-gold" aria-hidden />
           <span className={cn("truncate", !selected && "text-muted-foreground")}>
-            {selected ? format(selected, "d MMMM yyyy", { locale: ruDateFns }) : placeholder}
+            {selected ? format(selected, "d MMMM yyyy", { locale: dateLocale(lang) }) : (placeholder ?? t("pickers.pickDate"))}
           </span>
         </PopoverTrigger>
         {clearable && value && (
           <button
             type="button"
             onClick={() => onChange("")}
-            aria-label="Очистить дату"
+            aria-label={t("pickers.clearDate")}
             className="absolute top-1/2 right-1.5 grid size-5 -translate-y-1/2 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <X className="size-3.5" aria-hidden />
@@ -78,7 +80,7 @@ export function DatePicker({
       <PopoverContent align="start" className="w-auto p-2">
         <Calendar
           mode="single"
-          locale={ru}
+          locale={lang === "en" ? dayPickerEn : dayPickerRu}
           weekStartsOn={1}
           selected={selected}
           defaultMonth={selected ?? minDate}

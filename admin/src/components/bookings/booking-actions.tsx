@@ -28,9 +28,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BOOKING_STATUSES, STATUS_LABELS, type BookingStatus } from "@/lib/constants";
-
-const STATUS_ITEMS = BOOKING_STATUSES.map((value) => ({ value, label: STATUS_LABELS[value] }));
+import { useI18n } from "@/i18n/client";
+import { BOOKING_STATUSES, type BookingStatus } from "@/lib/constants";
 
 export function BookingActions({
   bookingId,
@@ -52,6 +51,8 @@ export function BookingActions({
   salonToday: string;
 }) {
   const router = useRouter();
+  const { t, tm } = useI18n();
+  const statusItems = BOOKING_STATUSES.map((value) => ({ value, label: t(`status.${value}`) }));
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [pending, startTransition] = useTransition();
@@ -69,10 +70,10 @@ export function BookingActions({
     startTransition(async () => {
       const result = await changeStatusAction({ bookingId, status: next });
       if (!result.ok) {
-        toast.error(result.error);
+        toast.error(tm(result.error));
         return;
       }
-      toast.success(`Статус: ${STATUS_LABELS[next]}`);
+      toast.success(t("bookings.actions.statusChanged", { status: t(`status.${next}`) }));
       router.refresh();
     });
   }
@@ -82,10 +83,10 @@ export function BookingActions({
       const result = await changeStatusAction({ bookingId, status: "cancelled" });
       setConfirmCancel(false);
       if (!result.ok) {
-        toast.error(result.error);
+        toast.error(tm(result.error));
         return;
       }
-      showDeliveryToast("Запись отменена", result.delivery);
+      showDeliveryToast(t("bookings.actions.cancelled"), result.delivery, t);
       router.refresh();
     });
   }
@@ -95,11 +96,11 @@ export function BookingActions({
     startTransition(async () => {
       const result = await rescheduleAction({ bookingId, startsAt: slot });
       if (!result.ok) {
-        toast.error(result.error);
+        toast.error(tm(result.error));
         return;
       }
       setRescheduleOpen(false);
-      showDeliveryToast("Запись перенесена", result.delivery);
+      showDeliveryToast(t("bookings.actions.rescheduled"), result.delivery, t);
       if (variant === "page") {
         router.push(`/bookings/${result.newBookingId}`);
       } else {
@@ -117,10 +118,10 @@ export function BookingActions({
     <aside className="space-y-4">
       <div className="rounded-xl border bg-card p-4">
         <label htmlFor="booking-status" className="text-sm font-medium">
-          Статус
+          {t("bookings.actions.status")}
         </label>
         <Select
-          items={STATUS_ITEMS}
+          items={statusItems}
           value={status}
           onValueChange={(value) => value && setStatus(value as BookingStatus)}
           disabled={pending}
@@ -129,7 +130,7 @@ export function BookingActions({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {STATUS_ITEMS.map((item) => (
+            {statusItems.map((item) => (
               <SelectItem key={item.value} value={item.value}>
                 {item.label}
               </SelectItem>
@@ -140,7 +141,7 @@ export function BookingActions({
           <div className="mt-4 grid gap-2">
             <Button variant="outline" onClick={() => setRescheduleOpen(true)} disabled={pending}>
               <CalendarClock aria-hidden />
-              Перенести
+              {t("bookings.actions.reschedule")}
             </Button>
             <Button
               variant="outline"
@@ -149,15 +150,15 @@ export function BookingActions({
               disabled={pending}
             >
               <XCircle aria-hidden />
-              Отменить запись
+              {t("bookings.actions.cancel")}
             </Button>
           </div>
         )}
         {active && (
           <p className="mt-3 text-xs text-muted-foreground">
             {hasTelegram
-              ? "При отмене или переносе клиент получит сообщение в Telegram."
-              : "У клиента нет Telegram — об изменениях сообщите по телефону."}
+              ? t("bookings.actions.telegramNotice")
+              : t("bookings.actions.noTelegram")}
           </p>
         )}
       </div>
@@ -165,17 +166,17 @@ export function BookingActions({
       <AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Отменить запись?</AlertDialogTitle>
+            <AlertDialogTitle>{t("bookings.actions.cancelTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Время освободится для других клиентов.
-              {hasTelegram && " Клиент получит сообщение об отмене в Telegram."}
+              {t("bookings.actions.cancelText")}
+              {hasTelegram && ` ${t("bookings.actions.cancelTelegram")}`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>Не отменять</AlertDialogCancel>
+            <AlertDialogCancel disabled={pending}>{t("bookings.actions.keep")}</AlertDialogCancel>
             <AlertDialogAction onClick={cancelBooking} disabled={pending} variant="destructive">
               {pending && <Loader2 className="animate-spin" aria-hidden />}
-              Отменить запись
+              {t("bookings.actions.cancel")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -190,8 +191,8 @@ export function BookingActions({
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Перенос записи</DialogTitle>
-            <DialogDescription>Тот же мастер и услуга. Показано только свободное время.</DialogDescription>
+            <DialogTitle>{t("bookings.actions.rescheduleTitle")}</DialogTitle>
+            <DialogDescription>{t("bookings.actions.rescheduleText")}</DialogDescription>
           </DialogHeader>
           <SlotPicker
             serviceId={serviceId}
@@ -206,7 +207,7 @@ export function BookingActions({
           <DialogFooter>
             <Button onClick={reschedule} disabled={!slot || pending}>
               {pending && <Loader2 className="animate-spin" aria-hidden />}
-              Перенести
+              {t("bookings.actions.reschedule")}
             </Button>
           </DialogFooter>
         </DialogContent>

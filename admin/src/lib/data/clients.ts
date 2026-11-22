@@ -70,7 +70,9 @@ export async function getClientDetail(id: string) {
       price: bookings.price,
       source: bookings.source,
       serviceName: services.nameRu,
+      serviceNameEn: services.nameEn,
       masterName: masters.nameRu,
+      masterNameEn: masters.nameEn,
       rating: reviews.rating,
     })
     .from(bookings)
@@ -101,7 +103,9 @@ export async function listReviews(rating: RatingFilter | undefined, page: number
         clientId: clients.id,
         clientName: clients.name,
         masterName: masters.nameRu,
+        masterNameEn: masters.nameEn,
         serviceName: services.nameRu,
+        serviceNameEn: services.nameEn,
       })
       .from(reviews)
       .innerJoin(clients, eq(clients.id, reviews.clientId))

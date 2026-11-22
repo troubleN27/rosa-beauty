@@ -5,7 +5,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SOURCE_LABELS, STATUS_LABELS } from "@/lib/constants";
+import { useI18n } from "@/i18n/client";
+import { BOOKING_SOURCES, BOOKING_STATUSES } from "@/lib/constants";
 import { DatePicker } from "@/components/date-picker";
 
 const ALL = "all";
@@ -38,6 +39,7 @@ function FilterSelect({
 }
 
 export function BookingsFilters({ masters }: { masters: { id: string; name: string }[] }) {
+  const { t } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -54,10 +56,11 @@ export function BookingsFilters({ masters }: { masters: { id: string; name: stri
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2">
-      <div className="flex items-center gap-1.5">
+      <div className="flex w-full items-center gap-1.5 sm:w-auto">
         <DatePicker
-          ariaLabel="С даты"
-          placeholder="С даты"
+          ariaLabel={t("bookings.filters.from")}
+          className="w-auto min-w-0 flex-1 sm:w-44 sm:flex-none"
+          placeholder={t("bookings.filters.from")}
           clearable
           value={searchParams.get("from") ?? ""}
           onChange={(value) => set("from", value)}
@@ -66,41 +69,42 @@ export function BookingsFilters({ masters }: { masters: { id: string; name: stri
           —
         </span>
         <DatePicker
-          ariaLabel="По дату"
-          placeholder="По дату"
+          ariaLabel={t("bookings.filters.to")}
+          className="w-auto min-w-0 flex-1 sm:w-44 sm:flex-none"
+          placeholder={t("bookings.filters.to")}
           clearable
           value={searchParams.get("to") ?? ""}
           onChange={(value) => set("to", value)}
         />
       </div>
       <FilterSelect
-        label="Мастер"
+        label={t("bookings.filters.master")}
         value={searchParams.get("master") ?? ALL}
-        items={[{ value: ALL, label: "Все мастера" }, ...masters.map((m) => ({ value: m.id, label: m.name }))]}
+        items={[{ value: ALL, label: t("bookings.filters.allMasters") }, ...masters.map((m) => ({ value: m.id, label: m.name }))]}
         onChange={(value) => set("master", value)}
       />
       <FilterSelect
-        label="Статус"
+        label={t("bookings.filters.status")}
         value={searchParams.get("status") ?? ALL}
         items={[
-          { value: ALL, label: "Все статусы" },
-          ...Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label })),
+          { value: ALL, label: t("bookings.filters.allStatuses") },
+          ...BOOKING_STATUSES.map((value) => ({ value, label: t(`status.${value}`) })),
         ]}
         onChange={(value) => set("status", value)}
       />
       <FilterSelect
-        label="Источник"
+        label={t("bookings.filters.source")}
         value={searchParams.get("source") ?? ALL}
         items={[
-          { value: ALL, label: "Все источники" },
-          ...Object.entries(SOURCE_LABELS).map(([value, label]) => ({ value, label })),
+          { value: ALL, label: t("bookings.filters.allSources") },
+          ...BOOKING_SOURCES.map((value) => ({ value, label: t(`source.${value}`) })),
         ]}
         onChange={(value) => set("source", value)}
       />
       {hasFilters && (
         <Button variant="ghost" onClick={() => router.push(pathname)}>
           <X aria-hidden />
-          Сбросить
+          {t("common.reset")}
         </Button>
       )}
     </div>

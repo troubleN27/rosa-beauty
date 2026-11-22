@@ -7,17 +7,22 @@ import { BookingsTable, type BookingTableRow } from "@/components/bookings/booki
 import { PageHeader } from "@/components/layout/page-header";
 import { Pagination } from "@/components/pagination";
 import { Button } from "@/components/ui/button";
-import { SOURCE_LABELS, type BookingSource } from "@/lib/constants";
+import { getI18n } from "@/i18n/server";
+import { isBookingSource } from "@/lib/constants";
 import { listBookings, listMastersForFilter, PAGE_SIZE } from "@/lib/data/bookings";
 import { getSalonSettings } from "@/lib/data/settings";
 import { formatDay, formatPrice, formatTime } from "@/lib/format";
 import { requireSession } from "@/lib/session";
 import { bookingFiltersSchema } from "@/lib/validations/booking";
 
-export const metadata: Metadata = { title: "Записи" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t("bookings.title") };
+}
 
 export default async function BookingsPage({ searchParams }: PageProps<"/bookings">) {
   await requireSession();
+  const { t, lang, pick } = await getI18n();
   const filters = bookingFiltersSchema.parse(await searchParams);
   const settings = await getSalonSettings();
   const tz = settings.timezone;
@@ -40,15 +45,15 @@ export default async function BookingsPage({ searchParams }: PageProps<"/booking
 
   const data: BookingTableRow[] = rows.map((row) => ({
     id: row.id,
-    date: formatDay(row.startsAt, tz),
+    date: formatDay(row.startsAt, tz, lang),
     time: formatTime(row.startsAt, tz),
     client: row.clientName,
     phone: row.clientPhone,
-    service: row.serviceName,
-    master: row.masterName,
+    service: pick(row.serviceName, row.serviceNameEn),
+    master: pick(row.masterName, row.masterNameEn),
     price: formatPrice(row.price, settings.currency),
     status: row.status,
-    source: SOURCE_LABELS[row.source as BookingSource] ?? row.source,
+    source: isBookingSource(row.source) ? t(`source.${row.source}`) : row.source,
   }));
 
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -57,12 +62,12 @@ export default async function BookingsPage({ searchParams }: PageProps<"/booking
   return (
     <>
       <PageHeader
-        title="Записи"
-        description={total ? `Найдено: ${total}` : undefined}
+        title={t("bookings.title")}
+        description={total ? t("bookings.found", { count: total }) : undefined}
         actions={
           <Button nativeButton={false} render={<Link href="/bookings/new" />}>
             <CalendarPlus aria-hidden />
-            Новая запись
+            {t("bookings.new")}
           </Button>
         }
       />
@@ -70,11 +75,11 @@ export default async function BookingsPage({ searchParams }: PageProps<"/booking
       {data.length === 0 ? (
         <div className="rounded-xl border bg-card empty-state px-4 py-12 text-center">
           <p className="text-sm text-muted-foreground">
-            {hasFilters ? "По этим фильтрам записей нет. Измените период или сбросьте фильтры." : "Записей пока нет."}
+            {hasFilters ? t("bookings.emptyFiltered") : t("bookings.empty")}
           </p>
           {!hasFilters && (
             <Link href="/bookings/new" className="mt-2 inline-block text-sm text-primary hover:underline">
-              Создать первую запись
+              {t("bookings.createFirst")}
             </Link>
           )}
         </div>

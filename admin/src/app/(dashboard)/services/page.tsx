@@ -7,11 +7,16 @@ import { getCatalog } from "@/lib/data/catalog";
 import { getSalonSettings } from "@/lib/data/settings";
 import { formatDuration, formatPrice } from "@/lib/format";
 import { requireSession } from "@/lib/session";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = { title: "Услуги" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t("services.title") };
+}
 
 export default async function ServicesPage({ searchParams }: PageProps<"/services">) {
   await requireSession();
+  const { t, lang } = await getI18n();
   const { category } = z
     .object({ category: z.uuid().optional().catch(undefined) })
     .parse(await searchParams);
@@ -30,7 +35,7 @@ export default async function ServicesPage({ searchParams }: PageProps<"/service
       descriptionRu: s.descriptionRu,
       descriptionEn: s.descriptionEn,
       durationMin: s.durationMin,
-      duration: formatDuration(s.durationMin),
+      duration: formatDuration(s.durationMin, lang),
       price: s.price,
       priceLabel: formatPrice(s.price, settings.currency),
       sort: s.sort,
@@ -43,8 +48,8 @@ export default async function ServicesPage({ searchParams }: PageProps<"/service
   return (
     <>
       <PageHeader
-        title="Услуги"
-        description="Изменения сразу видны клиентам в боте. Услуги с записями можно только скрыть."
+        title={t("services.title")}
+        description={t("services.description")}
       />
       <ServicesView categories={categories} selectedId={category ?? null} currency={settings.currency} />
     </>

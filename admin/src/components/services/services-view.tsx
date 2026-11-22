@@ -24,6 +24,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { CategoryValues, ServiceValues } from "@/lib/validations/catalog";
+import { useI18n } from "@/i18n/client";
 
 export type ServiceRow = {
   id: string;
@@ -51,10 +52,11 @@ export type CategoryView = {
 };
 
 function HiddenMark() {
+  const { t } = useI18n();
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
       <EyeOff className="size-3" aria-hidden />
-      Скрыта
+      {t("common.hidden")}
     </span>
   );
 }
@@ -69,6 +71,7 @@ export function ServicesView({
   currency: string;
 }) {
   const router = useRouter();
+  const { t, tm, pick, lang } = useI18n();
   const pathname = usePathname();
   const [pending, startTransition] = useTransition();
   const [categoryDialog, setCategoryDialog] = useState<{ open: boolean; initial: CategoryValues | null }>({
@@ -84,7 +87,7 @@ export function ServicesView({
   >(null);
 
   const selected = categories.find((c) => c.id === selectedId) ?? categories[0] ?? null;
-  const categoryOptions = categories.map((c) => ({ id: c.id, name: c.nameRu }));
+  const categoryOptions = categories.map((c) => ({ id: c.id, name: pick(c.nameRu, c.nameEn) }));
 
   function selectCategory(id: string) {
     router.replace(`${pathname}?category=${id}`, { scroll: false });
@@ -130,8 +133,8 @@ export function ServicesView({
   function toggleService(service: ServiceRow) {
     startTransition(async () => {
       const result = await setServiceActiveAction({ id: service.id, isActive: !service.isActive });
-      if (!result.ok) return void toast.error(result.error);
-      toast.success(service.isActive ? "Услуга скрыта из бота" : "Услуга снова видна в боте");
+      if (!result.ok) return void toast.error(tm(result.error));
+      toast.success(service.isActive ? t("services.hiddenToast") : t("services.shownToast"));
       router.refresh();
     });
   }
@@ -142,8 +145,8 @@ export function ServicesView({
       const result =
         confirm.kind === "category" ? await deleteCategoryAction(confirm.id) : await deleteServiceAction(confirm.id);
       setConfirm(null);
-      if (!result.ok) return void toast.error(result.error);
-      toast.success(confirm.kind === "category" ? "Категория удалена" : "Услуга удалена");
+      if (!result.ok) return void toast.error(tm(result.error));
+      toast.success(confirm.kind === "category" ? t("services.categoryDeleted") : t("services.serviceDeleted"));
       if (confirm.kind === "category") router.replace(pathname);
       router.refresh();
     });
@@ -158,7 +161,7 @@ export function ServicesView({
               <TabsList>
                 {categories.map((category) => (
                   <TabsTrigger key={category.id} value={category.id} className={category.isActive ? "" : "opacity-60"}>
-                    {category.nameRu}
+                    {pick(category.nameRu, category.nameEn)}
                   </TabsTrigger>
                 ))}
               </TabsList>
@@ -167,20 +170,20 @@ export function ServicesView({
         )}
         <Button variant="outline" onClick={() => setCategoryDialog({ open: true, initial: null })}>
           <Plus aria-hidden />
-          Категория
+          {t("services.category")}
         </Button>
       </div>
 
       {!selected ? (
         <p className="rounded-xl border bg-card empty-state px-4 py-12 text-center text-sm text-muted-foreground">
-          Категорий пока нет. Создайте первую категорию, затем добавьте в неё услуги.
+          {t("services.noCategories")}
         </p>
       ) : (
         <section className="rounded-xl border bg-card">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
             <div className="flex min-w-0 items-center gap-2">
-              <h2 className="truncate font-display text-2xl font-semibold">{selected.nameRu}</h2>
-              <span className="truncate text-sm text-muted-foreground">{selected.nameEn}</span>
+              <h2 className="truncate font-display text-2xl font-semibold">{pick(selected.nameRu, selected.nameEn)}</h2>
+              <span className="truncate text-sm text-muted-foreground">{lang === "en" ? selected.nameRu : selected.nameEn}</span>
               {!selected.isActive && <HiddenMark />}
             </div>
             <div className="flex gap-2">
@@ -201,38 +204,38 @@ export function ServicesView({
                 }
               >
                 <Pencil aria-hidden />
-                Изменить
+                {t("common.edit")}
               </Button>
               {selected.services.length === 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
                   className="text-destructive hover:text-destructive"
-                  onClick={() => setConfirm({ kind: "category", id: selected.id, name: selected.nameRu })}
+                  onClick={() => setConfirm({ kind: "category", id: selected.id, name: pick(selected.nameRu, selected.nameEn) })}
                 >
                   <Trash2 aria-hidden />
-                  Удалить
+                  {t("common.delete")}
                 </Button>
               )}
               <Button size="sm" onClick={newService}>
                 <Plus aria-hidden />
-                Услуга
+                {t("services.service")}
               </Button>
             </div>
           </div>
 
           {selected.services.length === 0 ? (
-            <p className="empty-state px-4 py-10 text-center text-sm text-muted-foreground">В этой категории пока нет услуг.</p>
+            <p className="empty-state px-4 py-10 text-center text-sm text-muted-foreground">{t("services.noServices")}</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="text-xs text-muted-foreground">Услуга</TableHead>
-                  <TableHead className="text-xs text-muted-foreground">Длительность</TableHead>
-                  <TableHead className="text-xs text-muted-foreground">Цена</TableHead>
-                  <TableHead className="text-xs text-muted-foreground">Мастера</TableHead>
+                  <TableHead className="text-xs text-muted-foreground">{t("services.columns.service")}</TableHead>
+                  <TableHead className="text-xs text-muted-foreground">{t("services.columns.duration")}</TableHead>
+                  <TableHead className="text-xs text-muted-foreground">{t("services.columns.price")}</TableHead>
+                  <TableHead className="text-xs text-muted-foreground">{t("services.columns.masters")}</TableHead>
                   <TableHead className="w-10">
-                    <span className="sr-only">Действия</span>
+                    <span className="sr-only">{t("common.actions")}</span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -241,8 +244,8 @@ export function ServicesView({
                   <TableRow key={service.id} className={service.isActive ? "" : "text-muted-foreground"}>
                     <TableCell className="py-2.5">
                       <button type="button" className="text-left hover:text-primary" onClick={() => editService(service)}>
-                        <span className="block min-w-40 font-medium">{service.nameRu}</span>
-                        <span className="block text-xs text-muted-foreground">{service.nameEn}</span>
+                        <span className="block min-w-40 font-medium">{pick(service.nameRu, service.nameEn)}</span>
+                        <span className="block text-xs text-muted-foreground">{lang === "en" ? service.nameRu : service.nameEn}</span>
                       </button>
                       {!service.isActive && <div className="mt-1"><HiddenMark /></div>}
                     </TableCell>
@@ -252,29 +255,29 @@ export function ServicesView({
                       {service.mastersCount > 0 ? (
                         service.mastersCount
                       ) : (
-                        <span className="text-xs text-destructive">нет — в боте не видна</span>
+                        <span className="text-xs text-destructive">{t("services.nobodyDoes")}</span>
                       )}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger
-                          render={<Button variant="ghost" size="icon-sm" aria-label={`Действия: ${service.nameRu}`} />}
+                          render={<Button variant="ghost" size="icon-sm" aria-label={t("services.actionsFor", { name: pick(service.nameRu, service.nameEn) })} />}
                         >
                           <MoreHorizontal aria-hidden />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => editService(service)}>Изменить</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => editService(service)}>{t("common.edit")}</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => toggleService(service)} disabled={pending}>
-                            {service.isActive ? "Скрыть из бота" : "Показать в боте"}
+                            {service.isActive ? t("services.hide") : t("services.show")}
                           </DropdownMenuItem>
                           {service.bookingsCount === 0 && (
                             <>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 variant="destructive"
-                                onClick={() => setConfirm({ kind: "service", id: service.id, name: service.nameRu })}
+                                onClick={() => setConfirm({ kind: "service", id: service.id, name: pick(service.nameRu, service.nameEn) })}
                               >
-                                Удалить
+                                {t("common.delete")}
                               </DropdownMenuItem>
                             </>
                           )}
@@ -307,9 +310,9 @@ export function ServicesView({
       <ConfirmDialog
         open={confirm !== null}
         onOpenChange={(open) => !open && setConfirm(null)}
-        title={confirm?.kind === "category" ? "Удалить категорию?" : "Удалить услугу?"}
-        description={`«${confirm?.name ?? ""}» будет удалена без возможности восстановления.`}
-        confirmLabel="Удалить"
+        title={confirm?.kind === "category" ? t("services.deleteCategory") : t("services.deleteService")}
+        description={t("services.deleteText", { name: confirm?.name ?? "" })}
+        confirmLabel={t("common.delete")}
         pending={pending}
         onConfirm={runDelete}
       />

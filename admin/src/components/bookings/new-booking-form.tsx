@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n/client";
+import { SLOT_TAKEN } from "@/lib/booking-errors";
 import { newBookingSchema, type NewBookingValues } from "@/lib/validations/booking";
 
 type ServiceOption = { id: string; category: string; label: string; hint: string };
@@ -43,6 +45,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function NewBookingForm({ services, salonToday }: { services: ServiceOption[]; salonToday: string }) {
   const router = useRouter();
+  const { t, tm } = useI18n();
   const [submitting, startSubmit] = useTransition();
   const form = useForm<NewBookingValues>({
     resolver: zodResolver(newBookingSchema),
@@ -98,11 +101,11 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
     startSubmit(async () => {
       const result = await createBookingAction(values);
       if (!result.ok) {
-        toast.error(result.error);
-        if (result.error.startsWith("Это время")) form.setValue("startsAt", "");
+        toast.error(tm(result.error));
+        if (result.error === SLOT_TAKEN) form.setValue("startsAt", "");
         return;
       }
-      toast.success("Запись создана");
+      toast.success(t("bookings.form.created"));
       router.push(`/bookings/${result.bookingId}`);
     });
   }
@@ -113,28 +116,28 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="grid max-w-3xl gap-4">
-      <Section title="Клиент">
+      <Section title={t("bookings.form.client")}>
         <Tabs
           value={clientMode}
           onValueChange={(value) => form.setValue("clientMode", value as NewBookingValues["clientMode"])}
           className="mb-4"
         >
           <TabsList>
-            <TabsTrigger value="existing">Из базы</TabsTrigger>
-            <TabsTrigger value="new">Новый клиент</TabsTrigger>
+            <TabsTrigger value="existing">{t("bookings.form.existing")}</TabsTrigger>
+            <TabsTrigger value="new">{t("bookings.form.newClient")}</TabsTrigger>
           </TabsList>
         </Tabs>
 
         {clientMode === "existing" ? (
           <Field data-invalid={!!errors.clientId}>
-            <FieldLabel htmlFor="client-search">Имя или телефон</FieldLabel>
+            <FieldLabel htmlFor="client-search">{t("bookings.form.search")}</FieldLabel>
             <div className="relative">
               <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
               <Input
                 id="client-search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Например, Анна или 900 123"
+                placeholder={t("bookings.form.searchPlaceholder")}
                 className="pl-8"
                 autoComplete="off"
               />
@@ -142,7 +145,7 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
             {selected && (
               <p className="flex items-center gap-2 text-sm">
                 <Check className="size-4 text-primary" aria-hidden />
-                Выбран: <span className="font-medium">{selected.name}</span>
+                {t("bookings.form.selected")} <span className="font-medium">{selected.name}</span>
                 {selected.phone && <span className="text-muted-foreground">{selected.phone}</span>}
               </p>
             )}
@@ -150,17 +153,17 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
               <div className="rounded-lg border">
                 {searching ? (
                   <p className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
-                    <Loader2 className="size-4 animate-spin" aria-hidden /> Ищем…
+                    <Loader2 className="size-4 animate-spin" aria-hidden /> {t("bookings.form.searching")}
                   </p>
                 ) : found.length === 0 ? (
                   <p className="px-3 py-2 text-sm text-muted-foreground">
-                    Никого не нашли.{" "}
+                    {t("bookings.form.notFound")}{" "}
                     <button
                       type="button"
                       className="text-primary hover:underline"
                       onClick={() => form.setValue("clientMode", "new")}
                     >
-                      Создать нового клиента
+                      {t("bookings.form.createNew")}
                     </button>
                   </p>
                 ) : (
@@ -178,7 +181,7 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
                         >
                           <span className="min-w-0">
                             <span className="block truncate font-medium">{client.name}</span>
-                            <span className="block truncate text-xs text-muted-foreground">{client.phone ?? "без телефона"}</span>
+                            <span className="block truncate text-xs text-muted-foreground">{client.phone ?? t("bookings.form.noPhone")}</span>
                           </span>
                           {client.telegram && (
                             <span className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
@@ -197,12 +200,12 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
         ) : (
           <FieldGroup className="sm:grid sm:grid-cols-2">
             <Field data-invalid={!!errors.clientName}>
-              <FieldLabel htmlFor="client-name">Имя</FieldLabel>
+              <FieldLabel htmlFor="client-name">{t("bookings.form.name")}</FieldLabel>
               <Input id="client-name" autoComplete="off" aria-invalid={!!errors.clientName} {...form.register("clientName")} />
               <FieldError errors={[errors.clientName]} />
             </Field>
             <Field data-invalid={!!errors.clientPhone}>
-              <FieldLabel htmlFor="client-phone">Телефон</FieldLabel>
+              <FieldLabel htmlFor="client-phone">{t("bookings.form.phone")}</FieldLabel>
               <Input
                 id="client-phone"
                 type="tel"
@@ -214,23 +217,23 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
               <FieldError errors={[errors.clientPhone]} />
             </Field>
             <p className="text-xs text-muted-foreground sm:col-span-2">
-              Если клиент с таким телефоном уже записывался через бота, запись привяжется к нему — он получит напоминания в Telegram.
+              {t("bookings.form.phoneHint")}
             </p>
           </FieldGroup>
         )}
       </Section>
 
-      <Section title="Услуга и мастер">
+      <Section title={t("bookings.form.serviceMaster")}>
         <FieldGroup className="sm:grid sm:grid-cols-2">
           <Field data-invalid={!!errors.serviceId}>
-            <FieldLabel htmlFor="service">Услуга</FieldLabel>
+            <FieldLabel htmlFor="service">{t("bookings.form.service")}</FieldLabel>
             <Controller
               control={form.control}
               name="serviceId"
               render={({ field }) => (
                 <Select items={serviceItems} value={field.value || null} onValueChange={(value) => field.onChange(value ?? "")}>
                   <SelectTrigger id="service" className="w-full" aria-invalid={!!errors.serviceId}>
-                    <SelectValue placeholder="Выберите услугу" />
+                    <SelectValue placeholder={t("bookings.form.pickService")} />
                   </SelectTrigger>
                   <SelectContent>
                     {groups.map((group) => (
@@ -255,7 +258,7 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
             <FieldError errors={[errors.serviceId]} />
           </Field>
           <Field data-invalid={!!errors.masterId}>
-            <FieldLabel htmlFor="master">Мастер</FieldLabel>
+            <FieldLabel htmlFor="master">{t("bookings.form.master")}</FieldLabel>
             <Controller
               control={form.control}
               name="masterId"
@@ -272,7 +275,7 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
                   <SelectTrigger id="master" className="w-full" aria-invalid={!!errors.masterId}>
                     <SelectValue
                       placeholder={
-                        !serviceId ? "Сначала выберите услугу" : masters.length === 0 && !loadingMasters ? "Никто не выполняет" : "Выберите мастера"
+                        !serviceId ? t("bookings.form.pickServiceFirst") : masters.length === 0 && !loadingMasters ? t("bookings.form.nobodyDoes") : t("bookings.form.pickMaster")
                       }
                     />
                   </SelectTrigger>
@@ -291,7 +294,7 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
         </FieldGroup>
       </Section>
 
-      <Section title="Дата и время">
+      <Section title={t("bookings.form.dateTime")}>
         <SlotPicker
           serviceId={serviceId || null}
           masterId={masterId || null}
@@ -304,12 +307,12 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
         <FieldError className="mt-2" errors={[errors.startsAt]} />
       </Section>
 
-      <Section title="Комментарий">
+      <Section title={t("bookings.form.comment")}>
         <Field data-invalid={!!errors.comment}>
           <FieldLabel htmlFor="comment" className="sr-only">
-            Комментарий
+            {t("bookings.form.comment")}
           </FieldLabel>
-          <Textarea id="comment" rows={3} placeholder="Например: аллергия на аммиак, придёт с ребёнком" {...form.register("comment")} />
+          <Textarea id="comment" rows={3} placeholder={t("bookings.form.commentPlaceholder")} {...form.register("comment")} />
           <FieldError errors={[errors.comment]} />
         </Field>
       </Section>
@@ -317,7 +320,7 @@ export function NewBookingForm({ services, salonToday }: { services: ServiceOpti
       <div className="flex justify-end">
         <Button type="submit" size="lg" disabled={submitting}>
           {submitting && <Loader2 className="animate-spin" aria-hidden />}
-          Создать запись
+          {t("bookings.form.submit")}
         </Button>
       </div>
     </form>

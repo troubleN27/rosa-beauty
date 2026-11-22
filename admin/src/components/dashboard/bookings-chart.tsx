@@ -1,3 +1,4 @@
+import { getI18n } from "@/i18n/server";
 import { cn } from "@/lib/utils";
 
 type Point = { day: string; label: string; weekday: string; count: number };
@@ -15,13 +16,14 @@ function bulbsFor(count: number, max: number) {
  * (scaled down when a day has more than ten). The number sits above each column and the
  * day below it, in rows of their own, so nothing crosses the text.
  */
-export function BookingsChart({ data }: { data: Point[] }) {
+export async function BookingsChart({ data }: { data: Point[] }) {
+  const { t } = await getI18n();
   const max = Math.max(0, ...data.map((point) => point.count));
   const todayIndex = data.length - 1;
 
 
   return (
-    <div role="img" aria-label="Записи по дням за последние две недели" className="select-none">
+    <div role="img" aria-label={t("dashboard.chartAria")} className="select-none">
       <div className="grid grid-cols-14 gap-0.5 sm:gap-1.5">
         {data.map((point, index) => {
           const bulbs = bulbsFor(point.count, max);
@@ -64,7 +66,7 @@ export function BookingsChart({ data }: { data: Point[] }) {
       </div>
       {max > MAX_BULBS && (
         <p className="mt-3 text-center text-xs text-muted-foreground">
-          Одна лампочка ≈ {Math.ceil(max / MAX_BULBS)} записи
+          {t("dashboard.bulbScale", { count: Math.ceil(max / MAX_BULBS) })}
         </p>
       )}
     </div>

@@ -16,13 +16,13 @@ import { freeSlots } from "@/lib/availability";
 import { clientMessage } from "@/lib/client-messages";
 import type { BookingStatus } from "@/lib/constants";
 import { getSalonSettings } from "@/lib/data/settings";
+import { SLOT_TAKEN } from "@/lib/booking-errors";
 import { formatDateTime, phoneDigits } from "@/lib/format";
 import { localDate } from "@/lib/slots";
 import { escapeHtml, sendToClient, type DeliveryResult } from "@/lib/telegram";
 
 export class BookingError extends ActionError {}
 
-export const SLOT_TAKEN = "Это время уже занято. Выберите другое.";
 const EXCLUSION_VIOLATION = "23P01";
 
 function isExclusionViolation(error: unknown): boolean {
@@ -46,7 +46,7 @@ async function loadBooking(executor: typeof db | Tx, bookingId: string) {
     .innerJoin(services, eq(services.id, bookings.serviceId))
     .innerJoin(masters, eq(masters.id, bookings.masterId))
     .where(eq(bookings.id, bookingId));
-  if (!row) throw new BookingError("Запись не найдена");
+  if (!row) throw new BookingError("errors.bookingNotFound");
   return row;
 }
 
@@ -58,7 +58,7 @@ async function assertSlotFree(
   excludeBookingId?: string,
 ) {
   if (startsAt.getTime() <= Date.now()) {
-    throw new BookingError("Нельзя записать на прошедшее время.");
+    throw new BookingError("errors.pastTime");
   }
   const settings = await getSalonSettings();
   const day = localDate(startsAt, settings.timezone);
@@ -135,7 +135,7 @@ export async function rescheduleBooking(
 ): Promise<{ newBookingId: string; delivery: DeliveryResult }> {
   const { booking, client, service, master } = await loadBooking(db, bookingId);
   if (booking.status !== "confirmed") {
-    throw new BookingError("Перенести можно только подтверждённую запись.");
+    throw new BookingError("errors.onlyConfirmed");
   }
   const durationMin = Math.round((booking.endsAt.getTime() - booking.startsAt.getTime()) / 60_000);
 
@@ -148,7 +148,7 @@ export async function rescheduleBooking(
         .set({ status: "cancelled", cancelledBy: "admin" })
         .where(and(eq(bookings.id, booking.id), eq(bookings.status, "confirmed")))
         .returning({ id: bookings.id });
-      if (updated.length === 0) throw new BookingError("Запись уже изменена. Обновите страницу.");
+      if (updated.length === 0) throw new BookingError("errors.bookingChanged");
       await tx.insert(bookingStatusHistory).values({
         bookingId: booking.id,
         oldStatus: "confirmed",
@@ -212,7 +212,7 @@ export async function createManualBooking(input: ManualBookingInput): Promise<st
         .select()
         .from(services)
         .where(and(eq(services.id, input.serviceId), eq(services.isActive, true)));
-      if (!service) throw new BookingError("Услуга не найдена или скрыта.");
+      if (!service) throw new BookingError("errors.serviceHidden");
       const [link] = await tx
         .select({ masterId: masters.id })
         .from(masterServices)
@@ -224,7 +224,7 @@ export async function createManualBooking(input: ManualBookingInput): Promise<st
             eq(masters.isActive, true),
           ),
         );
-      if (!link) throw new BookingError("Этот мастер не выполняет выбранную услугу.");
+      if (!link) throw new BookingError("errors.masterNoService");
 
       await assertSlotFree(tx, input.masterId, service.durationMin, input.startsAt);
       const clientId = await resolveClient(tx, input.client);
@@ -261,7 +261,7 @@ export async function createManualBooking(input: ManualBookingInput): Promise<st
 async function resolveClient(tx: Tx, client: ManualBookingInput["client"]): Promise<string> {
   if ("id" in client) {
     const [existing] = await tx.select({ id: clients.id }).from(clients).where(eq(clients.id, client.id));
-    if (!existing) throw new BookingError("Клиент не найден.");
+    if (!existing) throw new BookingError("errors.clientNotFound");
     return existing.id;
   }
   // Phones are compared by digits only: "+7 900 123-45-67" equals "79001234567"

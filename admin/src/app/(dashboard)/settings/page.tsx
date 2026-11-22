@@ -4,15 +4,20 @@ import { PageHeader } from "@/components/layout/page-header";
 import { SettingsForm } from "@/components/settings/settings-form";
 import { getSalonSettings } from "@/lib/data/settings";
 import { requireSession } from "@/lib/session";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = { title: "Настройки" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t("settings.title") };
+}
 
 export default async function SettingsPage() {
   await requireSession();
+  const { t } = await getI18n();
   const s = await getSalonSettings();
   return (
     <>
-      <PageHeader title="Настройки" description="Контакты салона и правила записи для бота." />
+      <PageHeader title={t("settings.title")} description={t("settings.description")} />
       <SettingsForm
         initial={{
           name: s.name,

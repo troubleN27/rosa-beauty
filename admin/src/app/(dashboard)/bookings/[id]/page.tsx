@@ -6,10 +6,14 @@ import { z } from "zod";
 
 import { BookingCard } from "@/components/bookings/booking-card";
 import { PageHeader } from "@/components/layout/page-header";
+import { getI18n } from "@/i18n/server";
 import { getBookingDetails } from "@/lib/data/bookings";
 import { requireSession } from "@/lib/session";
 
-export const metadata: Metadata = { title: "Запись" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t("bookings.item") };
+}
 
 export default async function BookingPage({ params }: PageProps<"/bookings/[id]">) {
   await requireSession();
@@ -17,14 +21,15 @@ export default async function BookingPage({ params }: PageProps<"/bookings/[id]"
   if (!z.uuid().safeParse(id).success) notFound();
   const details = await getBookingDetails(id);
   if (!details) notFound();
+  const { t } = await getI18n();
 
   return (
     <>
       <Link href="/bookings" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ChevronLeft className="size-4" aria-hidden />
-        Все записи
+        {t("bookings.all")}
       </Link>
-      <PageHeader title="Запись" />
+      <PageHeader title={t("bookings.item")} />
       <BookingCard details={details} />
     </>
   );

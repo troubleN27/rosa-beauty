@@ -3,10 +3,12 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useI18n } from "@/i18n/client";
 
 /** Booking card opened from the schedule; the card itself is rendered on the server. */
 export function BookingSheet({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const { t } = useI18n();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -20,8 +22,8 @@ export function BookingSheet({ children }: { children: React.ReactNode }) {
     <Sheet open onOpenChange={(open) => !open && close()}>
       <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
         <SheetHeader>
-          <SheetTitle>Запись</SheetTitle>
-          <SheetDescription className="sr-only">Карточка записи</SheetDescription>
+          <SheetTitle>{t("schedule.sheetTitle")}</SheetTitle>
+          <SheetDescription className="sr-only">{t("schedule.sheetDescription")}</SheetDescription>
         </SheetHeader>
         <div className="px-4 pb-6">{children}</div>
       </SheetContent>

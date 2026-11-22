@@ -4,16 +4,22 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/login-form";
+import { LoginPreferences } from "@/components/auth/login-preferences";
 import { Flourish } from "@/components/brand";
+import { getI18n } from "@/i18n/server";
 import { auth } from "@/lib/auth";
 
 import salonEvening from "../../../public/brand/salon-evening.jpg";
 
-export const metadata: Metadata = { title: "Вход" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t("login.metaTitle") };
+}
 
 export default async function LoginPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (session) redirect("/");
+  const { t } = await getI18n();
 
   return (
     <main className="grid min-h-svh bg-background lg:grid-cols-[minmax(0,1.1fr)_minmax(440px,1fr)]">
@@ -41,12 +47,13 @@ export default async function LoginPage() {
 
       <section className="flex items-start justify-center px-4 pt-10 pb-12 lg:items-center lg:py-12">
         <div className="w-full max-w-sm">
+          <LoginPreferences className="mb-8" />
           <div className="mb-8 flex flex-col items-center text-center">
             <Image src="/brand/emblem.png" alt="" width={498} height={720} priority className="hidden h-28 w-auto lg:block" />
             <p className="font-display text-3xl font-semibold tracking-wide lg:mt-5">Rosa Beauty</p>
             <Flourish className="mt-3" />
-            <h1 className="mt-6 font-display text-2xl font-medium italic">Вход в панель салона</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Email и пароль администратора.</p>
+            <h1 className="mt-6 font-display text-2xl font-medium italic">{t("login.heading")}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">{t("login.subtitle")}</p>
           </div>
           <LoginForm />
         </div>

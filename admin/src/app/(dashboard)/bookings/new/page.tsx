@@ -7,23 +7,30 @@ import { NewBookingForm } from "@/components/bookings/new-booking-form";
 import { PageHeader } from "@/components/layout/page-header";
 import { db } from "@/db";
 import { categories, services } from "@/db/schema";
+import { getI18n } from "@/i18n/server";
 import { getSalonSettings } from "@/lib/data/settings";
 import { formatDuration, formatPrice } from "@/lib/format";
 import { requireSession } from "@/lib/session";
 import { localDate } from "@/lib/slots";
 
-export const metadata: Metadata = { title: "Новая запись" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t("bookings.new") };
+}
 
 export default async function NewBookingPage() {
   await requireSession();
+  const { t, lang, pick } = await getI18n();
   const settings = await getSalonSettings();
   const rows = await db
     .select({
       id: services.id,
       name: services.nameRu,
+      nameEn: services.nameEn,
       duration: services.durationMin,
       price: services.price,
       category: categories.nameRu,
+      categoryEn: categories.nameEn,
     })
     .from(services)
     .innerJoin(categories, eq(categories.id, services.categoryId))
@@ -32,9 +39,9 @@ export default async function NewBookingPage() {
 
   const serviceOptions = rows.map((row) => ({
     id: row.id,
-    category: row.category,
-    label: row.name,
-    hint: `${formatDuration(row.duration)} · ${formatPrice(row.price, settings.currency)}`,
+    category: pick(row.category, row.categoryEn),
+    label: pick(row.name, row.nameEn),
+    hint: `${formatDuration(row.duration, lang)} · ${formatPrice(row.price, settings.currency)}`,
   }));
 
   return (
@@ -44,15 +51,15 @@ export default async function NewBookingPage() {
         className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <ChevronLeft className="size-4" aria-hidden />
-        Все записи
+        {t("bookings.all")}
       </Link>
       <PageHeader
-        title="Новая запись"
-        description="Для клиентов, которые позвонили или пришли в салон. Время проверяется по графику мастера."
+        title={t("bookings.new")}
+        description={t("bookings.newDescription")}
       />
       {serviceOptions.length === 0 ? (
         <p className="rounded-xl border bg-card empty-state px-4 py-10 text-center text-sm text-muted-foreground">
-          Нет активных услуг. Добавьте услуги в разделе «Услуги».
+          {t("bookings.noServices")}
         </p>
       ) : (
         <NewBookingForm services={serviceOptions} salonToday={localDate(new Date(), settings.timezone)} />

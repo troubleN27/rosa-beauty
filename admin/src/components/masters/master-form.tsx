@@ -14,6 +14,7 @@ import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/c
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { masterSchema, type MasterOutput, type MasterValues } from "@/lib/validations/master";
+import { useI18n } from "@/i18n/client";
 
 export function MasterForm({
   masterId,
@@ -25,6 +26,7 @@ export function MasterForm({
   canDelete?: boolean;
 }) {
   const router = useRouter();
+  const { t, tm } = useI18n();
   const [pending, startTransition] = useTransition();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const form = useForm<MasterValues, unknown, MasterOutput>({ resolver: zodResolver(masterSchema), values: initial });
@@ -34,14 +36,14 @@ export function MasterForm({
     startTransition(async () => {
       if (masterId) {
         const result = await updateMasterAction(masterId, values);
-        if (!result.ok) return void toast.error(result.error);
-        toast.success("Данные мастера сохранены");
+        if (!result.ok) return void toast.error(tm(result.error));
+        toast.success(t("masters.form.saved"));
         router.refresh();
         return;
       }
       const result = await createMasterAction(values);
-      if (!result.ok) return void toast.error(result.error);
-      toast.success("Мастер добавлен. Отметьте его услуги и график.");
+      if (!result.ok) return void toast.error(tm(result.error));
+      toast.success(t("masters.form.created"));
       router.push(`/masters/${result.id}?tab=services`);
     });
   }
@@ -51,8 +53,8 @@ export function MasterForm({
     startTransition(async () => {
       const result = await deleteMasterAction(masterId);
       setConfirmDelete(false);
-      if (!result.ok) return void toast.error(result.error);
-      toast.success("Мастер удалён");
+      if (!result.ok) return void toast.error(tm(result.error));
+      toast.success(t("masters.form.deleted"));
       router.push("/masters");
     });
   }
@@ -62,34 +64,34 @@ export function MasterForm({
       <FieldGroup>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field data-invalid={!!errors.nameRu}>
-            <FieldLabel htmlFor="master-name-ru">Имя (RU)</FieldLabel>
+            <FieldLabel htmlFor="master-name-ru">{t("masters.form.nameRu")}</FieldLabel>
             <Input id="master-name-ru" {...form.register("nameRu")} aria-invalid={!!errors.nameRu} />
             <FieldError errors={[errors.nameRu]} />
           </Field>
           <Field data-invalid={!!errors.nameEn}>
-            <FieldLabel htmlFor="master-name-en">Имя (EN)</FieldLabel>
+            <FieldLabel htmlFor="master-name-en">{t("masters.form.nameEn")}</FieldLabel>
             <Input id="master-name-en" {...form.register("nameEn")} aria-invalid={!!errors.nameEn} />
             <FieldError errors={[errors.nameEn]} />
           </Field>
           <Field data-invalid={!!errors.specialtyRu}>
-            <FieldLabel htmlFor="master-spec-ru">Специализация (RU)</FieldLabel>
+            <FieldLabel htmlFor="master-spec-ru">{t("masters.form.specialtyRu")}</FieldLabel>
             <Input id="master-spec-ru" placeholder="Стилист-колорист" {...form.register("specialtyRu")} />
             <FieldError errors={[errors.specialtyRu]} />
           </Field>
           <Field data-invalid={!!errors.specialtyEn}>
-            <FieldLabel htmlFor="master-spec-en">Специализация (EN)</FieldLabel>
+            <FieldLabel htmlFor="master-spec-en">{t("masters.form.specialtyEn")}</FieldLabel>
             <Input id="master-spec-en" placeholder="Hair stylist & colorist" {...form.register("specialtyEn")} />
             <FieldError errors={[errors.specialtyEn]} />
           </Field>
           <Field data-invalid={!!errors.experienceYears}>
-            <FieldLabel htmlFor="master-exp">Стаж, лет</FieldLabel>
+            <FieldLabel htmlFor="master-exp">{t("masters.form.experience")}</FieldLabel>
             <Input id="master-exp" type="number" min={0} max={70} className="w-28" {...form.register("experienceYears")} />
             <FieldError errors={[errors.experienceYears]} />
           </Field>
           <Field data-invalid={!!errors.sort}>
-            <FieldLabel htmlFor="master-sort">Порядок в списке</FieldLabel>
+            <FieldLabel htmlFor="master-sort">{t("masters.form.sort")}</FieldLabel>
             <Input id="master-sort" type="number" min={0} className="w-28" {...form.register("sort")} />
-            <FieldDescription>Первым при «Любом мастере» назначается мастер с меньшим числом.</FieldDescription>
+            <FieldDescription>{t("masters.form.sortHint")}</FieldDescription>
             <FieldError errors={[errors.sort]} />
           </Field>
         </div>
@@ -100,8 +102,8 @@ export function MasterForm({
             <Field orientation="horizontal">
               <Switch id="master-active" checked={field.value} onCheckedChange={field.onChange} />
               <div>
-                <FieldLabel htmlFor="master-active">Принимает записи</FieldLabel>
-                <FieldDescription>Скрытый мастер не виден в боте, но остаётся в истории записей.</FieldDescription>
+                <FieldLabel htmlFor="master-active">{t("masters.form.active")}</FieldLabel>
+                <FieldDescription>{t("masters.form.activeHint")}</FieldDescription>
               </div>
             </Field>
           )}
@@ -110,23 +112,23 @@ export function MasterForm({
           {masterId && canDelete ? (
             <Button type="button" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => setConfirmDelete(true)}>
               <Trash2 aria-hidden />
-              Удалить мастера
+              {t("masters.form.delete")}
             </Button>
           ) : (
             <span />
           )}
           <Button type="submit" disabled={pending || (!!masterId && !isDirty)}>
             {pending && <Loader2 className="animate-spin" aria-hidden />}
-            {masterId ? "Сохранить" : "Добавить мастера"}
+            {masterId ? t("common.save") : t("masters.form.add")}
           </Button>
         </div>
       </FieldGroup>
       <ConfirmDialog
         open={confirmDelete}
         onOpenChange={setConfirmDelete}
-        title="Удалить мастера?"
-        description="Мастер, его график, выходные и фото будут удалены без возможности восстановления."
-        confirmLabel="Удалить"
+        title={t("masters.form.deleteTitle")}
+        description={t("masters.form.deleteText")}
+        confirmLabel={t("common.delete")}
         pending={pending}
         onConfirm={remove}
       />

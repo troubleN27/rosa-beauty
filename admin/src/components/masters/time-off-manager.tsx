@@ -14,11 +14,13 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { timeOffSchema, type TimeOffOutput, type TimeOffValues } from "@/lib/validations/master";
 import { DatePicker } from "@/components/date-picker";
+import { useI18n } from "@/i18n/client";
 
 type Period = { id: string; label: string; reason: string | null };
 
 export function TimeOffManager({ masterId, periods, today }: { masterId: string; periods: Period[]; today: string }) {
   const router = useRouter();
+  const { t, tm } = useI18n();
   const [pending, startTransition] = useTransition();
   const [toDelete, setToDelete] = useState<Period | null>(null);
   const [conflicts, setConflicts] = useState<string[]>([]);
@@ -32,9 +34,9 @@ export function TimeOffManager({ masterId, periods, today }: { masterId: string;
   function onSubmit(values: TimeOffOutput) {
     startTransition(async () => {
       const result = await addTimeOffAction(values);
-      if (!result.ok) return void toast.error(result.error);
+      if (!result.ok) return void toast.error(tm(result.error));
       setConflicts(result.conflicts);
-      toast.success("Выходные добавлены — в эти дни бот не предложит запись к мастеру");
+      toast.success(t("masters.timeOff.added"));
       form.reset({ masterId, dateFrom: today, dateTo: today, reason: "" });
       router.refresh();
     });
@@ -45,8 +47,8 @@ export function TimeOffManager({ masterId, periods, today }: { masterId: string;
     startTransition(async () => {
       const result = await deleteTimeOffAction(toDelete.id);
       setToDelete(null);
-      if (!result.ok) return void toast.error(result.error);
-      toast.success("Период удалён");
+      if (!result.ok) return void toast.error(tm(result.error));
+      toast.success(t("masters.timeOff.deleted"));
       router.refresh();
     });
   }
@@ -54,10 +56,10 @@ export function TimeOffManager({ masterId, periods, today }: { masterId: string;
   return (
     <div className="grid max-w-3xl gap-4">
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="rounded-xl border bg-card p-4 md:p-5">
-        <h2 className="mb-4 font-display text-xl font-semibold">Добавить выходной или отпуск</h2>
+        <h2 className="mb-4 font-display text-xl font-semibold">{t("masters.timeOff.addTitle")}</h2>
         <div className="flex flex-wrap items-start gap-3">
           <Field data-invalid={!!errors.dateFrom} className="w-auto">
-            <FieldLabel htmlFor="off-from">С</FieldLabel>
+            <FieldLabel htmlFor="off-from">{t("masters.timeOff.from")}</FieldLabel>
             <DatePicker
               id="off-from"
               min={today}
@@ -68,7 +70,7 @@ export function TimeOffManager({ masterId, periods, today }: { masterId: string;
             <FieldError errors={[errors.dateFrom]} />
           </Field>
           <Field data-invalid={!!errors.dateTo} className="w-auto">
-            <FieldLabel htmlFor="off-to">По</FieldLabel>
+            <FieldLabel htmlFor="off-to">{t("masters.timeOff.to")}</FieldLabel>
             <DatePicker
               id="off-to"
               min={today}
@@ -79,35 +81,35 @@ export function TimeOffManager({ masterId, periods, today }: { masterId: string;
             <FieldError errors={[errors.dateTo]} />
           </Field>
           <Field data-invalid={!!errors.reason} className="min-w-48 flex-1">
-            <FieldLabel htmlFor="off-reason">Причина (необязательно)</FieldLabel>
-            <Input id="off-reason" placeholder="Отпуск, больничный, обучение" {...form.register("reason")} />
+            <FieldLabel htmlFor="off-reason">{t("masters.timeOff.reason")}</FieldLabel>
+            <Input id="off-reason" placeholder={t("masters.timeOff.reasonPlaceholder")} {...form.register("reason")} />
             <FieldError errors={[errors.reason]} />
           </Field>
         </div>
         <div className="mt-4 flex justify-end">
           <Button type="submit" disabled={pending}>
             {pending ? <Loader2 className="animate-spin" aria-hidden /> : <Plus aria-hidden />}
-            Добавить
+            {t("common.add")}
           </Button>
         </div>
       </form>
 
       {conflicts.length > 0 && (
         <div role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
-          <p className="font-medium">На эти дни у мастера уже есть записи — они не отменены автоматически:</p>
+          <p className="font-medium">{t("masters.timeOff.conflicts")}</p>
           <ul className="mt-2 list-inside list-disc text-muted-foreground">
             {conflicts.map((line) => (
               <li key={line}>{line}</li>
             ))}
           </ul>
-          <p className="mt-2">Перенесите или отмените их в разделе «Записи» — клиент получит сообщение.</p>
+          <p className="mt-2">{t("masters.timeOff.conflictsHint")}</p>
         </div>
       )}
 
       <section className="rounded-xl border bg-card">
-        <h2 className="border-b px-4 py-3 font-display text-xl font-semibold">Ближайшие выходные и отпуска</h2>
+        <h2 className="border-b px-4 py-3 font-display text-xl font-semibold">{t("masters.timeOff.upcoming")}</h2>
         {periods.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted-foreground">Запланированных выходных нет.</p>
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground">{t("masters.timeOff.none")}</p>
         ) : (
           <ul className="divide-y">
             {periods.map((period) => (
@@ -119,7 +121,7 @@ export function TimeOffManager({ masterId, periods, today }: { masterId: string;
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`Удалить период ${period.label}`}
+                  aria-label={t("masters.timeOff.deleteAria", { period: period.label })}
                   onClick={() => setToDelete(period)}
                 >
                   <Trash2 aria-hidden />
@@ -133,9 +135,9 @@ export function TimeOffManager({ masterId, periods, today }: { masterId: string;
       <ConfirmDialog
         open={toDelete !== null}
         onOpenChange={(open) => !open && setToDelete(null)}
-        title="Удалить период?"
-        description={`${toDelete?.label ?? ""}: мастер снова будет доступен для записи в эти дни по своему графику.`}
-        confirmLabel="Удалить"
+        title={t("masters.timeOff.deleteTitle")}
+        description={t("masters.timeOff.deleteText", { period: toDelete?.label ?? "" })}
+        confirmLabel={t("common.delete")}
         pending={pending}
         onConfirm={remove}
       />

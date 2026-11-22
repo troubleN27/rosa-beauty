@@ -1,6 +1,8 @@
 import { formatInTimeZone } from "date-fns-tz";
 import { enGB, ru } from "date-fns/locale";
 
+import { translate, type Lang } from "@/i18n";
+
 const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", EUR: "€", RUB: "₽" };
 const SYMBOL_AFTER = new Set(["RUB"]);
 
@@ -17,8 +19,8 @@ export function formatPrice(amount: string | number, currency: string): string {
   return SYMBOL_AFTER.has(code) ? `${number} ${symbol}` : `${symbol}${number}`;
 }
 
-const LOCALES = { ru, en: enGB };
-export type Lang = keyof typeof LOCALES;
+const LOCALES: Record<Lang, typeof ru> = { ru, en: enGB };
+export type { Lang };
 
 function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -38,11 +40,14 @@ export function formatTime(moment: Date, timezone: string): string {
   return formatInTimeZone(moment, timezone, "HH:mm");
 }
 
-export function formatDuration(minutes: number): string {
+/** "1 ч 30 мин" / "1 h 30 min" */
+export function formatDuration(minutes: number, lang: Lang = "ru"): string {
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;
-  if (!hours) return `${rest} мин`;
-  return rest ? `${hours} ч ${rest} мин` : `${hours} ч`;
+  if (!hours) return translate(lang, "duration.minutes", { m: rest });
+  return rest
+    ? translate(lang, "duration.hoursMinutes", { h: hours, m: rest })
+    : translate(lang, "duration.hours", { h: hours });
 }
 
 /** Digits only, for comparing phone numbers typed in different formats. */

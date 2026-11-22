@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import { ru } from "date-fns/locale";
 import { formatInTimeZone } from "date-fns-tz";
 import type { Metadata } from "next";
 import { z } from "zod";
@@ -9,12 +8,17 @@ import { PageHeader } from "@/components/layout/page-header";
 import { BookingSheet } from "@/components/schedule/booking-sheet";
 import { ScheduleGrid, type GridBooking, type GridColumn } from "@/components/schedule/schedule-grid";
 import { ScheduleToolbar } from "@/components/schedule/schedule-toolbar";
+import { dateLocale, type Lang } from "@/i18n";
+import { getI18n } from "@/i18n/server";
 import { getBookingDetails, getScheduleData, listMastersForFilter } from "@/lib/data/bookings";
 import { getSalonSettings } from "@/lib/data/settings";
 import { requireSession } from "@/lib/session";
 import { isoWeekday, localDate, shiftDay as shift, weekStart } from "@/lib/slots";
 
-export const metadata: Metadata = { title: "Расписание" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t("schedule.title") };
+}
 
 const paramsSchema = z.object({
   view: z.enum(["day", "week"]).catch("day"),
@@ -51,13 +55,14 @@ function shiftLoad(work: GridColumn["work"], bookings: GridBooking[]) {
   return Math.min(1, booked / shift);
 }
 
-function dayTitle(day: string, pattern: string) {
-  const text = format(new Date(`${day}T12:00:00Z`), pattern, { locale: ru });
+function dayTitle(day: string, pattern: string, lang: Lang) {
+  const text = format(new Date(`${day}T12:00:00Z`), pattern, { locale: dateLocale(lang) });
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 export default async function SchedulePage({ searchParams }: PageProps<"/schedule">) {
   await requireSession();
+  const { t, lang, pick } = await getI18n();
   const params = paramsSchema.parse(await searchParams);
   const settings = await getSalonSettings();
   const tz = settings.timezone;
@@ -92,11 +97,11 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
       startMin: toMinutes(start),
       endMin,
       status: b.status,
-      title: b.serviceName,
-      subtitle: withMaster ? `${b.clientName}, ${b.masterName}` : b.clientName,
+      title: pick(b.serviceName, b.serviceNameEn),
+      subtitle: withMaster ? `${b.clientName}, ${pick(b.masterName, b.masterNameEn)}` : b.clientName,
       time: `${start}–${end}`,
       href: linkParams(b.id),
-      categoryName: b.categoryName,
+      categoryName: pick(b.categoryName, b.categoryNameEn),
     };
   };
 
@@ -114,7 +119,7 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
   };
   const offLabel = (masterId: string, day: string) => {
     const off = data.offs.find((o) => o.masterId === masterId && o.dateFrom <= day && day <= o.dateTo);
-    return off ? off.reason || "Отпуск / выходной" : "Выходной";
+    return off ? off.reason || t("schedule.timeOff") : t("schedule.dayOff");
   };
 
   let columns: GridColumn[];
@@ -126,8 +131,8 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
         .map((b) => toGridBooking(b, false));
       return {
         key: master.id,
-        title: master.name,
-        badge: monogram(master.name),
+        title: pick(master.name, master.nameEn),
+        badge: monogram(pick(master.name, master.nameEn)),
         badgeKind: "monogram" as const,
         work,
         offLabel: offLabel(master.id, date),
@@ -159,14 +164,14 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
         .map((b) => toGridBooking(b, !single));
       return {
         key: day,
-        title: dayTitle(day, "EEEE"),
-        subtitle: dayTitle(day, "d MMMM").split(" ")[1],
-        badge: dayTitle(day, "d"),
+        title: dayTitle(day, "EEEE", lang),
+        subtitle: dayTitle(day, "d MMMM", lang).split(" ")[1],
+        badge: dayTitle(day, "d", lang),
         badgeKind: "day" as const,
         highlight: day === today,
         isToday: day === today,
         work,
-        offLabel: single ? offLabel(single.id, day) : "Никто не работает",
+        offLabel: single ? offLabel(single.id, day) : t("schedule.nobodyWorks"),
         // load is meaningful only for one master's shift
         load: single ? shiftLoad(work, bookings) : undefined,
         bookings,
@@ -184,12 +189,12 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
 
   const title =
     view === "day"
-      ? dayTitle(date, "EEEE, d MMMM")
-      : `${dayTitle(days[0], "d MMM")} — ${dayTitle(days[6], "d MMM yyyy")}`;
+      ? dayTitle(date, "EEEE, d MMMM", lang)
+      : `${dayTitle(days[0], "d MMM", lang)} — ${dayTitle(days[6], "d MMM yyyy", lang)}`;
 
   return (
     <>
-      <PageHeader title="Расписание" description={title} />
+      <PageHeader title={t("schedule.title")} description={title} />
       <ScheduleToolbar
         view={view}
         date={date}
@@ -197,11 +202,11 @@ export default async function SchedulePage({ searchParams }: PageProps<"/schedul
         prevDate={shift(date, view === "day" ? -1 : -7)}
         nextDate={shift(date, view === "day" ? 1 : 7)}
         master={params.master ?? "all"}
-        masters={allMasters.map((m) => ({ id: m.id, name: m.name }))}
+        masters={allMasters.map((m) => ({ id: m.id, name: pick(m.name, m.nameEn) }))}
       />
       {shownMasters.length === 0 ? (
         <p className="rounded-xl border bg-card empty-state px-4 py-10 text-center text-sm text-muted-foreground">
-          Активных мастеров пока нет. Добавьте мастера в разделе «Мастера».
+          {t("schedule.noMasters")}
         </p>
       ) : (
         <ScheduleGrid

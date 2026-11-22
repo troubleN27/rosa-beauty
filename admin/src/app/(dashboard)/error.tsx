@@ -4,6 +4,7 @@ import { RotateCcw } from "lucide-react";
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/client";
 
 export default function DashboardError({
   error,
@@ -12,19 +13,20 @@ export default function DashboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { t } = useI18n();
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
     <div className="mx-auto max-w-md py-16 text-center">
-      <h1 className="font-display text-3xl font-semibold">Не удалось загрузить страницу</h1>
+      <h1 className="font-display text-3xl font-semibold">{t("error.title")}</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Проверьте подключение к интернету и попробуйте ещё раз. Если ошибка повторяется, обновите страницу через минуту.
+        {t("error.text")}
       </p>
       <Button className="mt-6" variant="outline" onClick={reset}>
         <RotateCcw aria-hidden />
-        Повторить
+        {t("common.retry")}
       </Button>
     </div>
   );

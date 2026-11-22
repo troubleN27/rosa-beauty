@@ -4,6 +4,7 @@ import { Clock } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 
 const HOURS = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, "0"));
@@ -70,6 +71,7 @@ export function TimePicker({
   label: string;
   invalid?: boolean;
 }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [hour = "10", minute = "00"] = value ? value.split(":") : [];
 
@@ -84,12 +86,12 @@ export function TimePicker({
         <span className={cn(!value && "text-muted-foreground")}>{value || "--:--"}</span>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-auto flex-row gap-0 p-1.5">
-        <Column items={HOURS} value={hour} label="Часы" open={open} onPick={(h) => onChange(`${h}:${minute}`)} />
+        <Column items={HOURS} value={hour} label={t("pickers.hours")} open={open} onPick={(h) => onChange(`${h}:${minute}`)} />
         <div className="my-3 w-px bg-gold/30" aria-hidden />
         <Column
           items={MINUTES}
           value={minute}
-          label="Минуты"
+          label={t("pickers.minutes")}
           open={open}
           onPick={(m) => {
             onChange(`${hour}:${m}`);

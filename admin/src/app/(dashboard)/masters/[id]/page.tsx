@@ -19,10 +19,14 @@ import { getSalonSettings } from "@/lib/data/settings";
 import { formatDuration, formatPrice } from "@/lib/format";
 import { requireSession } from "@/lib/session";
 import { localDate } from "@/lib/slots";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = { title: "Мастер" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t("masters.item") };
+}
 
-const tabSchema = z.enum(MASTER_TABS.map((t) => t.value) as [MasterTab, ...MasterTab[]]).catch("profile");
+const tabSchema = z.enum(MASTER_TABS as unknown as [MasterTab, ...MasterTab[]]).catch("profile");
 
 function dayLabel(day: string) {
   const [y, m, d] = day.split("-");
@@ -31,6 +35,7 @@ function dayLabel(day: string) {
 
 export default async function MasterPage({ params, searchParams }: PageProps<"/masters/[id]">) {
   await requireSession();
+  const { t, lang, pick } = await getI18n();
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
   const tab = tabSchema.parse((await searchParams).tab);
@@ -59,7 +64,7 @@ export default async function MasterPage({ params, searchParams }: PageProps<"/m
     );
   } else if (tab === "photo") {
     content = (
-      <PhotoUploader masterId={master.id} name={master.nameRu} photoUrl={master.photoUrl} configured={isBlobConfigured()} />
+      <PhotoUploader masterId={master.id} name={pick(master.nameRu, master.nameEn)} photoUrl={master.photoUrl} configured={isBlobConfigured()} />
     );
   } else if (tab === "services") {
     const catalog = await getCatalog();
@@ -71,11 +76,11 @@ export default async function MasterPage({ params, searchParams }: PageProps<"/m
           .filter((c) => c.services.length > 0)
           .map((c) => ({
             id: c.id,
-            name: c.nameRu,
+            name: pick(c.nameRu, c.nameEn),
             services: c.services.map((s) => ({
               id: s.id,
-              name: s.nameRu,
-              hint: `${formatDuration(s.durationMin)} · ${formatPrice(s.price, settings.currency)}`,
+              name: pick(s.nameRu, s.nameEn),
+              hint: `${formatDuration(s.durationMin, lang)} · ${formatPrice(s.price, settings.currency)}`,
               isActive: s.isActive && c.isActive,
             })),
           }))}
@@ -112,21 +117,21 @@ export default async function MasterPage({ params, searchParams }: PageProps<"/m
     <>
       <Link href="/masters" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ChevronLeft className="size-4" aria-hidden />
-        Все мастера
+        {t("masters.all")}
       </Link>
       <div className="mb-6 flex items-center gap-4">
-        <MasterAvatar name={master.nameRu} photoUrl={master.photoUrl} size={64} />
+        <MasterAvatar name={pick(master.nameRu, master.nameEn)} photoUrl={master.photoUrl} size={64} />
         <div className="min-w-0">
           <h1 className="flex items-center gap-2 font-display text-3xl leading-tight font-semibold md:text-4xl">
-            <span className="truncate">{master.nameRu}</span>
+            <span className="truncate">{pick(master.nameRu, master.nameEn)}</span>
             {!master.isActive && (
               <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-normal text-muted-foreground">
                 <EyeOff className="size-3" aria-hidden />
-                Скрыт
+                {t("common.hiddenMaster")}
               </span>
             )}
           </h1>
-          <p className="truncate text-sm text-muted-foreground">{master.specialtyRu ?? "Специализация не указана"}</p>
+          <p className="truncate text-sm text-muted-foreground">{master.specialtyRu ? pick(master.specialtyRu, master.specialtyEn) : t("masters.noSpecialty")}</p>
         </div>
       </div>
       <MasterTabs tab={tab} />

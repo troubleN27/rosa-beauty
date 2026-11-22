@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Russian default messages for any rule without a custom message
+// Default messages for rules without a custom one; the panel switches this to its language (i18n/client)
 z.config(z.locales.ru());
 
 /**
@@ -13,7 +13,7 @@ export const optionalText = (max: number) =>
     z
       .string()
       .trim()
-      .max(max, `Не длиннее ${max} символов`)
+      .max(max, `validation.maxLength|max=${max}`)
       .transform((value) => value || null),
   );
 
