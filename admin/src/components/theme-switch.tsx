@@ -2,7 +2,7 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/utils";
@@ -20,11 +20,18 @@ export function ThemeSwitch({ variant = "page", className }: { variant?: "page" 
   const mounted = useSyncExternalStore(noopSubscribe, () => true, () => false);
   const isDark = mounted && resolvedTheme === "dark";
   const label = isDark ? t("nav.themeLight") : t("nav.themeDark");
+  // The icon blooms in only after a click, not when the page loads.
+  const [clicked, setClicked] = useState(false);
+
+  function toggle() {
+    setClicked(true);
+    setTheme(isDark ? "light" : "dark");
+  }
 
   return (
     <button
       type="button"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      onClick={toggle}
       aria-label={label}
       title={label}
       className={cn(
@@ -35,7 +42,10 @@ export function ThemeSwitch({ variant = "page", className }: { variant?: "page" 
         className,
       )}
     >
-      {isDark ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
+      {/* keyed so the new icon mounts afresh and plays the bloom animation */}
+      <span key={isDark ? "sun" : "moon"} className={cn("grid place-items-center", clicked && "theme-switch-icon")}>
+        {isDark ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
+      </span>
     </button>
   );
 }

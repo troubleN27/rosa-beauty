@@ -710,3 +710,23 @@ input[type="search"]::-webkit-search-cancel-button {
 .theme-switch:hover svg {
   transform: rotate(-20deg);
 }
+/* The theme change switches CSS transitions off for a frame (next-themes), so the new icon
+   blooms in with a keyframe animation: it turns in from behind and settles with a spring. */
+.theme-switch-icon {
+  animation: theme-icon-bloom 620ms var(--ease-bloom) both;
+}
+@keyframes theme-icon-bloom {
+  from {
+    opacity: 0;
+    transform: rotate(-120deg) scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch-icon {
+    animation: none;
+  }
+}
