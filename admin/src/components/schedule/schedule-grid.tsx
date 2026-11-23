@@ -116,14 +116,20 @@ export async function ScheduleGrid({
   const showNow =
     nowMin !== undefined && nowMin > startMin && nowMin < endMin && columns.some((column) => column.isToday);
   const firstToday = columns.findIndex((column) => column.isToday);
-
+  const columnMin = columns.length > 5 ? "7.5rem" : "10.5rem";
 
   return (
-    <div className="overflow-hidden rounded-2xl border bg-card">
+    // `isolate` keeps the sticky time column's z-index inside the grid, below the page header
+    <div className="isolate overflow-hidden rounded-2xl border bg-card">
       <div className="snap-x snap-mandatory overflow-x-auto md:snap-none">
         <div
-          className="grid min-w-full"
-          style={{ gridTemplateColumns: `4.75rem repeat(${columns.length}, minmax(${columns.length > 5 ? "7.5rem" : "10.5rem"}, 1fr))` }}
+          className="grid w-full"
+          style={{
+            gridTemplateColumns: `4.75rem repeat(${columns.length}, minmax(${columnMin}, 1fr))`,
+            // the grid box must be as wide as its columns, or the sticky time column
+            // scrolls away once the view passes the visible width
+            minWidth: `calc(4.75rem + ${columns.length} * ${columnMin})`,
+          }}
         >
           {/* corner */}
           <div className="sticky left-0 z-30 border-b border-gold/25 bg-card" />
