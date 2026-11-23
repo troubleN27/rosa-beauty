@@ -1,7 +1,7 @@
 {
   "start.welcome_new": "🌹 <b>Rosa Beauty</b>\n\nДобро пожаловать в салон красоты Rosa Beauty.\nWelcome to Rosa Beauty.\n\nВыберите язык · Choose your language",
   "start.welcome_back": "🌹 <b>Welcome back, {name}!</b>\n\nIt's lovely to see you again. Book a visit, browse our prices or check your bookings — everything is in the menu below.",
-  "start.language_saved": "🌹 <b>Welcome to Rosa Beauty</b>\n\nWe are a salon where every visit is time devoted to you: warm evening light, attentive masters and care in every detail.\n\nHere you can:\nbook a master in a couple of minutes — no calls needed\nbrowse services and prices\nmeet our masters\nreschedule or cancel a visit\nfind us on the map\n\nWe'll remind you a day and two hours before your visit. Everything is in the menu below.",
+  "start.language_saved": "🌹 <b>Welcome to Rosa Beauty</b>\n\nWe are a salon where every visit is time devoted to you: warm evening light, attentive masters and care in every detail.\n\nHere you can:\n· book a master in a couple of minutes — no calls needed\n· browse services and prices\n· meet our masters\n· reschedule or cancel a visit\n· find us on the map\n\nWe'll remind you a day and two hours before your visit. Everything is in the menu below.",
   "menu.book": "🌹 Book now",
   "menu.my_bookings": "🗓️ My bookings",
   "menu.services": "💰 Services & prices",
