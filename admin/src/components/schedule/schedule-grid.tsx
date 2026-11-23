@@ -9,6 +9,8 @@ const SLOT_MINUTES = 30;
 const PX_PER_MINUTE = 1.6; // 30 min = 48px
 const PAD = 18; // room above the first and below the last hour label
 const COMPACT_HEIGHT = 50;
+/** Width of the sticky time column; the grid width and the snap offset depend on it */
+const TIME_COLUMN = "4.75rem";
 
 export type GridBooking = {
   id: string;
@@ -125,10 +127,10 @@ export async function ScheduleGrid({
         <div
           className="grid w-full"
           style={{
-            gridTemplateColumns: `4.75rem repeat(${columns.length}, minmax(${columnMin}, 1fr))`,
+            gridTemplateColumns: `${TIME_COLUMN} repeat(${columns.length}, minmax(${columnMin}, 1fr))`,
             // the grid box must be as wide as its columns, or the sticky time column
             // scrolls away once the view passes the visible width
-            minWidth: `calc(4.75rem + ${columns.length} * ${columnMin})`,
+            minWidth: `calc(${TIME_COLUMN} + ${columns.length} * ${columnMin})`,
           }}
         >
           {/* corner */}
@@ -136,7 +138,12 @@ export async function ScheduleGrid({
 
           {/* arched heads */}
           {columns.map((column) => (
-            <div key={column.key} className="snap-start scroll-ml-[4.75rem] border-b border-gold/25 px-2 pt-3 pb-3">
+            <div
+              key={column.key}
+              className="snap-start border-b border-gold/25 px-2 pt-3 pb-3"
+              // snap each day right after the time column, not under it
+              style={{ scrollMarginLeft: TIME_COLUMN }}
+            >
               <div
                 className={cn(
                   "sched-arch flex h-[124px] flex-col items-center justify-end px-2 pb-2.5 text-center",
